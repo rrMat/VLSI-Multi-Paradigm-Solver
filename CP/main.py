@@ -106,7 +106,7 @@ def plot_device(pos_x, pos_y, widths, heights, w, h, img_path):
 
 if __name__ == '__main__':
 
-    header = ['device width', 'number of chips', "chips widths", "chips height", "position X", "position y", "h", "solve time", "image path"]
+    header = ['device width', 'number of chips', "h", "solve time", "image path"]
     
     with open('CP/out_data.csv', 'w', newline='') as file:
 
@@ -129,7 +129,7 @@ if __name__ == '__main__':
                 heights
             )
         
-            data = [w, n, widths, heights, pos_x, pos_y, h, elapsed_time, img_path]
+            data = [w, n, h, elapsed_time, img_path]
             plot_device(pos_x, pos_y, widths, heights, w, h, img_path)
             writer.writerow(data)
 

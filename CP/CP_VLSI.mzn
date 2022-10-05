@@ -1,8 +1,8 @@
 include "globals.mzn";
 include "diffn.mzn";
 
-int: w = 15;
-int: n = 25;
+int: w;
+int: n;
 array[1..n] of int: widths;
 array[1..n] of int: heights;
 
