@@ -72,7 +72,7 @@ def execute(w, n, widths, heights):
     inst["heights"] = heights
 
     start = time.time()
-    out = inst.solve()
+    out = inst.solve(timeout=timedelta(seconds=300), free_search=True)
     end = time.time()
 
     x_pos = out.solution.positions_x
@@ -98,6 +98,7 @@ def plot_device(pos_x, pos_y, widths, heights, w, h, img_path):
         ax.add_patch(rect)
     plt.savefig(img_path)
     plt.clf()
+    plt.cla()
 
 
 
