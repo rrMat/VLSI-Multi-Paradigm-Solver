@@ -75,6 +75,8 @@ def execute(w, n, widths, heights):
     out = inst.solve(timeout=timedelta(seconds=300), free_search=True)
     end = time.time()
 
+    
+
     x_pos = out.solution.positions_x
     y_pos = out.solution.positions_y
     h = out.solution.h
@@ -105,8 +107,6 @@ def plot_device(pos_x, pos_y, widths, heights, w, h, img_path):
 if __name__ == '__main__':
 
     header = ['device width', 'number of chips', "chips widths", "chips height", "position X", "position y", "h", "solve time", "image path"]
-    w, n, widths, heights = load_data(6)
-    widths, heights = ordered_data(heights, widths)
     
     with open('CP/out_data.csv', 'w', newline='') as file:
 
@@ -121,6 +121,7 @@ if __name__ == '__main__':
             )
 
             w, n, widths, heights = load_data(i)
+            widths, heights = ordered_data(heights, widths)
             pos_x, pos_y, w, h, widths, heights, elapsed_time = execute(
                 w,
                 n,
