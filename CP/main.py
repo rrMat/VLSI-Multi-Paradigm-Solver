@@ -106,7 +106,7 @@ def plot_device(pos_x, pos_y, widths, heights, w, h, img_path):
 
 if __name__ == '__main__':
 
-    header = ['device width', 'number of chips', "h", "solve time", "image path"]
+    header = ['device width', 'number of chips', "h", "solve time"]
     
     with open('CP/out_data.csv', 'w', newline='') as file:
 
@@ -129,8 +129,27 @@ if __name__ == '__main__':
                 heights
             )
         
-            data = [w, n, h, elapsed_time, img_path]
+            data = [w, n, h, elapsed_time]
             plot_device(pos_x, pos_y, widths, heights, w, h, img_path)
+            writer.writerow(data)
+            
+
+    with open('CP/out_data_noorder.csv', 'w', newline='') as file:
+
+        writer = csv.writer(file)
+        writer.writerow(header)
+
+        for i in range(1, 40):
+
+            w, n, widths, heights = load_data(i)
+            pos_x, pos_y, w, h, widths, heights, elapsed_time = execute(
+                w,
+                n,
+                widths,
+                heights
+            )
+
+            data = [w, n, h, elapsed_time]
             writer.writerow(data)
 
 
