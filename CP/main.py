@@ -6,11 +6,24 @@ from datetime import timedelta
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 from minizinc import Solver, Instance, Model
+import argparse
 
-model_path = os.path.join(
+model_std_path = os.path.join(
         os.path.dirname(__file__),
-        'CP_VLSI.mzn'
+        'solvers/CP_VLSI.mzn'
     )
+
+model_ch_path = os.path.join(
+    os.path.dirname(__file__),
+    'solvers/MODEL_CH.mzn'
+)
+
+model_sb_path = os.path.join(
+    os.path.dirname(__file__),
+    'solvers/MODEL_SB.mzn'
+)
+
+
 
 def load_data(index):
 
@@ -41,7 +54,7 @@ def load_data(index):
 
     return w, n, widths, heights
 
-def ordered_data(heights, widths):
+def order_data(widths, heights):
 
     ordered = []
     for i in range(0, len(heights)):
@@ -59,8 +72,7 @@ def ordered_data(heights, widths):
 
     return ordered_widths, ordered_heights
 
-
-def execute(w, n, widths, heights):
+def execute(w, n, widths, heights, model_path):
 
     model = Model(model_path)
     solver = Solver.lookup('chuffed')
@@ -73,16 +85,13 @@ def execute(w, n, widths, heights):
 
     start = time.time()
     out = inst.solve(timeout=timedelta(seconds=300), free_search=True)
-    end = time.time()
-
-    
+    end = time.time()    
 
     x_pos = out.solution.positions_x
     y_pos = out.solution.positions_y
     h = out.solution.h
 
     return x_pos, y_pos, w, h, widths, heights, (end - start)
-
 
 def plot_device(pos_x, pos_y, widths, heights, w, h, img_path):    
 
@@ -102,54 +111,60 @@ def plot_device(pos_x, pos_y, widths, heights, w, h, img_path):
     plt.clf()
     plt.cla()
 
+def execute_all(print_img=False):
+
+    def inner_execute(file, print_img, ext, model_path):
+        header = ['device width', 'number of chips', "h", "solve time"]
+        writer = csv.writer(file)
+        writer.writerow(header)
+        for i in range(1,41):
+
+            w, n, widths, heights = load_data(i)
+            pos_x, pos_y, w, h, widths, heights, elapsed_time = execute(
+                w,
+                n,
+                widths,
+                heights,
+                model_path
+            )
+        
+            data = [w, n, h, elapsed_time]
+            writer.writerow(data)
+
+            if print_img:
+                img_path = os.path.join(
+                    os.path.dirname(__file__),
+                    'img/' + ext + '/device-' + str(i) +'.png'
+                )
+                plot_device(pos_x, pos_y, widths, heights, w, h, img_path)
+
+    with open("CP/out/out_data.csv", "w", newline="") as file:
+        inner_execute(file, print_img, "STANDARD_IMG", model_std_path)       
+
+    with open("CP/out/out_data_ch.csv", "w", newline="") as file:
+        inner_execute(file, print_img, "CH_IMG", model_ch_path)   
+
+    with open("CP/out/out_data_sb.csv", "w", newline=""):
+        inner_execute(file, print_img, "SB_IMG", model_sb_path)   
 
 
 if __name__ == '__main__':
 
-    header = ['device width', 'number of chips', "h", "solve time"]
-    
-    with open('CP/out_data.csv', 'w', newline='') as file:
 
-        writer = csv.writer(file)
-        writer.writerow(header)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-all", "--execute_all", help="Execute on all possible solvers (T/F)")
+    parser.add_argument("-p", "--print_img", help="Print image representation of solution (T/F)")
+    args = parser.parse_args()
 
-        for i in range(1,40):
+    if args.execute_all:
+        execute_all(args.print_img)
+    else:
+        if args.solver == '-sb':
+            pass
+        elif args.solver == 'ch':
+            pass
+        else:
+            pass
 
-            img_path = os.path.join(
-                os.path.dirname(__file__),
-                'img/device-' + str(i) +'.png'
-            )
-
-            w, n, widths, heights = load_data(i)
-            widths, heights = ordered_data(heights, widths)
-            pos_x, pos_y, w, h, widths, heights, elapsed_time = execute(
-                w,
-                n,
-                widths,
-                heights
-            )
-        
-            data = [w, n, h, elapsed_time]
-            plot_device(pos_x, pos_y, widths, heights, w, h, img_path)
-            writer.writerow(data)
-            
-
-    with open('CP/out_data_noorder.csv', 'w', newline='') as file:
-
-        writer = csv.writer(file)
-        writer.writerow(header)
-
-        for i in range(1, 40):
-
-            w, n, widths, heights = load_data(i)
-            pos_x, pos_y, w, h, widths, heights, elapsed_time = execute(
-                w,
-                n,
-                widths,
-                heights
-            )
-
-            data = [w, n, h, elapsed_time]
-            writer.writerow(data)
 
 
