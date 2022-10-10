@@ -30,16 +30,6 @@ constraint
     member([0] ++ [positions_y[o] + heights[o] | o in 1..n where o != c], positions_y[c])
   );
 
-% Precedence constraint between same sized circuits
-constraint symmetry_breaking_constraint(
-  forall (c in 1..n) (
-    let {
-      array[int] of int: equals = [i | i in c+1..n where widths[i] = widths[c] /\ heights[i] = heights[c]]
-    } in 
-      forall (i in 1..length(equals)-1) (lex_less([ positions_y[equals[i-1]], positions_x[equals[i-1]] ], [ positions_y[equals[i]],positions_x[equals[i]] ]))
-  )
-);
-
 % The biggest circuit is always placed under and on the left wrt the second biggest
 constraint symmetry_breaking_constraint(
   let {
