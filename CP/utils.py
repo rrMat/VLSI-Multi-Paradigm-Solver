@@ -1,3 +1,4 @@
+from io import TextIOWrapper
 import os
 import time
 import csv
@@ -22,7 +23,31 @@ model_sb_path = os.path.join(
     'solvers/MODEL_SBS.mzn'
 ) 
 
-def load_data(index):
+
+
+def load_data(index: int):
+    """
+    Parse and load instances in order to be compatible with minizinc data type
+
+    Parameters
+    ----------
+
+    index: int
+        The instance number
+
+    Returns
+    -------
+
+    w: int
+        The plate width
+    n: int
+        The number of chips 
+    widths: list
+        the widths of the chips
+    heights: list
+        the heights of the chips
+
+    """
 
     instance_path = os.path.join(
         os.path.dirname(__file__),
@@ -51,13 +76,37 @@ def load_data(index):
 
     return w, n, widths, heights
 
-def order_data(widths, heights):
+def order_data(widths: list, heights:list, reverse: bool=True):
+
+    """
+    Orders the widths and heights lists based on the chips area 
+
+    Parameters
+    ----------
+
+    widths: list
+        The width's list
+    heights: list
+        The height's list
+    reverse: bool
+        Select the ordering of the list, False for smaller to bigger
+
+    Returns
+    -------
+
+    widths: list
+        The ordered widths list
+    heights: list
+        The ordered heights list
+
+    widths: list
+    """
 
     ordered = []
     for i in range(0, len(heights)):
         ordered.append((heights[i]*widths[i], i))
 
-    ordered.sort(key=lambda tup: tup[0], reverse=True)
+    ordered.sort(key=lambda tup: tup[0], reverse=reverse)
 
     ordered_widths = []
     ordered_heights = []
@@ -69,9 +118,30 @@ def order_data(widths, heights):
 
     return ordered_widths, ordered_heights
 
+def plot_device(pos_x: list, pos_y: list, widths: list, heights: list, w: int, h: int, img_path: str):  
 
+    """
+    Create and save an image of the solution produced
 
-def plot_device(pos_x, pos_y, widths, heights, w, h, img_path):    
+    Parameters
+    ----------
+
+    pos_x: list
+        The x positions of the chips
+    pos_y: list
+        The y positions of the chips
+    widths: list
+        The chip's widths
+    height: list
+        The chip's height
+    w: int
+        The plate width
+    h: int
+        The plate height 
+    img_path: str
+        The path where the image will be saved
+
+    """  
 
     fig, ax = plt.subplots()
     ax.axis([0, w, 0, h])
@@ -88,8 +158,41 @@ def plot_device(pos_x, pos_y, widths, heights, w, h, img_path):
     plt.savefig(img_path)
     fig.clf()
 
+def solve(w: int, n: int, widths: list, heights: list, model_path: str):
 
-def solve(w, n, widths, heights, model_path):
+    """
+    Solve a single instance with the selected minizinc model
+
+    Parameters
+    ----------
+
+    w: int
+        The plate width
+    n: int
+        The number of chips
+    widths: list
+        The chips's widths
+    Heights: int
+        The chips's heights
+    model_path: str
+        The path of the minizinc model
+
+    Returns
+    -------
+
+    x_pos: list
+        The x positions of the chips
+    y_pos: list
+        The y positions of the chips
+    w: int
+        Pate width
+    h: int
+        Plate height
+    widths: list
+    height: list
+    elapsed_time: float
+        The time needed to find a solution
+    """
 
     model = Model(model_path)
     solver = Solver.lookup('chuffed')
@@ -110,8 +213,28 @@ def solve(w, n, widths, heights, model_path):
 
     return x_pos, y_pos, w, h, widths, heights, (end - start)
 
+def execute(file: TextIOWrapper, print_img: bool, ext: str, model_path: str, index: int):
 
-def execute(file, print_img, ext, model_path, index):
+    """
+    Execute the solving over a specific set of instances, prints data
+    into a csv file and save the image
+
+    Parameters
+    ----------
+
+    file: TextIOWrapper
+        The output file csv
+    print_img: bool
+        Select wheter or not save the solution image
+    ext: str
+        Extension for img path
+    model_path: str
+        The path to the model
+    index: int
+        The indtances index (if 0 is selected all the instances will be executed)
+
+
+    """
         
     if index == 0:
         header = ['device width', 'number of chips', "h", "solve time"]
@@ -160,9 +283,20 @@ def execute(file, print_img, ext, model_path, index):
             )
             plot_device(pos_x, pos_y, widths, heights, w, h, img_path)
 
+def execute_all(index: int, print_img: bool=False):
 
+    """
+    Execute one or all the instaces over all the possible solvers, store the result in
+    csv files and print the images
 
-def execute_all(index, print_img=False):    
+    Parameters
+    ----------
+
+    index: int
+        the instances index (if 0 is selected all the instances are executed)
+    print_img: bool
+        Decide wheter or not the images are saved
+    """    
 
     with open("CP/out/out_data.csv", "w", newline="") as file:
         execute(file, print_img, "STANDARD_IMG", model_std_path, index)       

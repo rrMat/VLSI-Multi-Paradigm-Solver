@@ -2,6 +2,7 @@ from email import utils
 import argparse
 import utils
 
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
@@ -27,6 +28,4 @@ if __name__ == '__main__':
         if args.standard_solver:
             with open("CP/out/out_data_std.csv", "w", newline="") as file:
                 utils.execute(file, args.print_img, "STANDARD_IMG", utils.model_std_path, args.instance)
-
-
 
