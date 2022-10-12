@@ -17,15 +17,18 @@ if __name__ == '__main__':
     if args.execute_all:
         utils.execute_all(args.instance, args.print_img)
     else:
+
+        mode = 'w' if args.instance == 0 else 'a'
+
         if args.simmetry_breaking_solver:
-            with open("CP/out/out_data_sbs.csv", "w", newline="") as file:
+            with open("CP/out/out_data_sbs.csv", mode, newline="") as file:
                 utils.execute(file, args.print_img, "SBS_IMG", utils.model_sb_path, args.instance)
            
         if args.cumulative_height_solver:
-            with open("CP/out/out_data_chs.csv", "w", newline="") as file:
+            with open("CP/out/out_data_chs.csv", mode, newline="") as file:
                 utils.execute(file, args.print_img, "CHS_IMG", utils.model_ch_path, args.instance)
 
         if args.standard_solver:
-            with open("CP/out/out_data_std.csv", "w", newline="") as file:
+            with open("CP/out/out_data_std.csv", mode, newline="") as file:
                 utils.execute(file, args.print_img, "STANDARD_IMG", utils.model_std_path, args.instance)
 

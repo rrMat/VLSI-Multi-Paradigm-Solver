@@ -7,6 +7,7 @@ from datetime import timedelta
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 from minizinc import Solver, Instance, Model
+from math import ceil
 
 model_std_path = os.path.join(
         os.path.dirname(__file__),
@@ -22,6 +23,7 @@ model_sb_path = os.path.join(
     os.path.dirname(__file__),
     'solvers/MODEL_SBS.mzn'
 ) 
+
 
 
 
@@ -73,6 +75,7 @@ def load_data(index: int):
             heights.append(int(chip_wh[1]))            
 
         count += 1
+
 
     return w, n, widths, heights
 
