@@ -37,6 +37,13 @@ constraint symmetry_breaking_constraint(
   } in lex_less([positions_y[c1],positions_x[c1]], [positions_y[c2],positions_x[c2]])
 );
 
+constraint symmetry_breaking_constraint(
+    lex_lesseq(
+        [positions_x[i] | i in 1..n],
+        [w - positions_x[i] - widths[i]| i in 1..n]
+    )
+);
+
 solve :: seq_search([
     int_search(positions_y, first_fail, indomain_min),
     int_search(positions_x, first_fail, indomain_min),

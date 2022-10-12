@@ -7,22 +7,26 @@ from datetime import timedelta
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 from minizinc import Solver, Instance, Model
-from math import ceil
 
 model_std_path = os.path.join(
         os.path.dirname(__file__),
-        'solvers/STANDARD.mzn'
+        'solvers/MODEL_STD.mzn'
     )
 
-model_ch_path = os.path.join(
+model_cum_path = os.path.join(
     os.path.dirname(__file__),
-    'solvers/MODEL_CHS.mzn'
+    'solvers/MODEL_CUM.mzn'
 )
 
-model_sb_path = os.path.join(
+model_1s_path = os.path.join(
     os.path.dirname(__file__),
-    'solvers/MODEL_SBS.mzn'
+    'solvers/MODEL_1S.mzn'
 ) 
+
+model_2s_path = os.path.join(
+    os.path.dirname(__file__),
+    'solvers/MODEL_2S.mzn'
+)
 
 
 
@@ -75,51 +79,9 @@ def load_data(index: int):
             heights.append(int(chip_wh[1]))            
 
         count += 1
-
-
+    
     return w, n, widths, heights
 
-def order_data(widths: list, heights:list, reverse: bool=True):
-
-    """
-    Orders the widths and heights lists based on the chips area 
-
-    Parameters
-    ----------
-
-    widths: list
-        The width's list
-    heights: list
-        The height's list
-    reverse: bool
-        Select the ordering of the list, False for smaller to bigger
-
-    Returns
-    -------
-
-    widths: list
-        The ordered widths list
-    heights: list
-        The ordered heights list
-
-    widths: list
-    """
-
-    ordered = []
-    for i in range(0, len(heights)):
-        ordered.append((heights[i]*widths[i], i))
-
-    ordered.sort(key=lambda tup: tup[0], reverse=reverse)
-
-    ordered_widths = []
-    ordered_heights = []
-    
-    for tup in ordered:
-
-        ordered_widths.append(widths[tup[1]])
-        ordered_heights.append(heights[tup[1]])
-
-    return ordered_widths, ordered_heights
 
 def plot_device(pos_x: list, pos_y: list, widths: list, heights: list, w: int, h: int, img_path: str):  
 
@@ -160,6 +122,43 @@ def plot_device(pos_x: list, pos_y: list, widths: list, heights: list, w: int, h
         ax.add_patch(rect)
     plt.savefig(img_path)
     fig.clf()
+
+
+def solve_2s(w:int, n:int, widths: list, heights: list, init_h: int):
+
+    model = Model(model_2s_path)
+    solver = Solver.lookup('chuffed')
+
+    inst = Instance(solver, model)
+    inst["w"] = w
+    inst["n"] = n
+    inst["widths"] =widths
+    inst["heights"] = heights
+    inst["h"] = init_h
+
+    start = time.time()
+    out = inst.solve(timeout=timedelta(seconds=300), free_search=True)
+    end = time.time()
+
+    if (end - start) >= 300:
+        try:
+            x_pos = out.solution.positions_x
+            y_pos = out.solution.positions_y
+            return x_pos, y_pos, init_h, (end - start)
+
+        except:
+            raise Exception()
+
+
+    try:
+        x_pos = out.solution.positions_x
+        y_pos = out.solution.positions_y
+        return x_pos, y_pos, init_h, (end - start)
+
+    except:
+        x_pos, y_pos, h, elapsed_time = solve_2s(w,n,widths, heights, init_h+1)
+        return x_pos, y_pos, h, (end-start) + elapsed_time
+
 
 def solve(w: int, n: int, widths: list, heights: list, model_path: str):
 
@@ -214,7 +213,8 @@ def solve(w: int, n: int, widths: list, heights: list, model_path: str):
     y_pos = out.solution.positions_y
     h = out.solution.h
 
-    return x_pos, y_pos, w, h, widths, heights, (end - start)
+    return x_pos, y_pos, h, (end - start)
+
 
 def execute(file: TextIOWrapper, print_img: bool, ext: str, model_path: str, index: int):
 
@@ -246,7 +246,7 @@ def execute(file: TextIOWrapper, print_img: bool, ext: str, model_path: str, ind
         for i in range(1,41):
 
             w, n, widths, heights = load_data(i)
-            pos_x, pos_y, w, h, widths, heights, elapsed_time = solve(
+            pos_x, pos_y, h, elapsed_time = solve(
                 w,
                 n,
                 widths,
@@ -267,7 +267,7 @@ def execute(file: TextIOWrapper, print_img: bool, ext: str, model_path: str, ind
     else:
 
         w, n, widths, heights = load_data(index)
-        pos_x, pos_y, w, h, widths, heights, elapsed_time = solve(
+        pos_x, pos_y, h, elapsed_time = solve(
             w,
             n,
             widths,
@@ -286,6 +286,100 @@ def execute(file: TextIOWrapper, print_img: bool, ext: str, model_path: str, ind
             )
             plot_device(pos_x, pos_y, widths, heights, w, h, img_path)
 
+
+def execute_2s(file: TextIOWrapper, print_img: bool, ext: str, index: int):
+
+    """
+    Execute the solving over a specific set of instances, prints data
+    into a csv file and save the image
+
+    Parameters
+    ----------
+
+    file: TextIOWrapper
+        The output file csv
+    print_img: bool
+        Select wheter or not save the solution image
+    ext: str
+        Extension for img path
+    model_path: str
+        The path to the model
+    index: int
+        The indtances index (if 0 is selected all the instances will be executed)
+
+
+    """
+        
+    if index == 0:
+        header = ['device width', 'number of chips', "h", "solve time"]
+        writer = csv.writer(file)
+        writer.writerow(header)
+        for i in range(1,41):
+
+            w, n, widths, heights = load_data(i)
+
+            ex_h = 0
+            for i in range(0, len(widths)):
+                ex_h += widths[i]*heights[i]
+
+            ex_h//=w
+
+            try:
+                
+                pos_x, pos_y, h, elapsed_time = solve_2s(
+                    w,
+                    n,
+                    widths,
+                    heights,
+                    ex_h
+                )
+        
+                data = [w, n, h, elapsed_time]
+                writer.writerow(data)
+
+                if print_img:
+                    img_path = os.path.join(
+                        os.path.dirname(__file__),
+                        'img/' + ext + '/device-' + str(i) +'.png'
+                    )
+                    plot_device(pos_x, pos_y, widths, heights, w, h, img_path)
+
+            except:
+                print("No solution found in less then 5min for instance " + str(i))
+
+    else:
+
+        w, n, widths, heights = load_data(index)
+
+        ex_h = 0
+        for i in range(0, len(widths)):
+            ex_h += widths[i]*heights[i]
+
+        try:
+            
+            pos_x, pos_y, h, elapsed_time = solve_2s(
+                w,
+                n,
+                widths,
+                heights,
+                ex_h
+            )           
+        
+            print("Minimun Height Found: {}".format(h))
+            print("Solve Time: {}".format(elapsed_time))
+            print()
+
+            if print_img:
+                img_path = os.path.join(
+                    os.path.dirname(__file__),
+                    'img/' + ext + '/device-' + str(index) +'.png'
+                )
+                plot_device(pos_x, pos_y, widths, heights, w, h, img_path)
+                
+        except:
+            print("No solution found in less then 5min for instance " + str(i))
+            
+
 def execute_all(index: int, print_img: bool=False):
 
     """
@@ -301,11 +395,14 @@ def execute_all(index: int, print_img: bool=False):
         Decide wheter or not the images are saved
     """    
 
-    with open("CP/out/out_data.csv", "w", newline="") as file:
-        execute(file, print_img, "STANDARD_IMG", model_std_path, index)       
+    with open("CP/out/out_data_std.csv", "w", newline="") as file:
+        execute(file, print_img, "STD_IMG", model_std_path, index)       
 
     with open("CP/out/out_data_chs.csv", "w", newline="") as file:
-        execute(file, print_img, "CHS_IMG", model_ch_path, index)   
+        execute(file, print_img, "CUM_IMG", model_cum_path, index)   
 
-    with open("CP/out/out_data_sbs.csv", "w", newline="") as file:
-        execute(file, print_img, "SBS_IMG", model_sb_path, index)  
+    with open("CP/out/out_data_1s.csv", "w", newline="") as file:
+        execute(file, print_img, "1S_IMG", model_1s_path, index)
+
+    with open("CP/out/out_data_2s.csv", "w", newline="") as file:
+        execute_2s(file, print_img, "2S_IMG", index)
