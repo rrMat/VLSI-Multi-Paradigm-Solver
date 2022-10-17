@@ -10,29 +10,29 @@ models={
     True: {
         "std": os.path.join(
             os.path.dirname(__file__),
-            '../CP/solvers_rotation/MODEL_STD.mzn'
+            '../CP/src/solvers_rotation/MODEL_STD.mzn'
             ),
         "max": os.path.join(
             os.path.dirname(__file__),
-            '../CP/solvers_rotation/MODEL_MAX.mzn'
+            '../CP/src/solvers_rotation/MODEL_MAX.mzn'
         ),
         "sbs": os.path.join(
             os.path.dirname(__file__),
-            '../CP/solvers_rotation/MODEL_SBS.mzn'
+            '../CP/src/solvers_rotation/MODEL_SBS.mzn'
         )
     },
     False: {
         "std": os.path.join(
             os.path.dirname(__file__),
-            '../CP/solvers/MODEL_STD.mzn'
+            '../CP/src/solvers/MODEL_STD.mzn'
             ),
         "max": os.path.join(
             os.path.dirname(__file__),
-            '../CP/solvers/MODEL_MAX.mzn'
+            '../CP/src/solvers/MODEL_MAX.mzn'
         ),
         "sbs": os.path.join(
             os.path.dirname(__file__),
-            '../CP/solvers/MODEL_SBS.mzn'
+            '../CP/src/solvers/MODEL_SBS.mzn'
         )
     }
 }
