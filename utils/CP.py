@@ -4,7 +4,7 @@ import time
 import csv
 from datetime import timedelta
 from minizinc import Solver, Instance, Model
-from utils.utils import plot_device, plot_device_rotation, load_data
+from utils.utils import plot_device, plot_device_rotation, load_data, write_sol
 
 models={
     True: {
@@ -123,6 +123,8 @@ def execute(file: TextIOWrapper, print_img: bool, ext: str, model_path: str, ind
 
 
     """
+
+    dir_ = ext + "/rotation" if rotation else ext + "/no_rotation"
         
     if index == 0:
         header = ['device width', 'number of chips', "h", "solve time"]
@@ -142,18 +144,32 @@ def execute(file: TextIOWrapper, print_img: bool, ext: str, model_path: str, ind
         
             data = [w, n, h, elapsed_time]
             writer.writerow(data)
+            
+            write_sol(
+                os.path.join(
+                    os.path.dirname(__file__),
+                    "../CP/out/" + dir_ + "/solution-" + str(i) + ".txt"
+                ),
+                w,
+                h,
+                n,
+                widths,
+                heights,
+                pos_x,
+                pos_y
+            )
 
             if print_img:
                 if rotation:
                     img_path = os.path.join(
                     os.path.dirname(__file__),
-                    '../CP/img_rotation/' + ext + '/device-' + str(i) +'.png'
+                    '../CP/img/' + ext + '/rotation/device-' + str(i) +'.png'
                     )
                     plot_device_rotation(pos_x, pos_y, widths, heights, w, h, rotations, img_path)
                 else:
                     img_path = os.path.join(
                         os.path.dirname(__file__),
-                        '../CP/img/' + ext + '/device-' + str(i) +'.png'
+                        '../CP/img/'+ ext +'/no_rotation/device-' + str(i) +'.png'
                     )
                     plot_device(pos_x, pos_y, widths, heights, w, h, img_path)
 
@@ -178,19 +194,19 @@ def execute(file: TextIOWrapper, print_img: bool, ext: str, model_path: str, ind
             if rotation:
                 img_path = os.path.join(
                     os.path.dirname(__file__),
-                '   ../CP/img_rotation/' + ext + '/device-' + str(index) +'.png'
+                '   ../CP/img/' + ext +'/rotation/device-' + str(index) +'.png'
                 )
                 plot_device_rotation(pos_x, pos_y, widths, heights, w, h, rotations, img_path)
             else:
                 img_path = os.path.join(
                     os.path.dirname(__file__),
-                    '../CP/img/' + ext + '/device-' + str(index) +'.png'
+                    '../CP/img/' + ext +'no_rotation/device-' + str(index) +'.png'
                 )
                 plot_device(pos_x, pos_y, widths, heights, w, h, img_path)
 
 
 
-def execute_all(index: int, rotation: bool, print_img: bool=False):
+def execute_all(index: int,  rotation: bool, print_img: bool=False):
 
     """
     Execute one or all the instaces over all the possible solvers, store the result in
@@ -204,13 +220,13 @@ def execute_all(index: int, rotation: bool, print_img: bool=False):
     print_img: bool
         Decide wheter or not the images are saved
     """   
-    out_folder = "out_rotation" if rotation else "out"
+    out_folder = "stats/rotation" if rotation else "stats/no_rotation"
 
     with open("./CP/" + out_folder + "/out_data_std.csv", "w", newline="") as file:
-        execute(file, print_img, "STD_IMG", models[rotation]["std"], index, rotation)       
+        execute(file, print_img, "STD", models[rotation]["std"], index, rotation)       
 
     with open("./CP/" + out_folder + "/out_data_cum.csv", "w", newline="") as file:
-        execute(file, print_img, "MAX_IMG", models[rotation]["max"], index, rotation)   
+        execute(file, print_img, "MAX", models[rotation]["max"], index, rotation)   
 
     with open("./CP/" + out_folder + "/out_data_sbs.csv", "w", newline="") as file:
-        execute(file, print_img, "SBS_IMG", models[rotation]["sbs"], index, rotation)
+        execute(file, print_img, "SBS", models[rotation]["sbs"], index, rotation)
