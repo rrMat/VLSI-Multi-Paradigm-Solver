@@ -105,7 +105,7 @@ def plot_device(pos_x: list, pos_y: list, widths: list, heights: list, w: int, h
 
 
 # plot the image for rotation
-def plot_device_rotation(pos_x: list, pos_y: list, widths: list, heights: list, w:int, h: int, rotations: list, img_path: str = ""):
+def plot_device_rotation(pos_x: list, pos_y: list, widths: list, heights: list, w: int, h: int, rotations: list, img_path: str = ""):
 
     """
     Create, save or show an image of the predicted plate when rotation is allowed
@@ -119,7 +119,7 @@ def plot_device_rotation(pos_x: list, pos_y: list, widths: list, heights: list, 
         The y positions of the chips
     widths: list
         The chip's widths
-    height: list
+    heights: list
         The chip's height
     w: int
         The plate width
@@ -138,7 +138,7 @@ def plot_device_rotation(pos_x: list, pos_y: list, widths: list, heights: list, 
     plot_device(pos_x, pos_y, actual_widths, actual_heights, w, h, img_path)
 
 
-def write_sol(path, w, h, n, widths, heights, pos_x, pos_y):
+def write_sol(path: str, w: int, h: int, n: int, widths: list, heights: list, pos_x: list, pos_y: list):
 
     """
     Save solution in txt format in the format requested by the project description
@@ -173,7 +173,7 @@ def write_sol(path, w, h, n, widths, heights, pos_x, pos_y):
         f.close()
 
 
-def write_stat_line(path, instance, height, time):
+def write_stat_line(path: str, instance: int, height: int, time: float):
     """
     Append to the csv file (or create it if file does not exist)
     the stats related to the solution of a specified instance
