@@ -1,8 +1,9 @@
 import os
 from random import randint
 import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
+from matplotlib.patches import Rectangle, Patch
 import csv
+import numpy as np
 
 
 # load data and convert it into readable types
@@ -191,4 +192,27 @@ def write_stat_line(path: str, instance: int, height: int, time: float):
     with open(path, 'a') as file:
         writer = csv.writer(file)
         writer.writerow([instance, height, time])
+
+
+def plot_bar_graph(datas,labels, colors=None, figsize=(10,15), y_lim=20):
+
+    fig, ax = plt.subplots(figsize=figsize)
+    index = np.arange(0, len(datas[0]))
+    width = 0.8/len(datas)
+    ax.set_ylim(0,y_lim)
+
+    over5_patch = Patch(color=(0.5,0.5,0.5,0.2), label="Over 5 min execution")
+    patches = []
+
+    for i in range(0,len(datas)):
+        
+        sel_col = colors[i] if colors != None else (randint(0,100)/100, randint(0,100)/100, randint(0,100)/100)
+        patch = Patch(color=sel_col, label=labels[i])
+        patches.append(patch)
+        color = [{p>=300: (0.5, 0.5, 0.5, 0.2), p<300: sel_col}[True] for p in datas[i]]
+        ax.bar(index - (len(datas)//2-i)*width, datas[i],width, color=color)
+    
+    patches.append(over5_patch)
+    ax.legend(handles=[patch for patch in patches])
+    plt.show()
 
