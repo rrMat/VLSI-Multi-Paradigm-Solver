@@ -11,6 +11,9 @@ import utils as utils
 
 
 
+set_option(timeout=300000)
+
+
 
 def plate(w, n, min_h, max_h, chip_w, chip_h):
   start_time = time.time()
@@ -19,8 +22,7 @@ def plate(w, n, min_h, max_h, chip_w, chip_h):
   y_positions = [Int(f"y_pos{i}") for i in range(n)]
 
   #s
-  #s = Solver()
-  s = SolverFor("AUFLIA")
+  s = Solver()
     
 
   for h in range(min_h + 1, min_h + 2):
@@ -38,7 +40,7 @@ def plate(w, n, min_h, max_h, chip_w, chip_h):
             s.add(
                 w >= Sum([If(And(y_positions[i] <= u, u < y_positions[i] + chip_h[i]),
                                       chip_w[i], 0) for i in range(n)]))
-            
+          
           
           #cumulatively on the columns
           for u in range(w):
@@ -54,29 +56,40 @@ def plate(w, n, min_h, max_h, chip_w, chip_h):
                                        x_positions[j] + chip_w[j] <= x_positions[i]))
 
 
-                
-          #bottom left
-          s.add(And(x_positions[0] == 0, y_positions[0] == 0))
-                
-          s.check()
-          m = s.model()
-          timeout = 3
-          s.set("timeout", timeout)
-          x_pos = []
-          for i in range(n):
-            x_pos.append(m[x_positions[i]].as_long())
-          y_pos = []
-          for i in range(n):
-            y_pos.append(m[y_positions[i]].as_long())
-          elapsed_time = time.time() - start_time
-          print(f'{elapsed_time * 1000:.1f} ms')
-          return m, x_pos, y_pos, h, elapsed_time
+          #symmetry breaking
+          #the strict one seems to perform worst
+          def precedes(a1, a2):
+            if not a1:
+              return True
+            if not a2:
+              return False
+            return Or(a1[0] <= a2[0], And(a1[0] == a2[0], precedes(a1[1:], a2[1:])))
+          
+          s.add( precedes(y_positions,[h - y_positions[i] - chip_h[i] for i in range(0, len(y_positions))] ))
+          s.add( precedes(x_positions,[w - x_positions[i] - chip_w[i] for i in range(0, len(x_positions))] ))
 
+           
+
+              
+          if s.check() != sat:
+            print("Took too long")
+            break
+          else:
+            m = s.model()
+            x_pos = []
+            for i in range(n):
+              x_pos.append(m[x_positions[i]].as_long())
+            y_pos = []
+            for i in range(n):
+              y_pos.append(m[y_positions[i]].as_long())
+            elapsed_time = time.time() - start_time
+            print(f'{elapsed_time * 1000:.1f} ms')
+            return m, x_pos, y_pos, h, elapsed_time
 
 
 tim = []
-for i in range(1,22):
-    print("Working on istance:", i)
+
+for i in range(1,20):
     f = utils.load_data(i)
     w = f[0]
     n = f[1]
@@ -84,12 +97,14 @@ for i in range(1,22):
     chip_h = f[3]
     min_h = sum([chip_w[k] * chip_h[k] for k in range(n)]) // w
     max_h = sum(chip_h)
+    print("current i", i)
     resul = plate(w, n, min_h, max_h, chip_w, chip_h)
-    tim.append((i, resul[4]))
-    utils.plot_device(resul[1], resul[2], chip_w, chip_h, w, resul[3]-1, 
-                    r"C:\Projects\Combinatorial_Project\SMT\out\plot" + str(i) + ".png")
+    if resul != None:
+      tim.append((i, resul[4]))
+      utils.plot_device(resul[1], resul[2], chip_w, chip_h, w, resul[3]-1, r"C:\Projects\Combinatorial_Project\SMT\out\plot" + str(i) + str("s")+ ".png")
+    else:
+      tim.append((i, False))
 
 
 
-np.savetxt("C:\Projects\Combinatorial_Project\SMT\Timings\Time.csv", tim, fmt = "%f")
-
+np.savetxt(r"C:\Projects\Combinatorial_Project\SMT\Timings\Solver.csv", tim, fmt = "%f")

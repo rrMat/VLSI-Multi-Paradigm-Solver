@@ -9,10 +9,12 @@ import time
 from itertools import combinations
 import utils as utils
 
+#Try to implement Parallelism
+set_option("parallel.enable", True)
+set_option("parallel.threads.max", 16)
 
+set_option(timeout=300000)
 
-timeout = 3
-set_option(timeout = 30) 
 
 
 def plate(w, n, min_h, max_h, chip_w, chip_h):
@@ -23,12 +25,9 @@ def plate(w, n, min_h, max_h, chip_w, chip_h):
 
   #s
   s = Solver()
- 
-  
+    
 
-
-  for h in range(min_h + 1, max_h):
-          
+  for h in range(min_h + 1, min_h + 2):
           print("current h: ", h - 1)
           # CONSTRAINTS
           #domani bounds
@@ -73,22 +72,26 @@ def plate(w, n, min_h, max_h, chip_w, chip_h):
 
            
 
-                
-          s.check() 
-          m = s.model()
-          x_pos = []
-          for i in range(n):
-            x_pos.append(m[x_positions[i]].as_long())
-          y_pos = []
-          for i in range(n):
-            y_pos.append(m[y_positions[i]].as_long())
-          elapsed_time = time.time() - start_time
-          print(f'{elapsed_time * 1000:.1f} ms')
-          return m, x_pos, y_pos, h, elapsed_time
+              
+          if s.check() != sat:
+            print("Took too long")
+            break
+          else:
+            m = s.model()
+            x_pos = []
+            for i in range(n):
+              x_pos.append(m[x_positions[i]].as_long())
+            y_pos = []
+            for i in range(n):
+              y_pos.append(m[y_positions[i]].as_long())
+            elapsed_time = time.time() - start_time
+            print(f'{elapsed_time * 1000:.1f} ms')
+            return m, x_pos, y_pos, h, elapsed_time
+
 
 tim = []
 
-for i in range(38,41):
+for i in range(1,20):
     f = utils.load_data(i)
     w = f[0]
     n = f[1]
@@ -98,12 +101,12 @@ for i in range(38,41):
     max_h = sum(chip_h)
     print("current i", i)
     resul = plate(w, n, min_h, max_h, chip_w, chip_h)
-    tim.append((i, resul[4]))
-    utils.plot_device(resul[1], resul[2], chip_w, chip_h, w, resul[3]-1, 
-                    r"C:\Projects\Combinatorial_Project\SMT\out\plot" + str(i) +
-                    str("s")+ ".png")
+    if resul != None:
+      tim.append((i, resul[4]))
+      utils.plot_device(resul[1], resul[2], chip_w, chip_h, w, resul[3]-1, r"C:\Projects\Combinatorial_Project\SMT\out\plot" + str(i) + str("s")+ ".png")
+    else:
+      tim.append((i, False))
 
 
 
-
-np.savetxt("C:\Projects\Combinatorial_Project\SMT\Timings\TimeSymEq.csv", tim, fmt = "%f")
+np.savetxt(r"C:\Projects\Combinatorial_Project\SMT\Timings\test.csv", tim, fmt = "%f")
