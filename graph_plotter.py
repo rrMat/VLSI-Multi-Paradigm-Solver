@@ -22,7 +22,6 @@ cum_data = pd.read_csv(cum_path)
 sbs_data = pd.read_csv(sbs_path)
 
 datas = [std_data["solve time"].to_list(), cum_data["solve time"].to_list(), sbs_data["solve time"].to_list()]
-colors = ["red", "green", "blue"]
 labels=["std", "cum", "sbs"]
 
 plot_bar_graph(datas,labels,y_lim=10)
