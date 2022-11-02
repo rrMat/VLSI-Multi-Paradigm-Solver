@@ -2,7 +2,7 @@ import os
 from random import randint
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, Patch
-import csv
+import pandas as pd
 import numpy as np
 
 
@@ -189,9 +189,13 @@ def write_stat_line(path: str, instance: int, height: int, time: float):
         time spent to solve the instance
 
     """
-    with open(path, 'a') as file:
-        writer = csv.writer(file)
-        writer.writerow([instance, height, time])
+    if not os.path.exists(path):
+        dataframe = pd.DataFrame(columns=['time'])
+        dataframe.to_csv(path)
+
+    dataframe = pd.read_csv(path, index_col=0)
+    dataframe.at[instance, 'time'] = time
+    dataframe.to_csv(path)
 
 
 def plot_bar_graph(datas,labels, colors=None, figsize=(10,15), y_lim=20):
@@ -205,13 +209,13 @@ def plot_bar_graph(datas,labels, colors=None, figsize=(10,15), y_lim=20):
     patches = []
 
     for i in range(0,len(datas)):
-        
+
         sel_col = colors[i] if colors != None else (randint(0,100)/100, randint(0,100)/100, randint(0,100)/100)
         patch = Patch(color=sel_col, label=labels[i])
         patches.append(patch)
         color = [{p>=300: (0.5, 0.5, 0.5, 0.2), p<300: sel_col}[True] for p in datas[i]]
         ax.bar(index - (len(datas)//2-i)*width, datas[i],width, color=color)
-    
+
     patches.append(over5_patch)
     ax.legend(handles=[patch for patch in patches])
     plt.show()
