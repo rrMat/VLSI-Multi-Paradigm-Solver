@@ -9,9 +9,7 @@ import time
 from itertools import combinations
 import utils as utils
 
-#Try to implement Parallelism
-set_option("parallel.enable", True)
-set_option("parallel.threads.max", 16)
+
 
 set_option(timeout=300000)
 
@@ -24,10 +22,11 @@ def plate(w, n, min_h, max_h, chip_w, chip_h):
   y_positions = [Int(f"y_pos{i}") for i in range(n)]
 
   #s
-  s = SolverFor("QF_FD")
+  s = Solver()
     
 
   for h in range(min_h + 1, min_h + 2):
+  for h in range(min_h + 1, max_h):
           print("current h: ", h - 1)
           # CONSTRAINTS
           #domani bounds
@@ -59,7 +58,6 @@ def plate(w, n, min_h, max_h, chip_w, chip_h):
 
 
           #symmetry breaking
-          #the strict one seems to perform worst
           def precedes(a1, a2):
             if not a1:
               return True
@@ -91,10 +89,7 @@ def plate(w, n, min_h, max_h, chip_w, chip_h):
 
 tim = []
 
-for i in range(0,20):
-
-    
-
+for i in range(1,20):
     f = utils.load_data(i)
     w = f[0]
     n = f[1]
@@ -104,17 +99,12 @@ for i in range(0,20):
     max_h = sum(chip_h)
     print("current i", i)
     resul = plate(w, n, min_h, max_h, chip_w, chip_h)
-
     if resul != None:
-      out_path = os.path.join(
-        os.path.dirname(__file__),
-        'out/plot' + str(i) + ".png"
-      )
       tim.append((i, resul[4]))
-      utils.plot_device(resul[1], resul[2], chip_w, chip_h, w, resul[3]-1, img_path=out_path)
+      utils.plot_device(resul[1], resul[2], chip_w, chip_h, w, resul[3]-1, r"C:\Projects\Combinatorial_Project\SMT\out\plot" + str(i) + str("s")+ ".png")
     else:
       tim.append((i, False))
 
 
+path = r"C:\Users\matte\OneDrive - Alma Mater Studiorum Università di Bologna\Combinatorial_Project\SMT\out\times_symmetry.txt"
 
-#np.savetxt(r"C:\Projects\Combinatorial_Project\SMT\Timings\test.csv", tim, fmt = "%f")
