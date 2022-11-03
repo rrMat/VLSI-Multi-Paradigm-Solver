@@ -10,6 +10,12 @@ from itertools import combinations
 import utils as utils
 
 #Try to implement Parallelism
+
+logics =["AUFLIA", "AUFLIRA", "AUFNIRA", "LIA", "LRA",  "QF_ABV", "QF_AUFBV", "QF_AUFLIA", "QF_AX",
+          "QF_BV", "QF_IDL","QF_LIA",  "QF_LRA", "QF_NRA", "QF_RDL", "QF_UF", "QF_UFBV", "QF_UFIDL", "QF_UFLIA",
+          "QF_UFLRA",  "QF_UFNRA", "UFLRA" , "UFNIA"]
+
+
 set_option("parallel.enable", True)
 set_option("parallel.threads.max", 4)
 
@@ -17,15 +23,15 @@ set_option(timeout=300000)
 
 
 
-def plate(w, n, min_h, max_h, chip_w, chip_h):
+def plate(w, n, min_h, max_h, chip_w, chip_h, logic):
   start_time = time.time()
   #VAR
   x_positions = [Int(f"x_pos{i}") for i in range(n)]
   y_positions = [Int(f"y_pos{i}") for i in range(n)]
 
   #s
-  s = Solver()
-    
+  s = SolverFor(logic)
+  print("The current logic is " + logic)
 
   for h in range(min_h + 1, min_h + 2):
           print("current h: ", h - 1)
@@ -88,34 +94,59 @@ def plate(w, n, min_h, max_h, chip_w, chip_h):
             print(f'{elapsed_time * 1000:.1f} ms')
             return m, x_pos, y_pos, h, elapsed_time
 
+for logic in logics:
+        
+        tim = []
+        for i in range(1,3):
+            f = utils.load_data(i)
+            w = f[0]
+            n = f[1]
+            chip_w = f[2]
+            chip_h = f[3]
+            min_h = sum([chip_w[k] * chip_h[k] for k in range(n)]) // w
+            max_h = sum(chip_h)
+            print("current i", i)
+            resul = plate(w, n, min_h, max_h, chip_w, chip_h, logic)
 
-tim = []
-
-for i in range(1,24):
-    f = utils.load_data(i)
-    w = f[0]
-    n = f[1]
-    chip_w = f[2]
-    chip_h = f[3]
-    min_h = sum([chip_w[k] * chip_h[k] for k in range(n)]) // w
-    max_h = sum(chip_h)
-    print("current i", i)
-    resul = plate(w, n, min_h, max_h, chip_w, chip_h)
-
-    if resul != None:
-      out_path = os.path.join(
-        os.path.dirname(__file__),
-        'out/plot' + str(i) + ".png"
-      )
-      tim.append((i, resul[4]))
-      utils.plot_device(resul[1], resul[2], chip_w, chip_h, w, resul[3]-1, img_path=out_path)
-    else:
-      tim.append((i, False))
+            if resul != None:
+              out_path = os.path.join(
+                os.path.dirname(__file__),
+                'out/plot' + str(i) + ".png"
+              )
+              tim.append((i, resul[4]))
+              utils.plot_device(resul[1], resul[2], chip_w, chip_h, w, resul[3]-1, img_path=out_path)
+            else:
+              tim.append((i, False))
 
 
-txt_path = os.path.join(
-  os.path.dirname(__file__),
-  'timings/parallel.csv'
-)
+        txt_path = os.path.join(
+          os.path.dirname(__file__),
+          'timings/' + logic + '.csv'
+        )
 
-np.savetxt(txt_path, tim, fmt = "%f")
+        np.savetxt(txt_path, tim, fmt = "%f")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

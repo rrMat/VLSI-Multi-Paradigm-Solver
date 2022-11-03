@@ -130,6 +130,8 @@ for i in range(1,12):
         'out/plo' + str(i) + ".png"
       )
       tim.append((i, resul[4]))
+      #This is the ugliest thing I have done in a long time. Yet it works and 
+      #I couldn't figure out how to cast BoolRef to bool in a more reasonable way
       to_str = [resul[5][i].sexpr() for i in range(n)]
       to_bool = []
       for i in range(0,len(to_str)):
