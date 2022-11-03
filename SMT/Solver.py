@@ -1,7 +1,7 @@
 import numpy as np
 from z3 import *
 import matplotlib.pyplot as plt
-
+import os
 from random import randint
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
@@ -24,8 +24,6 @@ def plate(w, n, min_h, max_h, chip_w, chip_h):
   #s
   s = Solver()
     
-
-  for h in range(min_h + 1, min_h + 2):
   for h in range(min_h + 1, max_h):
           print("current h: ", h - 1)
           # CONSTRAINTS
@@ -89,7 +87,7 @@ def plate(w, n, min_h, max_h, chip_w, chip_h):
 
 tim = []
 
-for i in range(1,20):
+for i in range(1,24):
     f = utils.load_data(i)
     w = f[0]
     n = f[1]
@@ -99,12 +97,20 @@ for i in range(1,20):
     max_h = sum(chip_h)
     print("current i", i)
     resul = plate(w, n, min_h, max_h, chip_w, chip_h)
+
     if resul != None:
+      out_path = os.path.join(
+        os.path.dirname(__file__),
+        'out/plot' + str(i) + ".png"
+      )
       tim.append((i, resul[4]))
-      utils.plot_device(resul[1], resul[2], chip_w, chip_h, w, resul[3]-1, r"C:\Projects\Combinatorial_Project\SMT\out\plot" + str(i) + str("s")+ ".png")
+      utils.plot_device(resul[1], resul[2], chip_w, chip_h, w, resul[3]-1, img_path=out_path)
     else:
       tim.append((i, False))
 
+txt_path = os.path.join(
+  os.path.dirname(__file__),
+  'timings/solver.csv'
+)
 
-path = r"C:\Users\matte\OneDrive - Alma Mater Studiorum Università di Bologna\Combinatorial_Project\SMT\out\times_symmetry.txt"
-
+np.savetxt(txt_path, tim, fmt = "%f")

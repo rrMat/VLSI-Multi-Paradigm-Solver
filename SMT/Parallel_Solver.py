@@ -1,7 +1,7 @@
 import numpy as np
 from z3 import *
 import matplotlib.pyplot as plt
-
+import os
 from random import randint
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
@@ -11,7 +11,7 @@ import utils as utils
 
 #Try to implement Parallelism
 set_option("parallel.enable", True)
-set_option("parallel.threads.max", 16)
+set_option("parallel.threads.max", 4)
 
 set_option(timeout=300000)
 
@@ -24,7 +24,7 @@ def plate(w, n, min_h, max_h, chip_w, chip_h):
   y_positions = [Int(f"y_pos{i}") for i in range(n)]
 
   #s
-  s = SolverFor("QF_FD")
+  s = Solver()
     
 
   for h in range(min_h + 1, min_h + 2):
@@ -91,10 +91,7 @@ def plate(w, n, min_h, max_h, chip_w, chip_h):
 
 tim = []
 
-for i in range(0,20):
-
-    
-
+for i in range(1,24):
     f = utils.load_data(i)
     w = f[0]
     n = f[1]
@@ -116,5 +113,9 @@ for i in range(0,20):
       tim.append((i, False))
 
 
+txt_path = os.path.join(
+  os.path.dirname(__file__),
+  'timings/parallel.csv'
+)
 
-#np.savetxt(r"C:\Projects\Combinatorial_Project\SMT\Timings\test.csv", tim, fmt = "%f")
+np.savetxt(txt_path, tim, fmt = "%f")
