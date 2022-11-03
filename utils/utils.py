@@ -201,9 +201,10 @@ def write_stat_line(path: str, instance: int, height: int, time: float):
 def plot_bar_graph(datas,labels, colors=None, figsize=(10,15), y_lim=20):
 
     fig, ax = plt.subplots(figsize=figsize)
-    index = np.arange(0, len(datas[0]))
+    index = np.arange(1, len(datas[0])+1)
     width = 0.8/len(datas)
     ax.set_ylim(0,y_lim)
+    ax.set_xticks(index)
 
     over5_patch = Patch(color=(0.5,0.5,0.5,0.2), label="Over 5 min execution")
     patches = []
