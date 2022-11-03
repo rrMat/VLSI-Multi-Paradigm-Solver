@@ -20,7 +20,7 @@ if __name__ == '__main__':
 
         else:
             mode = 'w' if args.instance == 0 else 'a'
-            out_folder = "out_rotation" if args.rotation_allowed else "out" 
+            out_folder = "stats/rotation" if args.rotation_allowed else "stats/no_rotation" 
 
             if args.simmetry_breaking_solver:
                 with open("CP/" + out_folder + "/out_data_sbs.csv", mode, newline="") as file:

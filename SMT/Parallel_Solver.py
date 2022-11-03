@@ -24,7 +24,7 @@ def plate(w, n, min_h, max_h, chip_w, chip_h):
   y_positions = [Int(f"y_pos{i}") for i in range(n)]
 
   #s
-  s = Solver()
+  s = SolverFor("QF_FD")
     
 
   for h in range(min_h + 1, min_h + 2):
@@ -91,7 +91,10 @@ def plate(w, n, min_h, max_h, chip_w, chip_h):
 
 tim = []
 
-for i in range(1,20):
+for i in range(0,20):
+
+    
+
     f = utils.load_data(i)
     w = f[0]
     n = f[1]
@@ -101,12 +104,17 @@ for i in range(1,20):
     max_h = sum(chip_h)
     print("current i", i)
     resul = plate(w, n, min_h, max_h, chip_w, chip_h)
+
     if resul != None:
+      out_path = os.path.join(
+        os.path.dirname(__file__),
+        'out/plot' + str(i) + ".png"
+      )
       tim.append((i, resul[4]))
-      utils.plot_device(resul[1], resul[2], chip_w, chip_h, w, resul[3]-1, r"C:\Projects\Combinatorial_Project\SMT\out\plot" + str(i) + str("s")+ ".png")
+      utils.plot_device(resul[1], resul[2], chip_w, chip_h, w, resul[3]-1, img_path=out_path)
     else:
       tim.append((i, False))
 
 
 
-np.savetxt(r"C:\Projects\Combinatorial_Project\SMT\Timings\test.csv", tim, fmt = "%f")
+#np.savetxt(r"C:\Projects\Combinatorial_Project\SMT\Timings\test.csv", tim, fmt = "%f")
