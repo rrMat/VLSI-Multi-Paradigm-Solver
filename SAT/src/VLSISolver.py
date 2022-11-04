@@ -3,11 +3,13 @@ import math
 import numpy as np 
 import time
 
-import SATSolver
+from SATSolver import SATSolver
 import sat_utils
 
 
 class VLSISolver:
+
+    NAME = 'VLSISolver'
 
     def __init__(self, plate_width, n_chips, chips_widths, chips_heights, rotation, symmetry_breaking, encoding_type, time_available, interrupt):
         self.plate_width = plate_width
@@ -30,6 +32,7 @@ class VLSISolver:
         self.solving_time = None
         self.solver = None
 
+
     def solve(self):
         start_time = time.time()
 
@@ -46,7 +49,7 @@ class VLSISolver:
 
 
             # Defining variables
-            self.plate = [Bool(f"plate_{k}_{j}_{i}") for i in range(self.n_chips) for j in range(self.plate_width) for k in range(plate_height)]
+            self.plate = [[[Bool(f"plate_{k}_{j}_{i}") for i in range(self.n_chips)] for j in range(self.plate_width)] for k in range(plate_height)]
             self.rotated = [Bool(f"rotated_{i}") for i in range(self.n_chips)]
             self.plate_height = plate_height
 
@@ -58,25 +61,26 @@ class VLSISolver:
             placing_check = []
             for k in range(self.n_chips):
 
-                configurations = []
-                for y in range(plate_height - self.chips_heights[k] + 1):
-                    for x in range(self.plate_width - self.chips_widths[k] + 1):
-                        configurations.append(sat_utils.all_true([self.plate[y + slide_y][x + slide_x][k] for slide_x in range(self.chips_widths[k]) for slide_y in range(self.chips_heights[k])]))
+                chip_places = []
+                for x in range(self.plate_width - self.chips_widths[k] + 1):
+                    for y in range(plate_height - self.chips_heights[k] + 1):
+                        chip_places.append(sat_utils.all_true([self.plate[y + slide_y][x + slide_x][k] for slide_x in range(self.chips_widths[k]) 
+                                                                                                       for slide_y in range(self.chips_heights[k])]))
                 
                 # If chips can be rotated...
                 if self.rotation:
-                    configurations_r = []
-                    for y in range(plate_height - self.chips_widths[k] + 1):
-                        for x in range(self.plate_width - self.chips_heights[k] + 1):
-                            configurations_r.append(sat_utils.all_true([self.plate[y + slide_y][x + slide_x][k] for slide_x in range(self.chips_heights[k]) for slide_y in range(self.chips_widths[k])]))
-                
-                    placing_check = placing_check + sat_utils.exactly_one[self.encoding_type]([
-                        And(sat_utils.exactly_one[self.encoding_type](configurations) + [Not(self.rotated[k])]),
-                        And(sat_utils.exactly_one[self.encoding_type](configurations_r) + [self.rotated[k]])
-                    ]) 
+                    chip_rotated_places = []
+                    for x in range(self.plate_width - self.chips_heights[k] + 1):
+                        for y in range(plate_height - self.chips_widths[k] + 1):
+                            chip_rotated_places.append(sat_utils.all_true([self.plate[y + slide_y][x + slide_x][k] for slide_x in range(self.chips_heights[k]) 
+                                                                                                                   for slide_y in range(self.chips_widths[k])]))
+                    placing_check = placing_check + [sat_utils.exactly_one[self.encoding_type]([
+                        And([sat_utils.exactly_one[self.encoding_type](chip_places)] + [Not(self.rotated[k])]),
+                        And([sat_utils.exactly_one[self.encoding_type](chip_rotated_places)] + [self.rotated[k]])
+                    ])]
                 # Otherwise...
                 else:
-                    placing_check = placing_check + [sat_utils.exactly_one[self.encoding_type](configurations)]
+                    placing_check = placing_check + [sat_utils.exactly_one[self.encoding_type](chip_places)]
 
             # - 3° constraint 
             if self.symmetry_breaking: 
@@ -99,35 +103,39 @@ class VLSISolver:
                 self.solved = True
                 return True
             
-
         self.solving_time = time.time() - start_time
         self.solved = False
         return False
 
-    def evalutate(self):
+
+    def get_solution_parsed(self):
         model = self.solver.get_model()
-    
-        circuits_pos = []
+
+        chip_positions = []
         for k in range(self.n_chips):
             found = False
             for x in range(self.plate_height):
                 for y in range(self.plate_width):
                     if not found and model.evaluate(self.plate[x][y][k]):
                         if self.rotation:
-                            if model.evaluate(self.rotated[k]):
-                                circuits_pos.append((y, x, self.chips_heights[k], self.chips_widths[k]))
-                            else:
-                                circuits_pos.append((y, x, self.chips_widths[k], self.chips_heights[k]))
+                            w, h =  (self.chips_heights[k], self.chips_widths[k]) \
+                                    if model.evaluate(self.rotated[k]) \
+                                    else (self.chips_widths[k], self.chips_heights[k])               
+                            chip_positions.append((y, x, w, h))
                         else:
-                            circuits_pos.append((y, x, self.chips_widths[k], self.chips_heights[k]))
+                            chip_positions.append((y, x, self.chips_widths[k], self.chips_heights[k]))
                         found = True
 
-        pos_x = [x for x, _, _, _ in circuits_pos]
-        pos_y = [y for _, y, _, _ in circuits_pos]
-        chips_w_a = [w for _, _, w, _ in circuits_pos]
-        chips_h_a = [h for _, _, _, h in circuits_pos]
+
+        pos_x = [x for x, _, _, _ in chip_positions]
+        pos_y = [y for _, y, _, _ in chip_positions]
+        chips_w_a = [w for _, _, w, _ in chip_positions]
+        chips_h_a = [h for _, _, _, h in chip_positions]
 
         return pos_x, pos_y, chips_w_a, chips_h_a, self.plate_width, self.plate_height, self.solving_time
+
+    def get_name(self):
+        return self.__NAME
 
     def __str__(self):
         output = f'Time available: {self.time_available}\nMin height: {self.min_height}\nMax height: {self.max_height}\n\nWidth of the plate: {self.plate_width}\nNumber of chips: {self.n_chips}\n\n'

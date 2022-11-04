@@ -264,7 +264,7 @@ def load_stats(path):
 
 def display_times(path):
     dataframe = load_stats(path)
-    plot_bar_graph([list(dataframe['time'])], ['Solved', 'Unsolved'])
+    plot_bar_graph([list(dataframe['time'])], ['Solved', 'Unsolved'], figsize=(10,5), y_lim=350)
 
 
 def display_times_comparison(paths, model_names, number_of_instances):
@@ -272,4 +272,4 @@ def display_times_comparison(paths, model_names, number_of_instances):
     for path in paths:
         dataframe = load_stats(path)
         data.append(dataframe['time'][:number_of_instances].tolist())
-    plot_bar_graph(data, model_names)
+    plot_bar_graph(data, model_names, figsize=(10,5), y_lim=350)
