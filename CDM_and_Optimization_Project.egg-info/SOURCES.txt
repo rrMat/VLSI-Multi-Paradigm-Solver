@@ -1,9 +1,0 @@
-README.md
-setup.py
-CDM_and_Optimization_Project.egg-info/PKG-INFO
-CDM_and_Optimization_Project.egg-info/SOURCES.txt
-CDM_and_Optimization_Project.egg-info/dependency_links.txt
-CDM_and_Optimization_Project.egg-info/top_level.txt
-utils/CP.py
-utils/__init__.py
-utils/utils.py
