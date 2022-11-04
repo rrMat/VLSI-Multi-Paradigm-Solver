@@ -56,7 +56,7 @@ def load_data(index: int):
 
         count += 1
 
-    return w, n, widths, heights
+    return w, n, np.array(widths), np.array(heights)
 
 
 # plot the images
@@ -173,6 +173,36 @@ def write_sol(path: str, w: int, h: int, n: int, widths: list, heights: list, po
 
         f.close()
 
+def load_sol(path):
+    with open(path, 'r') as f:
+        first_line = f.readline()
+        if first_line == 'time exceeded':
+            raise OSError()
+
+        plate_width, plate_height = first_line.split(' ')
+        n_chips = f.readline()
+        
+        plate_width = int(plate_width)
+        plate_height = int(plate_height)
+        n_chips = int(n_chips)
+
+        chips_widths = []
+        chips_heights = []
+        pos_x = []
+        pos_y = []
+        for i in range(n_chips):
+            w, h, x, y = f.readline().split(' ')
+            w = int(w)
+            h = int(h)
+            x = int(x)
+            y = int(y)
+            chips_widths.append(w)
+            chips_heights.append(h)
+            pos_x.append(x)
+            pos_y.append(y)
+
+    return plate_width, plate_height, n_chips, chips_widths, chips_heights, pos_x, pos_y
+
 
 def write_stat_line(path: str, instance: int, height: int, height_lb: int, time: float):
     """
@@ -229,7 +259,7 @@ def load_stats(path):
         return pd.DataFrame(columns=['time'])
     return pd.read_csv(path)
 
-    
+
 def display_times(path):
     dataframe = load_stats(path)
     plot_bar_graph([list(dataframe['time'])], ['Solved', 'Unsolved'])
