@@ -223,3 +223,21 @@ def plot_bar_graph(datas,labels, colors=None, figsize=(10,15), y_lim=20):
     ax.legend(handles=[patch for patch in patches])
     plt.show()
 
+
+def load_stats(path):
+    if not os.path.exists(path):
+        return pd.DataFrame(columns=['time'])
+    return pd.read_csv(path)
+
+    
+def display_times(path):
+    dataframe = load_stats(path)
+    plot_bar_graph([list(dataframe['time'])], ['Solved', 'Unsolved'])
+
+
+def display_times_comparison(paths, model_names, number_of_instances):
+    data = []
+    for path in paths:
+        dataframe = load_stats(path)
+        data.append(dataframe['time'][:number_of_instances].tolist())
+    plot_bar_graph(data, model_names)
