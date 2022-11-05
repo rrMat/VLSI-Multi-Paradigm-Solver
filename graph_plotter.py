@@ -17,12 +17,15 @@ sbs_path = os.path.join(
     "CP/stats/no_rotation/out_data_sbs.csv"
 )
 
+test_path = "CP/test_model_stats.csv"
+
 std_data = pd.read_csv(std_path)
 cum_data = pd.read_csv(cum_path)
 sbs_data = pd.read_csv(sbs_path)
+test_data = pd.read_csv(test_path)
 
-datas = [std_data["solve time"].to_list(), cum_data["solve time"].to_list(), sbs_data["solve time"].to_list()]
-labels=["std", "cum", "sbs"]
+datas = [std_data["solve time"].to_list(), cum_data["solve time"].to_list(), sbs_data["solve time"].to_list(),test_data["solve time"].to_list()]
+labels=["std", "cum", "sbs", "test"]
 
-plot_bar_graph(datas,labels,y_lim=10)
+plot_bar_graph(datas,labels,y_lim=300)
 

@@ -157,7 +157,7 @@ class CPSolver:
                 write_sol(
                     os.path.join(
                         os.path.dirname(__file__),
-                        "../CP/out/" + dir_ + "/solution-" + str(i) + ".txt"
+                        "out/" + dir_ + "/solution-" + str(i) + ".txt"
                     ),
                     w,
                     h,
@@ -172,13 +172,13 @@ class CPSolver:
                     if rotation:
                         img_path = os.path.join(
                         os.path.dirname(__file__),
-                        '../CP/img/' + ext + '/rotation/device-' + str(i) +'.png'
+                        'img/' + ext + '/rotation/device-' + str(i) +'.png'
                         )
                         plot_device_rotation(pos_x, pos_y, widths, heights, w, h, rotations, img_path)
                     else:
                         img_path = os.path.join(
                             os.path.dirname(__file__),
-                            '../CP/img/'+ ext +'/no_rotation/device-' + str(i) +'.png'
+                            'img/'+ ext +'/no_rotation/device-' + str(i) +'.png'
                         )
                         plot_device(pos_x, pos_y, widths, heights, w, h, img_path)
 
@@ -203,13 +203,13 @@ class CPSolver:
                 if rotation:
                     img_path = os.path.join(
                         os.path.dirname(__file__),
-                    '   ../CP/img/' + ext +'/rotation/device-' + str(index) +'.png'
+                    '   img/' + ext +'/rotation/device-' + str(index) +'.png'
                     )
                     plot_device_rotation(pos_x, pos_y, widths, heights, w, h, rotations, img_path)
                 else:
                     img_path = os.path.join(
                         os.path.dirname(__file__),
-                        '../CP/img/' + ext +'no_rotation/device-' + str(index) +'.png'
+                        'img/' + ext +'no_rotation/device-' + str(index) +'.png'
                     )
                     plot_device(pos_x, pos_y, widths, heights, w, h, img_path)
 
