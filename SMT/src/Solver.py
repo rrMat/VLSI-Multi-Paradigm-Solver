@@ -11,23 +11,28 @@ import utils.utils as ut
 
 
 
-set_option(timeout=300000)
 
+time_available = 300000
 
-
-def plate(w, n, min_h, max_h, chip_w, chip_h):
+def plate(w, n, min_h, max_h, chip_w, chip_h, time_available):
   start_time = time.time()
   #VAR
   x_positions = [Int(f"x_pos{i}") for i in range(n)]
   y_positions = [Int(f"y_pos{i}") for i in range(n)]
 
   #s
-  s = Solver()
+  
     
   for h in range(min_h + 1, max_h):
-          print("current h: ", h - 1)
+          time_remained = time_available - (time.time() - start_time)
+          if time_remained <= 1:
+            print("Took too long")
+            break
           # CONSTRAINTS
           #domani bounds
+          s = Solver()
+          s.set("timeout", int(time_remained))
+          print("current h: ", h - 1)
           s.add([And(0 <= x_positions[i], x_positions[i] <= w - chip_w[i])
                              for i in range(n)])
           
@@ -70,8 +75,7 @@ def plate(w, n, min_h, max_h, chip_w, chip_h):
 
               
           if s.check() != sat:
-            print("Took too long")
-            break
+            continue
           else:
             m = s.model()
             x_pos = []
@@ -99,21 +103,31 @@ for i in range(1,24):
 
 
 
-    resul = plate(w, n, min_h, max_h, chip_w, chip_h)
+    resul = plate(w, n, min_h, max_h, chip_w, chip_h, time_available)
 
     if resul != None:
-      out_path = os.path.join(
+      sol_path = os.path.join(
         os.path.dirname(__file__),
-        'out_img/plot' + str(i) + ".png"
+        '../out/std/sol' + str(i) + ".txt"
       )
       tim.append((i, resul[4]))
-      ut.plot_device(resul[1], resul[2], chip_w, chip_h, w, resul[3]-1, img_path=out_path)
+      ut.write_sol(sol_path, w, resul[3]-1, n, chip_w, chip_h, resul[1], resul[2])
     else:
       tim.append((i, False))
 
+    if resul != None:
+      out_pat = os.path.join(
+        os.path.dirname(__file__),
+        '../out_img/plotti' + str(i) + '.png'
+      )
+      ut.plot_device(resul[1], resul[2], chip_w, chip_h, w, resul[3]-1, out_pat)
+ 
+
 txt_path = os.path.join(
   os.path.dirname(__file__),
-  'timings/solver.csv'
+  '../timings/solver.csv'
 )
 
 np.savetxt(txt_path, tim, fmt = "%f")
+
+
