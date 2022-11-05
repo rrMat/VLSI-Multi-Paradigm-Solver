@@ -6,3 +6,7 @@
 
 [Overleaf link for editing repo](https://it.overleaf.com/9465416397qdwqknsgcnjh)
 
+# Usage
+Clone repository  
+Open a terminal and give ```pip install -e .```
+

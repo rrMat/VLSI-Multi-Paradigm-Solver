@@ -35,8 +35,6 @@ def load_data(index: int):
         os.path.dirname(__file__),
         '..\instances\ins-' + str(index) + '.txt')
 
-    print(instance_path)
-
     file = open(instance_path, 'r')
     lines = file.readlines()
     count = 0

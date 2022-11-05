@@ -1,5 +1,5 @@
 import argparse
-import utils.CP as CP
+from CP.CPSolver import CPSolver, models
 
 if __name__ == '__main__':
 
@@ -15,8 +15,22 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.Paradigm == "CP":
+
+        solver = CPSolver()
+
         if args.execute_all:
-            CP.execute_all(args.instance, args.rotation_allowed, args.print_img)
+
+            out_folder = "stats/rotation" if args.rotation_allowed else "stats/no_rotation"
+
+            with open("./CP/" + out_folder + "/out_data_std.csv", "w", newline="") as file:
+                solver.execute(file, args.print_img, "STD", models[args.rotation_allowed]["std"], args.instance, args.rotation_allowed)       
+
+            with open("./CP/" + out_folder + "/out_data_cum.csv", "w", newline="") as file:
+                solver.execute(file, args.print_img, "MAX", models[args.rotation_allowed]["max"], args.instance, args.rotation_allowed)   
+
+            with open("./CP/" + out_folder + "/out_data_sbs.csv", "w", newline="") as file:
+                solver.execute(file, args.print_img, "SBS", models[args.rotation_allowed]["sbs"], args.instance, args.rotation_allowed)
+
 
         else:
             mode = 'w' if args.instance == 0 else 'a'
@@ -24,15 +38,15 @@ if __name__ == '__main__':
 
             if args.simmetry_breaking_solver:
                 with open("CP/" + out_folder + "/out_data_sbs.csv", mode, newline="") as file:
-                    CP.execute(file, args.print_img, "SBS_IMG", CP.models[args.rotation_allowed]["sbs"], args.instance, args.rotation_allowed)
+                    solver.execute(file, args.print_img, "SBS/", models[args.rotation_allowed]["sbs"], args.instance, args.rotation_allowed)
            
             if args.maximum_wh_solver:
                 with open("CP/" + out_folder + "/out_data_max.csv", mode, newline="") as file:
-                    CP.execute(file, args.print_img, "MAX_IMG", CP.models[args.rotation_allowed]["max"], args.instance, args.rotation_allowed)
+                    solver.execute(file, args.print_img, "MAX/", models[args.rotation_allowed]["max"], args.instance, args.rotation_allowed)
 
             if args.standard_solver:
                 with open("CP/" + out_folder + "/out_data_std.csv", mode, newline="") as file:
-                    CP.execute(file, args.print_img, "STD_IMG", CP.models[args.rotation_allowed]["std"], args.instance, args.rotation_allowed)
+                    solver.execute(file, args.print_img, "STD/", models[args.rotation_allowed]["std"], args.instance, args.rotation_allowed)
 
     
     elif args.Paradigm == "SAT":

@@ -15,8 +15,6 @@ var min_h..max_h: h;
 array[1..n] of var 0..w - min(widths): positions_x; 
 array[1..n] of var 0..max_h - min(heights): positions_y;
 
-array[1..n] of int : ordered_c = sort_by(1..n, [-heights[c]*widths[c] | c in 1..n]);
-
 constraint max(i in 1..n)(positions_y[i] + heights[i]) <= h;
 constraint max(i in 1..n)(positions_x[i] + widths[i]) <= w; 
 constraint diffn_nonstrict(positions_x, positions_y, widths, heights);
@@ -25,6 +23,14 @@ constraint cumulative(positions_x, widths, heights, h);
 
 % ==== Symmetry breaking constraints ====
 
+% Lexicographic symmetry breaking constraints
+%constraint
+%    lex_lesseq(array1d(field), [ field[j,i] | i in 1..w, j in 1..max_h])
+%/\  lex_lesseq(array1d(field), [ field[j,i] | i in reverse(1..w), j in 1..max_h ])
+%/\  lex_lesseq(array1d(field), [ field[j,i] | i in 1..w, j in reverse(1..max_h) ])
+%/\  lex_lesseq(array1d(field), [ field[j,i] | i in reverse(1..w),j in reverse(1..max_h)])
+%;
+
 constraint symmetry_breaking_constraint(
     lex_lesseq(
         [positions_x[i] | i in 1..n],
@@ -32,17 +38,13 @@ constraint symmetry_breaking_constraint(
     )
 );
 
-constraint symmetry_breaking_constraint(
-    lex_lesseq(
-        [positions_y[i] | i in 1..n],
-        [h - positions_y[i] - heights[i] |i in 1..n]
-    )
-);
 
 solve :: seq_search([
     int_search(positions_y, first_fail, indomain_min),
     int_search(positions_x, first_fail, indomain_min),
     int_search([h], smallest, indomain_min)])
     minimize h;
+    
+
 
 
