@@ -9,7 +9,8 @@ import time
 from itertools import combinations
 import utils.utils as ut
 
-set_option(timeout=300000)
+
+time_available = 300000
 
 def plate(w, n, min_h, max_h, chip_w, chip_h):
   start_time = time.time()
@@ -21,11 +22,18 @@ def plate(w, n, min_h, max_h, chip_w, chip_h):
   chip_w_true = [Int(f"chip_w_true{i}") for i in range(n)]       
 
   #s
-  s = Solver()
+  
     
 
   for h in range(min_h + 1, min_h + 2):
+          time_remained = time_available - (time.time() - start_time)
+          if time_remained <= 1:
+            print("Took too long")
+            break
           print("current h: ", h - 1)
+
+          s = Solver()
+          s.set("timeout", int(time_remained))
           # CONSTRAINTS
 
 
@@ -91,8 +99,7 @@ def plate(w, n, min_h, max_h, chip_w, chip_h):
 
 
           if s.check() != sat:
-            print("Took too long")
-            break
+            continue
           else:
             m = s.model()
             x_pos = []
@@ -123,12 +130,23 @@ for i in range(1,12):
     max_h = sum(chip_h)
     print("current i", i)
     resul = plate(w, n, min_h, max_h, chip_w, chip_h)
+
+    if resul != None:
+      sol_path = os.path.join(
+        os.path.dirname(__file__),
+        '../out/rotation/sol' + str(i) + ".txt"
+      )
+      tim.append((i, resul[4]))
+      ut.write_sol(sol_path, w, resul[3]-1, n, chip_w, chip_h, resul[1], resul[2])
+    else:
+      tim.append((i, False))
+
+
     if resul != None:
       out_path = os.path.join(
         os.path.dirname(__file__),
-        'out_img/plot' + str(i) + ".png"
+        '../out_img/rotation_solver' + str(i) + ".png"
       )
-      tim.append((i, resul[4]))
       #This is the ugliest thing I have done in a long time. Yet it works and 
       #I couldn't figure out how to cast BoolRef to bool in a more reasonable way
       to_str = [resul[5][i].sexpr() for i in range(n)]
@@ -138,13 +156,12 @@ for i in range(1,12):
                   to_bool.append(False)
             else: to_bool.append(True)
       ut.plot_device_rotation(resul[1], resul[2], chip_w, chip_h, w, resul[3]-1,  to_bool,img_path=out_path)
-    else:
-      tim.append((i, False))
+
 
 
 txt_path = os.path.join(
   os.path.dirname(__file__),
-  'timings/rotation.csv'
+  '../timings/rotation_solver.csv'
 )
 
 np.savetxt(txt_path, tim, fmt = "%f")
