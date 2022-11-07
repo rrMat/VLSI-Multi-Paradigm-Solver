@@ -221,6 +221,7 @@ def write_stat_line(path: str, instance: int, height: int, height_lb: int, time:
         time spent to solve the instance
 
     """
+    print(path)
     if not os.path.exists(path):
         dataframe = pd.DataFrame(columns=['height', 'height_lb', 'time'])
         dataframe.to_csv(path)
@@ -256,8 +257,8 @@ def plot_bar_graph(datas,labels, colors=None, figsize=(10,15), y_lim=20):
 
 def load_stats(path):
     if not os.path.exists(path):
-        return pd.DataFrame(columns=['time'])
-    return pd.read_csv(path)
+        return pd.DataFrame(columns=['height', 'height_lb', 'time'])
+    return pd.read_csv(path, index_col = 0)
 
 
 def display_times(path):
