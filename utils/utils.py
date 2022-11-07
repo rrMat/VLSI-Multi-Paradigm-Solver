@@ -239,7 +239,7 @@ def write_stat_line(path: str, instance: int, height: int, height_lb: int, time:
     dataframe.to_csv(path)
 
 
-def plot_bar_graph(datas,labels, colors=None, figsize=(10,15)):
+def plot_bar_graph(datas,labels, colors=None, figsize=(10,15), saving_path=""):
 
     """
     Create a Bar plot of the given datas
@@ -282,7 +282,11 @@ def plot_bar_graph(datas,labels, colors=None, figsize=(10,15)):
     patches.append(over5_patches)
     plt.gca()
     plt.legend(handles=patches, labels=labels, handler_map = {list: HandlerTuple(None)})    
-    plt.show()
+    
+    if saving_path != "":
+        plt.savefig(saving_path)
+    else:
+        plt.show()
 
 
 def load_stats(path):

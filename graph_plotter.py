@@ -14,5 +14,5 @@ cum_data = pd.read_csv(cum_path)
 datas = [std_data["solve time"].to_list(), cum_data["solve time"].to_list()]
 labels=["std", "cum"]
 
-plot_bar_graph(datas,labels,y_lim=1000)
+plot_bar_graph(datas,labels)
 
