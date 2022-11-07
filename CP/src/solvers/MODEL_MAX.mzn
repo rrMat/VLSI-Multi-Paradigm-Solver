@@ -6,10 +6,10 @@ int: n;
 array[1..n] of int: widths;
 array[1..n] of int: heights;
 
-int: max_h = sum(heights);  
 int: sum_of_widths = sum(widths);
 int: min_h_ratio = (sum(i in 1..n)(widths[i] * heights[i])) div w; 
 int: min_h = if sum_of_widths <= w then max(heights) else min_h_ratio endif;
+int: max_h = if sum_of_widths <= w then max(heights) else sum(heights) endif;
 
 var min_h..max_h: h;  
 array[1..n] of var 0..w - min(widths): positions_x; 

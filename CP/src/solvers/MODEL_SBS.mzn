@@ -6,10 +6,10 @@ int: n;
 array[1..n] of int: widths;
 array[1..n] of int: heights;
 
-int: max_h = sum(heights);  
 int: sum_of_widths = sum(widths);
 int: min_h_ratio = (sum(i in 1..n)(widths[i] * heights[i])) div w; 
 int: min_h = if sum_of_widths <= w then max(heights) else min_h_ratio endif;
+int: max_h = if sum_of_widths <= w then max(heights) else sum(heights) endif;
 
 var min_h..max_h: h;  
 array[1..n] of var 0..w - min(widths): positions_x; 
@@ -23,18 +23,17 @@ constraint cumulative(positions_x, widths, heights, h);
 
 % ==== Symmetry breaking constraints ====
 
-% Lexicographic symmetry breaking constraints
-%constraint
-%    lex_lesseq(array1d(field), [ field[j,i] | i in 1..w, j in 1..max_h])
-%/\  lex_lesseq(array1d(field), [ field[j,i] | i in reverse(1..w), j in 1..max_h ])
-%/\  lex_lesseq(array1d(field), [ field[j,i] | i in 1..w, j in reverse(1..max_h) ])
-%/\  lex_lesseq(array1d(field), [ field[j,i] | i in reverse(1..w),j in reverse(1..max_h)])
-%;
-
 constraint symmetry_breaking_constraint(
     lex_lesseq(
         [positions_x[i] | i in 1..n],
         [w - positions_x[i] - widths[i]| i in 1..n]
+    )
+);
+
+constraint symmetry_breaking_constraint(
+    lex_lesseq(
+        [positions_y[i] | i in 1..n],
+        [h - positions_y[i] - heights[i]| i in 1..n]
     )
 );
 

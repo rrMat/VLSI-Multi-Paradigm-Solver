@@ -1,5 +1,0 @@
-output ["\"output\": {","\"dzn\": ",showJSON(concat(["h = ",show(h),";\n","positions_x = ",show(positions_x),";\n","positions_y = ",show(positions_y),";\n"])),"}, \"sections\": [\"dzn\"]"];
-int: n = 4;
-array [1..n] of int: positions_y;
-array [1..n] of int: positions_x;
-int: h;

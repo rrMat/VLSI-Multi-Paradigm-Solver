@@ -2,8 +2,16 @@ import os
 from random import randint
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, Patch
+from matplotlib.legend_handler import HandlerTuple
 import pandas as pd
 import numpy as np
+
+standard_colors = [
+    "#E97777",
+    "#90A17D",
+    "#B1AFFF",
+    "#F2D388"
+]
 
 
 # load data and convert it into readable types
@@ -230,27 +238,49 @@ def write_stat_line(path: str, instance: int, height: int, height_lb: int, time:
     dataframe.to_csv(path)
 
 
-def plot_bar_graph(datas,labels, colors=None, figsize=(10,15), y_lim=20):
+def plot_bar_graph(datas,labels, colors=None, figsize=(10,15)):
+
+    """
+    Create a Bar plot of the given datas
+
+    Parameters
+    ----------
+
+    datas: list
+        A list containing the list of datas
+    labels: list
+        A list containing the list of labels
+    color: list
+        A list containing the colors of the bars, if not specified the standard set of color will be used
+    figsize: tuple
+       A tuple expressing the size of the chart. If not specified (10,15) will be used
+    """
 
     fig, ax = plt.subplots(figsize=figsize)
     index = np.arange(1, len(datas[0])+1)
     width = 0.8/len(datas)
-    ax.set_ylim(0,y_lim)
     ax.set_xticks(index)
 
-    over5_patch = Patch(color=(0.5,0.5,0.5,0.2), label="Over 5 min execution")
     patches = []
+    over5_colors = []
+    
 
     for i in range(0,len(datas)):
 
-        sel_col = colors[i] if colors != None else (randint(0,100)/100, randint(0,100)/100, randint(0,100)/100)
+        sel_col = colors[i] if colors != None else standard_colors[i]
         patch = Patch(color=sel_col, label=labels[i])
         patches.append(patch)
-        color = [{p>=300: (0.5, 0.5, 0.5, 0.2), p<300: sel_col}[True] for p in datas[i]]
+        color = [{p>=300: sel_col + "40", p<300: sel_col}[True] for p in datas[i]]
         ax.bar(index - (len(datas)//2-i)*width, datas[i],width, color=color)
+        over5_colors.append(sel_col + "40")
 
-    patches.append(over5_patch)
-    ax.legend(handles=[patch for patch in patches])
+    ax.set_yscale('log')
+
+    over5_patches = [Patch(color=col, label="Over 5 min Execution") for col in over5_colors]
+    labels.append("Over 5 min execution")
+    patches.append(over5_patches)
+    plt.gca()
+    plt.legend(handles=patches, labels=labels, handler_map = {list: HandlerTuple(None)})    
     plt.show()
 
 

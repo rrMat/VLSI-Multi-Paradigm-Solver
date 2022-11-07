@@ -146,7 +146,7 @@ class CPSolver:
                     writer.writerow(data)
                     
                     write_sol(
-                        "out/" + dir_ + "/solution-" + str(i) + ".txt",
+                        "CP/out/" + dir_ + "/solution-" + str(i) + ".txt",
                         w,
                         h,
                         n,
