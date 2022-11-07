@@ -1,6 +1,5 @@
 from itertools import combinations
 from z3 import *
-import utils 
 import math
 import time
 from tqdm import tqdm

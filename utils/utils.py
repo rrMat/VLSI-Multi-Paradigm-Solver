@@ -229,6 +229,7 @@ def write_stat_line(path: str, instance: int, height: int, height_lb: int, time:
         time spent to solve the instance
 
     """
+    print(path)
     if not os.path.exists(path):
         dataframe = pd.DataFrame(columns=['height', 'height_lb', 'time'])
         dataframe.to_csv(path)
@@ -286,13 +287,13 @@ def plot_bar_graph(datas,labels, colors=None, figsize=(10,15)):
 
 def load_stats(path):
     if not os.path.exists(path):
-        return pd.DataFrame(columns=['time'])
-    return pd.read_csv(path)
+        return pd.DataFrame(columns=['height', 'height_lb', 'time'])
+    return pd.read_csv(path, index_col = 0)
 
 
 def display_times(path):
     dataframe = load_stats(path)
-    plot_bar_graph([list(dataframe['time'])], ['Solved', 'Unsolved'])
+    plot_bar_graph([list(dataframe['time'])], ['Solved', 'Unsolved'], figsize=(10,5), y_lim=350)
 
 
 def display_times_comparison(paths, model_names, number_of_instances):
@@ -300,4 +301,4 @@ def display_times_comparison(paths, model_names, number_of_instances):
     for path in paths:
         dataframe = load_stats(path)
         data.append(dataframe['time'][:number_of_instances].tolist())
-    plot_bar_graph(data, model_names)
+    plot_bar_graph(data, model_names, figsize=(10,5), y_lim=350)
