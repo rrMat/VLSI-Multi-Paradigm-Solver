@@ -1,5 +1,5 @@
 import argparse
-from CP.CPSolver import CPSolver, models
+from CP.CPSolver import CPSolver
 
 if __name__ == '__main__':
 

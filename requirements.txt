@@ -1,2 +1,5 @@
 z3-solver
 pandas
+numpy
+minizinc
+matplotlib
