@@ -261,6 +261,7 @@ def plot_bar_graph(datas,labels, colors=None, figsize=(10,15), saving_path=""):
     index = np.arange(1, len(datas[0])+1)
     width = 0.8/len(datas)
     ax.set_xticks(index)
+    
 
     patches = []
     over5_colors = []
@@ -271,15 +272,17 @@ def plot_bar_graph(datas,labels, colors=None, figsize=(10,15), saving_path=""):
         sel_col = colors[i] if colors != None else standard_colors[i]
         patch = Patch(color=sel_col, label=labels[i])
         patches.append(patch)
-        color = [{p>=300: sel_col + "40", p<300: sel_col}[True] for p in datas[i]]
+        color = [{p>=300: sel_col + "60", p<300: sel_col}[True] for p in datas[i]]
         ax.bar(index - (len(datas)//2-i)*width, datas[i],width, color=color)
-        over5_colors.append(sel_col + "40")
+        over5_colors.append(sel_col + "60")
 
     ax.set_yscale('log')
 
     over5_patches = [Patch(color=col, label="Over 5 min Execution") for col in over5_colors]
     labels.append("Over 5 min execution")
     patches.append(over5_patches)
+    ax.grid(axis='y', which='both', color="#eeeeee")
+    ax.set_axisbelow(True)
     plt.gca()
     plt.legend(handles=patches, labels=labels, handler_map = {list: HandlerTuple(None)})    
     
