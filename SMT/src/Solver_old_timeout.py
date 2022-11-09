@@ -11,9 +11,11 @@ import utils.utils as ut
 
 
 
-time_available = 300000
+set_option(timeout=3)
 
-def plate(w, n, min_h, max_h, chip_w, chip_h, time_available):
+
+
+def plate(w, n, min_h, max_h, chip_w, chip_h):
   start_time = time.time()
   #VAR
   x_positions = [Int(f"x_pos{i}") for i in range(n)]
@@ -23,16 +25,11 @@ def plate(w, n, min_h, max_h, chip_w, chip_h, time_available):
   
     
   for h in range(min_h + 1, max_h):
-          time_remained = time_available - (time.time() - start_time)
-          if time_remained <= 1:
-            print("Took too long")
-            break
+          print("current h: ", h - 1)
           # CONSTRAINTS
           #domani bounds
+
           s = Solver()
-          set_option(timeout=int(time_remained))
-          #set_option(timeout=300)
-          print("current h: ", h - 1)
           s.add([And(0 <= x_positions[i], x_positions[i] <= w - chip_w[i])
                              for i in range(n)])
           
@@ -75,8 +72,8 @@ def plate(w, n, min_h, max_h, chip_w, chip_h, time_available):
 
               
           if s.check() != sat:
-            #print("unsat")
-            continue
+            print("Took too long")
+            break
           else:
             m = s.model()
             x_pos = []
@@ -104,25 +101,17 @@ for i in range(1,24):
 
 
 
-    resul = plate(w, n, min_h, max_h, chip_w, chip_h, time_available)
+    resul = plate(w, n, min_h, max_h, chip_w, chip_h)
 
     if resul != None:
-      sol_path = os.path.join(
+      out_path = os.path.join(
         os.path.dirname(__file__),
-        '../out/std/sol' + str(i) + ".txt"
+        '../out_img/plot' + str(i) + ".png"
       )
       tim.append((i, resul[4]))
-      ut.write_sol(sol_path, w, resul[3]-1, n, chip_w, chip_h, resul[1], resul[2])
+      ut.plot_device(resul[1], resul[2], chip_w, chip_h, w, resul[3]-1, img_path=out_path)
     else:
       tim.append((i, False))
-
-    if resul != None:
-      out_pat = os.path.join(
-        os.path.dirname(__file__),
-        '../out_img/plotti' + str(i) + '.png'
-      )
-      ut.plot_device(resul[1], resul[2], chip_w, chip_h, w, resul[3]-1, out_pat)
- 
 
 txt_path = os.path.join(
   os.path.dirname(__file__),
@@ -130,7 +119,3 @@ txt_path = os.path.join(
 )
 
 np.savetxt(txt_path, tim, fmt = "%f")
-
-
-
-
