@@ -94,7 +94,7 @@ class SATModel:
             # Defining SATSolver
             self.solver = Solver()
             if self.interrupt:
-                set_option(timeout=self.time_available * 100 * 5)
+                set_option(timeout=self.time_available * 100)
             
             # Add constraints
             self.solver.add(overlapping_check)
@@ -109,19 +109,12 @@ class SATModel:
             else:
                 print('Problem is UNSAT')
             
-        
-    def get_solution_parsed(self):
-        if self.solved:
-            return self.get_solution_solved()
-        else:
-            return self.get_solution_unsolved()
 
-
-    def get_solution_unsolved(self):
+    def get_solution_unsolved_parsed(self):
         return self.plate_height, self.min_height, self.solving_time
 
 
-    def get_solution_solved(self):
+    def get_solution_solved_parsed(self):
         model = self.solver.model()
 
         chip_positions = []

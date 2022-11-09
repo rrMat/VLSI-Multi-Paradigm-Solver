@@ -75,7 +75,7 @@ class SAT:
         
         if is_solved:
             # Evaluate the solution
-            pos_x, pos_y, chips_w_a, chips_h_a, plate_width, plate_min_height, plate_height, solving_time = vlsi_solver.get_solution_parsed()
+            pos_x, pos_y, chips_w_a, chips_h_a, plate_width, plate_min_height, plate_height, solving_time = solver.get_solution_solved_parsed()
             
             # Save results
             utils.plot_device(pos_x, pos_y, chips_w_a, chips_h_a, plate_width, plate_height, IMG_FILE_PATH)
@@ -88,7 +88,7 @@ class SAT:
                             pos_x, 
                             pos_y)
         else:
-            plate_height, plate_min_height, solving_time = vlsi_solver.get_solution_parsed()
+            plate_height, plate_min_height, solving_time = solver.get_solution_unsolved_parsed()
             
         utils.write_stat_line(STATS_FILE_PATH,
                               i,
