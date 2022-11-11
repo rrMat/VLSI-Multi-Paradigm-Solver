@@ -1,4 +1,7 @@
 .idea/**
 
 __pycache__/
+
+.ipynb_checkpoints/
+
 CDMOpls_Project.egg-info/
