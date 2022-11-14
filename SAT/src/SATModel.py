@@ -27,26 +27,19 @@ class SATModel:
         self.solved = False
         self.plate = None
         self.rotated = None
-        self.plate_height = None
-        self.solving_time = None
+        self.plate_height = self.min_height
+        self.solving_time = 300
         self.solver = None
 
 
-    def solve(self):
+    def solve(self, a, return_dict):
+        return_dict['is_solved'] = False
+        return_dict['self'] = self
+                
         start_time = time.time()
 
         for plate_height in range(self.min_height, self.max_height):
-            time_remained = self.time_available - (time.time() - start_time)
             print('Height: ', plate_height)
-            print('Time remained: ', str(time_remained))
-            print('Time available: ', self.time_available)
-            if time_remained <= 0:
-                self.solving_time = time.time() - start_time
-                print('The problem is over with ', self.solving_time)
-                self.solved = False
-                return False
-
-
             # Defining variables
             self.plate = [[[Bool(f"plate_{k}_{j}_{i}") for i in range(self.n_chips)] for j in range(self.plate_width)] for k in range(plate_height)]
             self.rotated = [Bool(f"rotated_{i}") for i in range(self.n_chips)]
@@ -105,17 +98,36 @@ class SATModel:
             if self.solver.check() == sat:
                 self.solving_time = time.time() - start_time
                 self.solved = True
+                
+                pos_x, pos_y, chips_w_a, chips_h_a, self.plate_width, self.min_height, self.plate_height, self.solving_time = self.get_solution_solved_parsed(self.solver.model())
+
+                return_dict['pos_x'] = pos_x
+                return_dict['pos_y'] = pos_y
+                return_dict['chips_w_a'] = chips_w_a
+                return_dict['chips_h_a'] = chips_h_a
+                return_dict['plate_width'] = self.plate_width
+                return_dict['self.min_height'] = self.min_height
+                return_dict['self.plate_height'] = self.plate_height
+                return_dict['self.solving_time'] = self.solving_time
+                
+                return_dict['is_solved'] = True
                 return True
             else:
-                print('Problem is UNSAT')
+                print('ciao2')
+            
+        self.solving_time = time.time() - start_time
+        self.solved = False
+        return_dict['is_solved'] = False
+        return False
+    
+
             
 
     def get_solution_unsolved_parsed(self):
         return self.plate_height, self.min_height, self.solving_time
 
 
-    def get_solution_solved_parsed(self):
-        model = self.solver.model()
+    def get_solution_solved_parsed(self, model):
 
         chip_positions = []
         for k in range(self.n_chips):

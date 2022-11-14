@@ -22,7 +22,8 @@ def exactly_one_np(bool_vars):
 def at_least_one_seq(bool_vars):
     return at_least_one_np(bool_vars)
 
-def at_most_one_seq(bool_vars, name):
+def at_most_one_seq(bool_vars):
+    name = ''.join(random.choice(v) for i in range(30))
     constraints = []
     n = len(bool_vars)
     s = [Bool(f"s_{name}_{i}") for i in range(n - 1)]
@@ -34,8 +35,8 @@ def at_most_one_seq(bool_vars, name):
         constraints.append(Or(Not(s[i-1]), s[i]))
     return And(constraints)
 
-def exactly_one_seq(bool_vars, name):
-    return And(at_least_one_seq(bool_vars), at_most_one_seq(bool_vars, name))
+def exactly_one_seq(bool_vars):
+    return And(at_least_one_seq(bool_vars), at_most_one_seq(bool_vars))
 
 # Bitwise
 def toBinary(num, length = None):
@@ -47,7 +48,8 @@ def toBinary(num, length = None):
 def at_least_one_bw(bool_vars):
     return at_least_one_np(bool_vars)
 
-def at_most_one_bw(bool_vars, name):
+def at_most_one_bw(bool_vars):
+    name = ''.join(random.choice(v) for i in range(30))
     constraints = []
     n = len(bool_vars)
     m = math.ceil(math.log2(n))
@@ -61,15 +63,15 @@ def at_most_one_bw(bool_vars, name):
             constraints.append(Or(Not(bool_vars[i]), phi))        
     return And(constraints)
 
-def exactly_one_bw(bool_vars, name):
-    return And(at_least_one_bw(bool_vars), at_most_one_bw(bool_vars, name)) 
+def exactly_one_bw(bool_vars):
+    return And(at_least_one_bw(bool_vars), at_most_one_bw(bool_vars)) 
 
 # Heule
 def at_least_one_he(bool_vars):
     return at_least_one_np(bool_vars)
 
 def at_most_one_he(bool_vars):
-    name = ''.join(random.choice(v) for i in range(10))
+    name = ''.join(random.choice(v) for i in range(30))
     if len(bool_vars) <= 4:
         return And(at_most_one_np(bool_vars))
     y = Bool(f"y_{name}")

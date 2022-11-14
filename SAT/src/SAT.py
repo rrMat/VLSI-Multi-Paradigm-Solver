@@ -3,6 +3,7 @@ import math
 import numpy as np 
 import time
 import utils.utils as utils
+import multiprocessing
 
 from SAT.src.SATModel import SATModel
 import SAT.src.sat_utils as sat_utils
@@ -71,12 +72,36 @@ class SAT:
                                     encoding_type = self.encoding_type,
                                     time_available = self.time_available,
                                     interrupt = self.interrupt)
-        is_solved = solver.solve()
+
+        
+        # Set timeout
+        print('ciao')
+        manager = multiprocessing.Manager()
+        return_dict = manager.dict()
+        p = multiprocessing.Process(target=solver.solve, args=(1, return_dict))
+        p.start()
+        p.join(self.time_available)
+        if p.is_alive():
+            p.terminate()
+            p.join()
+        
+        # Get return values of the provess
+        is_solved = return_dict.values()[0]
+        solver = return_dict.values()[1]
         
         if is_solved:
             # Evaluate the solution
-            pos_x, pos_y, chips_w_a, chips_h_a, plate_width, plate_min_height, plate_height, solving_time = solver.get_solution_solved_parsed()
-            
+            print(return_dict)
+            pos_x = return_dict['pos_x']
+            pos_y = return_dict['pos_y']
+            chips_w_a = return_dict['chips_w_a']
+            chips_h_a = return_dict['chips_h_a']
+            plate_width = return_dict['plate_width']
+            plate_min_height = return_dict['self.min_height']
+            plate_height = return_dict['self.plate_height']
+            solving_time = return_dict['self.solving_time']
+
+
             # Save results
             utils.plot_device(pos_x, pos_y, chips_w_a, chips_h_a, plate_width, plate_height, IMG_FILE_PATH)
             utils.write_sol(OUT_FILE_PATH, 
