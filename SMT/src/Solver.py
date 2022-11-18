@@ -92,7 +92,7 @@ def plate(w, n, min_h, max_h, chip_w, chip_h, time_available):
 
 tim = []
 
-for i in range(1,24):
+for i in range(1,41):
     f = ut.load_data(i)
     w = f[0]
     n = f[1]
@@ -119,7 +119,7 @@ for i in range(1,24):
     if resul != None:
       out_pat = os.path.join(
         os.path.dirname(__file__),
-        '../out_img/plotti' + str(i) + '.png'
+        '../out_img/plot' + str(i) + '.png'
       )
       ut.plot_device(resul[1], resul[2], chip_w, chip_h, w, resul[3]-1, out_pat)
  
