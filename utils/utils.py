@@ -3,6 +3,7 @@ from random import randint
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, Patch
 from matplotlib.legend_handler import HandlerTuple
+from matplotlib.image import imread
 import pandas as pd
 import numpy as np
 
@@ -67,54 +68,9 @@ def load_data(index: int):
     return w, n, np.array(widths), np.array(heights)
 
 
-# plot the images
-def plot_device(pos_x: list, pos_y: list, widths: list, heights: list, w: int, h: int, img_path: str = ""):
-
-    """
-    Create and save an image of the solution produced
-
-    Parameters
-    ----------
-
-    pos_x: list
-        The x positions of the chips
-    pos_y: list
-        The y positions of the chips
-    widths: list
-        The chip's widths
-    height: list
-        The chip's height
-    w: int
-        The plate width
-    h: int
-        The plate height
-    img_path: str
-        The path where the image will be saved, if not specified the image will be shown but not saved
-
-    """
-
-    fig, ax = plt.subplots()
-    ax.axis([0, w, 0, h])
-    for i in range(0, len(pos_x)):
-        color = (randint(0,100)/100, randint(0,100)/100, randint(0,100)/100)
-        rect = Rectangle(
-            (pos_x[i], pos_y[i]),
-            widths[i], heights[i],
-            facecolor=color,
-            edgecolor=(0,0,0),
-            linewidth=2,
-        )
-        ax.add_patch(rect)
-    if img_path == "":
-        plt.show()
-    else:
-        plt.savefig(img_path)
-
-    fig.clf()
-
 
 # plot the image for rotation
-def plot_device_rotation(pos_x: list, pos_y: list, widths: list, heights: list, w: int, h: int, rotations: list, img_path: str = ""):
+def plot_device(pos_x: list, pos_y: list, widths: list, heights: list, w: int, h: int, rotations: list, img_path: str = "", override=True):
 
     """
     Create, save or show an image of the predicted plate when rotation is allowed
@@ -140,11 +96,29 @@ def plot_device_rotation(pos_x: list, pos_y: list, widths: list, heights: list, 
         The path where the image will be saved, if not specified the image will be shown but not saved
 
     """
+    if len(rotations) != 0:
+        widths = [(widths[i] * (1-rotations[i])) + (heights[i]*rotations[i]) for i in range(0, len(widths))]
+        heights = [(heights[i] * (1-rotations[i])) + (widths[i]*rotations[i]) for i in range(0, len(widths))]
 
-    actual_widths = [(widths[i] * (1-rotations[i])) + (heights[i]*rotations[i]) for i in range(0, len(widths))]
-    actual_heights = [(heights[i] * (1-rotations[i])) + (widths[i]*rotations[i]) for i in range(0, len(widths))]
+    fig, ax = plt.subplots()
+    ax.axis([0, w, 0, h])
+    for i in range(0, len(pos_x)):
+        color = (randint(0,100)/100, randint(0,100)/100, randint(0,100)/100)
+        rect = Rectangle(
+            (pos_x[i], pos_y[i]),
+            widths[i], heights[i],
+            facecolor=color,
+            edgecolor=(0,0,0),
+            linewidth=2,
+        )
+        ax.add_patch(rect)
+    if img_path == "":
+        plt.show()
+    else:
+        if (os.path.isfile(img_path) and override) or not os.path.isfile(img_path):
+            plt.savefig(img_path)
 
-    plot_device(pos_x, pos_y, actual_widths, actual_heights, w, h, img_path)
+    plt.close()
 
 
 def write_sol(path: str, w: int, h: int, n: int, widths: list, heights: list, pos_x: list, pos_y: list):
@@ -290,6 +264,19 @@ def plot_bar_graph(datas,labels, colors=None, figsize=(10,15), saving_path=""):
         plt.savefig(saving_path)
     else:
         plt.show()
+
+
+def display_img(paths, instances, figsize=(10,15)):
+    cols = len(paths)
+    rows = len(instances)
+
+    fig, ax = plt.subplots(rows, cols, figsize=figsize)
+
+    for ins_index in range(0, len(instances)):
+        for index in range(0,len(paths)):
+            ax[ins_index][index].imshow(imread(paths[index]+"device-" + str(instances[ins_index]) + ".png"))
+
+    plt.show()
 
 
 def load_stats(path):

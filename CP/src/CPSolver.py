@@ -3,44 +3,63 @@
 # Novembre 2022
 
 import time
+import os
 import csv
 from datetime import timedelta
 from minizinc import Solver, Instance, Model
-from utils.utils import plot_device, plot_device_rotation, load_data, write_sol
-
-stats_path = {
-    True: {
-        "std": "CP/stats/rotation/out_data_std.csv",
-        "max": "CP/stats/rotation/out_data_max.csv",
-        "sbs": "CP/stats/rotation/out_data_sbs.csv"
-    },
-    False: {
-        "std": "CP/stats/no_rotation/out_data_std.csv",
-        "max": "CP/stats/no_rotation/out_data_max.csv",
-        "sbs": "CP/stats/no_rotation/out_data_sbs.csv"
-    }
-}
-
-models={
-    True: {
-        "std": "CP/src/solvers_rotation/MODEL_STD.mzn",
-        "max": "CP/src/solvers_rotation/MODEL_MAX.mzn",
-        "sbs": "CP/src/solvers_rotation/MODEL_SBS.mzn"
-    },
-    False: {
-        "std": "CP/src/solvers/MODEL_STD.mzn",
-        "max": "CP/src/solvers/MODEL_MAX.mzn",
-        "sbs": "CP/src/solvers/MODEL_SBS.mzn"
-    }
-}
+from utils.utils import plot_device, load_data, write_sol
 
 
 class CPSolver:
 
-    def __init__(self):
-        pass
+    def __init__(self, model: str=None, solver: str=None, rotation: bool=None, print_img:bool=False):
 
-    def __solve(self, w: int, n: int, widths: list, heights: list, model_path: str, rotation: bool):
+        self.__rotation = rotation
+        self.__model = model
+        self.__solver = solver
+        self.__print_img = print_img
+        self.__set_paths()
+        
+
+    def __set_paths(self):
+        self.__stats_path = "CP/stats/{}/{}/out_data_{}.csv".format(
+            "rotation" if self.__rotation else "no_rotation",
+            self.__solver,
+            self.__model
+        )
+        self.__model_path = "CP/src/solvers{}/MODEL_{}.mzn".format(
+            "_rotation" if self.__rotation else "",
+            self.__model.upper()
+        )
+        self.__img_path = "CP/img/{}/{}/{}/".format(
+            "rotation" if self.__rotation else "no_rotation",
+            self.__model.upper(),
+            self.__solver
+        )
+        self.__out_path = "CP/out/{}/{}/{}/".format(
+            "rotation" if self.__rotation else "no_rotation",
+            self.__model.upper(),
+            self.__solver
+        )
+        os.makedirs(os.path.dirname(self.__stats_path), exist_ok=True)
+        os.makedirs(os.path.dirname(self.__img_path), exist_ok=True)
+        os.makedirs(os.path.dirname(self.__out_path), exist_ok=True)
+
+
+    def update_model(self, model: str):
+        self.__model = model
+        self.__set_paths()
+
+    def update_rotation(self, rotation: bool):
+        self.__rotation = rotation
+        self.__set_paths()
+
+    def update_solver(self, solver: str):
+        self.__solver = solver
+        self.__set_paths()
+
+
+    def __solve(self, w: int, n: int, widths: list, heights: list):
 
         """
         Solve a single instance with the selected minizinc model
@@ -75,8 +94,8 @@ class CPSolver:
         elapsed_time: float
             The time needed to find a solution
         """
-        model = Model(model_path)
-        solver = Solver.lookup('chuffed')
+        model = Model(self.__model_path)
+        solver = Solver.lookup(self.__solver)
 
         inst = Instance(solver, model)
         inst["w"] = w
@@ -92,7 +111,7 @@ class CPSolver:
         y_pos = out.solution.positions_y
         h = out.solution.h
 
-        if rotation:
+        if self.__rotation:
             rotations = out.solution.rotations
         else:
             rotations = []
@@ -102,7 +121,7 @@ class CPSolver:
 
 
 
-    def execute(self, print_img: bool, ext: str, model: str, index: int, rotation: bool = False):
+    def execute(self, index: int):
 
         """
         Execute the solving over a specific set of instances, prints data
@@ -110,43 +129,39 @@ class CPSolver:
 
         Parameters
         ----------
-        print_img: bool
-            Select wheter or not save the solution image
-        ext: str
-            Extension for img path
-        model: str
-            The path to the model
         index: int
             The indtances index (if 0 is selected all the instances will be executed)
-        rotation: bool
-            Select wheter rotation is enabled or not
 
 
-        """
-        dir_ = ext + "/rotation" if rotation else ext + "/no_rotation"        
+        """        
             
-        if index == 0:
-            with open(stats_path[rotation][model], mode="w", newline="") as file:
+        if index is None:
+            with open(self.__stats_path, mode="w", newline="") as file:
                 header = ['device width', 'number of chips', "h", "solve time"]
                 writer = csv.writer(file)
                 writer.writerow(header)
                 for i in range(1,41):
 
                     w, n, widths, heights = load_data(i)
+
+                    print("Solving instance {} with {} model and {} solver...".format(
+                        i,
+                        self.__model.upper(),
+                        self.__solver
+                    ), end="", flush=True)
+
                     (pos_x, pos_y, h, elapsed_time, rotations) = self.__solve(
                         w,
                         n,
                         widths,
-                        heights,
-                        models[rotation][model],
-                        rotation
+                        heights
                     )
-                
+                    print("Solved in: {} s".format(elapsed_time))
                     data = [w, n, h, elapsed_time]
                     writer.writerow(data)
                     
                     write_sol(
-                        "CP/out/" + dir_ + "/solution-" + str(i) + ".txt",
+                        self.__out_path + "/solution-" + str(i) + ".txt",
                         w,
                         h,
                         n,
@@ -156,11 +171,8 @@ class CPSolver:
                         pos_y
                     )
 
-                    if print_img:
-                        if rotation:
-                            plot_device_rotation(pos_x, pos_y, widths, heights, w, h, rotations, 'CP/img/' + ext + '/rotation/device-' + str(i) +'.png')
-                        else:
-                            plot_device(pos_x, pos_y, widths, heights, w, h, 'CP/img/'+ ext +'/no_rotation/device-' + str(i) +'.png')
+                    if self.__print_img:
+                        plot_device(pos_x, pos_y, widths, heights, w, h, rotations, self.__img_path +'device-' + str(i) +'.png')
 
         else:
             w, n, widths, heights = load_data(index)
@@ -168,9 +180,7 @@ class CPSolver:
                 w,
                 n,
                 widths,
-                heights,
-                models[rotation][model],
-                rotation
+                heights
             )
             
             print("Minimun Height Found: {}".format(h))
@@ -178,11 +188,8 @@ class CPSolver:
             print("--------------------------------")
             print()
 
-            if print_img:
-                if rotation:
-                    plot_device_rotation(pos_x, pos_y, widths, heights, w, h, rotations, 'CP/img/' + ext +'/rotation/device-' + str(index) +'.png')
-                else:
-                    plot_device(pos_x, pos_y, widths, heights, w, h, 'CP/img/' + ext +'no_rotation/device-' + str(index) +'.png')
+            if self.__print_img:
+                plot_device(pos_x, pos_y, widths, heights, w, h, rotations, self.__img_path + '/device-' + str(index) +'.png')
 
 
 
