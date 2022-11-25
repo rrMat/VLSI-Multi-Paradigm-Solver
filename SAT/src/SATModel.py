@@ -86,8 +86,6 @@ class SATModel:
             
             # Defining SATSolver
             self.solver = Solver()
-            if self.interrupt:
-                set_option(timeout=self.time_available * 100)
             
             # Add constraints
             self.solver.add(overlapping_check)

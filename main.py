@@ -1,5 +1,6 @@
 import argparse
 from CP.src.CPSolver import CPSolver
+from SAT.src.SATSolver import SATSolver
 
 if __name__ == '__main__':
 
@@ -40,7 +41,53 @@ if __name__ == '__main__':
                 cp.execute(args.instance)                   
 
     elif args.Paradigm == "SAT":
-        pass
+        OUT_DIRECTORY_RELATIVE_PATH = '/out/' 
+        IMG_DIRECTORY_RELATIVE_PATH = '/img/' 
+        STATS_RELATIVE_PATH = '/stats/' 
+
+        #SAT_solver = SAT(args.instance, 
+        #                 args.model,
+        #                 args.rotation_allowed, 
+        #                 args.symmetry_required,
+        #                 args.encoding_type,
+        #                 args.number_of_instances,
+        #                 args.time_available,
+        #                 args.interrupt,
+        #                 args.verbose,
+        #                 args.override,
+        #                 OUT_DIRECTORY_RELATIVE_PATH,
+        #                 IMG_DIRECTORY_RELATIVE_PATH,
+        #                 STATS_RELATIVE_PATH)
+    
+        for encoder in ['np', 'seq', 'bw', 'he']:
+            SATSolver('SATModel', rotation_allowed = False,
+                            symmetry_required=False,
+                            encoding_type=encoder,
+                            number_of_instances=40,
+                            time_available=300,
+                            interrupt=True,
+                            verbose=True,
+                            out_directory_path = 'SAT' + OUT_DIRECTORY_RELATIVE_PATH,
+                            img_directory_path = 'SAT' + IMG_DIRECTORY_RELATIVE_PATH,
+                            stats_directory_path = 'SAT' + STATS_RELATIVE_PATH,
+                            OVERRIDE = False
+                ).execute()
+
+        for rotation in [True, False]:
+            for symmetry_required in [True, False]:
+                SATSolver('SATModel', rotation_allowed = rotation,
+                                symmetry_required=symmetry_required,
+                                encoding_type='bw',
+                                number_of_instances=40,
+                                time_available=300,
+                                interrupt=True,
+                                verbose=True,
+                                out_directory_path = 'SAT' + OUT_DIRECTORY_RELATIVE_PATH,
+                                img_directory_path = 'SAT' + IMG_DIRECTORY_RELATIVE_PATH,
+                                stats_directory_path = 'SAT' + STATS_RELATIVE_PATH,
+                                OVERRIDE = False
+                ).execute()
+
 
     elif args.Paradigm == "SMT":
         pass
