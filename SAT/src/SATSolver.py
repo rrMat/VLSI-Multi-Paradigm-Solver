@@ -8,7 +8,7 @@ import multiprocessing
 from SAT.src.SATModel import SATModel
 import SAT.src.sat_utils as sat_utils
 
-class SAT:
+class SATSolver:
 
     MODELS = {
         'SATModel': SATModel
@@ -97,13 +97,14 @@ class SAT:
             chips_w_a = return_dict['chips_w_a']
             chips_h_a = return_dict['chips_h_a']
             plate_width = return_dict['plate_width']
-            plate_min_height = return_dict['self.min_height']
-            plate_height = return_dict['self.plate_height']
-            solving_time = return_dict['self.solving_time']
+            plate_min_height = return_dict['min_height']
+            plate_height = return_dict['plate_height']
+            rotation = return_dict['rotation']
+            solving_time = return_dict['solving_time']
 
 
             # Save results
-            utils.plot_device(pos_x, pos_y, chips_w_a, chips_h_a, plate_width, plate_height, IMG_FILE_PATH)
+            utils.plot_device(pos_x, pos_y, chips_w_a, chips_h_a, plate_width, plate_height, rotation, IMG_FILE_PATH)
             utils.write_sol(OUT_FILE_PATH, 
                             plate_width, 
                             plate_height, 
@@ -111,7 +112,8 @@ class SAT:
                             chips_widths, 
                             chips_heights, 
                             pos_x, 
-                            pos_y)
+                            pos_y,
+                            rotation)
         else:
             plate_height, plate_min_height, solving_time = solver.get_solution_unsolved_parsed()
             

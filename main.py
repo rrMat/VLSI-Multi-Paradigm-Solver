@@ -70,7 +70,7 @@ if __name__ == '__main__':
                             out_directory_path = 'SAT' + OUT_DIRECTORY_RELATIVE_PATH,
                             img_directory_path = 'SAT' + IMG_DIRECTORY_RELATIVE_PATH,
                             stats_directory_path = 'SAT' + STATS_RELATIVE_PATH,
-                            OVERRIDE = False
+                            OVERRIDE = True
                 ).execute()
 
         for rotation in [True, False]:

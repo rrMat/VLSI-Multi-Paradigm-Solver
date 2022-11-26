@@ -77,7 +77,6 @@ def plot_device(pos_x: list, pos_y: list, widths: list, heights: list, w: int, h
 
     Parameters
     ----------
-
     pos_x: list
         The x positions of the chips
     pos_y: list
@@ -121,7 +120,7 @@ def plot_device(pos_x: list, pos_y: list, widths: list, heights: list, w: int, h
     plt.close()
 
 
-def write_sol(path: str, w: int, h: int, n: int, widths: list, heights: list, pos_x: list, pos_y: list):
+def write_sol(path: str, w: int, h: int, n: int, widths: list, heights: list, pos_x: list, pos_y: list, rotation: list):
 
     """
     Save solution in txt format in the format requested by the project description
@@ -144,6 +143,8 @@ def write_sol(path: str, w: int, h: int, n: int, widths: list, heights: list, po
         The x positions of the chips
     :param pos_y: list
         The y positions of the chips
+    :param rotations: list
+        An array of bool reporting the rotated chips
 
     """
 
@@ -151,7 +152,9 @@ def write_sol(path: str, w: int, h: int, n: int, widths: list, heights: list, po
         f.write(f'{w} {int(h)}\n{n}\n')
 
         for i in range(n):
-            f.write(f'{widths[i]} {heights[i]} {int(pos_x[i])} {int(pos_y[i])}\n')
+            rotated = 'R' if rotation[i] else 'NR'
+
+            f.write(f'{widths[i]} {heights[i]} {int(pos_x[i])} {int(pos_y[i])} {rotated}\n')
 
         f.close()
 
@@ -172,8 +175,9 @@ def load_sol(path):
         chips_heights = []
         pos_x = []
         pos_y = []
+        rotated = []
         for i in range(n_chips):
-            w, h, x, y = f.readline().split(' ')
+            w, h, x, y, r = f.readline().split(' ')
             w = int(w)
             h = int(h)
             x = int(x)
@@ -182,6 +186,7 @@ def load_sol(path):
             chips_heights.append(h)
             pos_x.append(x)
             pos_y.append(y)
+            rotated.append(r)
 
     return plate_width, plate_height, n_chips, chips_widths, chips_heights, pos_x, pos_y
 

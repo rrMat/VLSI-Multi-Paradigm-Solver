@@ -97,21 +97,21 @@ class SATModel:
                 self.solving_time = time.time() - start_time
                 self.solved = True
                 
-                pos_x, pos_y, chips_w_a, chips_h_a, self.plate_width, self.min_height, self.plate_height, self.solving_time = self.get_solution_solved_parsed(self.solver.model())
+                pos_x, pos_y, chips_w_a, chips_h_a, self.plate_width, self.min_height, self.plate_height, rotation, self.solving_time = self.get_solution_solved_parsed(self.solver.model())
 
                 return_dict['pos_x'] = pos_x
                 return_dict['pos_y'] = pos_y
                 return_dict['chips_w_a'] = chips_w_a
                 return_dict['chips_h_a'] = chips_h_a
                 return_dict['plate_width'] = self.plate_width
-                return_dict['self.min_height'] = self.min_height
-                return_dict['self.plate_height'] = self.plate_height
-                return_dict['self.solving_time'] = self.solving_time
+                return_dict['min_height'] = self.min_height
+                return_dict['plate_height'] = self.plate_height
+                return_dict['rotation'] = rotation
+                return_dict['solving_time'] = self.solving_time
                 
                 return_dict['is_solved'] = True
                 return True
-            else:
-                print('ciao2')
+
             
         self.solving_time = time.time() - start_time
         self.solved = False
@@ -133,22 +133,20 @@ class SATModel:
             for x in range(self.plate_height):
                 for y in range(self.plate_width):
                     if not found and model.evaluate(self.plate[x][y][k]):
-                        if self.rotation:
-                            w, h =  (self.chips_heights[k], self.chips_widths[k]) \
-                                    if model.evaluate(self.rotated[k]) \
-                                    else (self.chips_widths[k], self.chips_heights[k])               
-                            chip_positions.append((y, x, w, h))
+                        if self.rotation:   
+                            chip_positions.append((y, x, self.chips_widths[k], self.chips_heights[k], model.evaluate(self.rotated[k])))
                         else:
-                            chip_positions.append((y, x, self.chips_widths[k], self.chips_heights[k]))
+                            chip_positions.append((y, x, self.chips_widths[k], self.chips_heights[k], False))
                         found = True
 
 
-        pos_x = [x for x, _, _, _ in chip_positions]
-        pos_y = [y for _, y, _, _ in chip_positions]
-        chips_w_a = [w for _, _, w, _ in chip_positions]
-        chips_h_a = [h for _, _, _, h in chip_positions]
+        pos_x = [x for x, _, _, _, _ in chip_positions]
+        pos_y = [y for _, y, _, _, _ in chip_positions]
+        chips_w_a = [w for _, _, w, _, _ in chip_positions]
+        chips_h_a = [h for _, _, _, h, _ in chip_positions]
+        rotation = [r for _, _, _, _, r in chip_positions]
 
-        return pos_x, pos_y, chips_w_a, chips_h_a, self.plate_width, self.min_height, self.plate_height, self.solving_time
+        return pos_x, pos_y, chips_w_a, chips_h_a, self.plate_width, self.min_height, self.plate_height, rotation, self.solving_time
 
 
     def __str__(self):
