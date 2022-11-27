@@ -68,9 +68,8 @@ def load_data(index: int):
     return w, n, np.array(widths), np.array(heights)
 
 
-
 # plot the image for rotation
-def plot_device(pos_x: list, pos_y: list, widths: list, heights: list, w: int, h: int, rotations: list, img_path: str = "", override=True):
+def plot_device(pos_x: list, pos_y: list, widths: list, heights: list, w: int, h: int, rotations: list, img_path="", override=True):
 
     """
     Create, save or show an image of the predicted plate when rotation is allowed
@@ -92,8 +91,9 @@ def plot_device(pos_x: list, pos_y: list, widths: list, heights: list, w: int, h
         The plate height
     rotations:
         An array of bool reporting the rotated chips
-    img_path: str
-        The path where the image will be saved, if not specified the image will be shown but not saved
+    img_path:
+        The path where the image will be saved, if not specified the image will be shown but not saved.
+        It can be string or Path.
 
     """
     if len(rotations) != 0:
@@ -121,15 +121,15 @@ def plot_device(pos_x: list, pos_y: list, widths: list, heights: list, w: int, h
     plt.close()
 
 
-def write_sol(path: str, w: int, h: int, n: int, widths: list, heights: list, pos_x: list, pos_y: list):
+def write_sol(path, w: int, h: int, n: int, widths: list, heights: list, pos_x: list, pos_y: list):
 
     """
     Save solution in txt format in the format requested by the project description
 
     Parameters
     ----------
-    :param path: str
-        The path where the output will be saved
+    :param path:
+        The path where the output will be saved. Can be string or Path
     :param w: int
         The plate width
     :param h: int
@@ -163,7 +163,7 @@ def load_sol(path):
 
         plate_width, plate_height = first_line.split(' ')
         n_chips = f.readline()
-        
+
         plate_width = int(plate_width)
         plate_height = int(plate_height)
         n_chips = int(n_chips)
@@ -186,13 +186,13 @@ def load_sol(path):
     return plate_width, plate_height, n_chips, chips_widths, chips_heights, pos_x, pos_y
 
 
-def write_stat_line(path: str, instance: int, height: int, height_lb: int, time: float):
+def write_stat_line(path, instance: int, height: int, height_lb: int, time: float):
     """
     Append to the csv file (or create it if file does not exist)
     the stats related to the solution of a specified instance
 
-    :param path: str
-         The path where to append the stats
+    :param path:
+         The path where to append the stats. It can be string or Path.
     :param instance: int
         number of the solved instance
     :param height: int
@@ -235,11 +235,11 @@ def plot_bar_graph(datas,labels, colors=None, figsize=(10,15), saving_path=""):
     index = np.arange(1, len(datas[0])+1)
     width = 0.8/len(datas)
     ax.set_xticks(index)
-    
+
 
     patches = []
     over5_colors = []
-    
+
 
     for i in range(0,len(datas)):
 
@@ -258,8 +258,8 @@ def plot_bar_graph(datas,labels, colors=None, figsize=(10,15), saving_path=""):
     ax.grid(axis='y', which='both', color="#eeeeee")
     ax.set_axisbelow(True)
     plt.gca()
-    plt.legend(handles=patches, labels=labels, handler_map = {list: HandlerTuple(None)})    
-    
+    plt.legend(handles=patches, labels=labels, handler_map = {list: HandlerTuple(None)})
+
     if saving_path != "":
         plt.savefig(saving_path)
     else:
