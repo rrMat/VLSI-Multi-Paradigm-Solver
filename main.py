@@ -1,6 +1,6 @@
 import argparse
 from CP.src.CPSolver import CPSolver
-from SAT.src.SATSolver import SATSolver
+from SAT.src.SATSolver import SAT
 
 if __name__ == '__main__':
 
@@ -8,28 +8,38 @@ if __name__ == '__main__':
         prog="VLSI multi paradigm Solver",
         epilog="See '<command> --help' to read about a specific sub-command."
     )
-    
+
     base_parser = argparse.ArgumentParser(add_help=False)
     #Optinal shared arguments
     base_parser.add_argument("-ins", "--instance", type=int, help="The instance's number to execute (1-40). Omit to execute all the instances")
     base_parser.add_argument("-p", "--print_img", action='store_true', help="Print image representation of solution")
     base_parser.add_argument("-r", "--rotation", action='store_true', help="Allow rotation of chips in solving")
-    
+
     #parsers for instance
     parsers = parser.add_subparsers(dest="Paradigm")
     CP_parser = parsers.add_parser("CP", parents=[base_parser])
     SAT_parser = parsers.add_parser("SAT", parents=[base_parser])
     SMT_parser = parsers.add_parser("SMT", parents=[base_parser])
-    LP_parser = parsers.add_parser("LP", parents=[base_parser])
+    MIP_parser = parsers.add_parser("MIP", parents=[base_parser])
 
     #CP parameters (required)
     CP_parser.add_argument("-m", "--model", required=True, nargs='+', type=str, choices=["max", "sbs"], help='select models. \nAcceptable values: max | sbs')
     CP_parser.add_argument("-s", "--solver", required=True, nargs='+', type=str, choices=["chuffed", "gecode", "or-tools"],  help='select solver. \nAcceptable values: chugged | gecode')
-    
-    
+
+    # MIP arguments
+    MIP_parser.add_argument('-m', '--model', required=False, default='std', nargs='+', type=str,
+                            choices=['std'],
+                            help='Select MIP model. Write "all" to execute with all models. Default is "std"\n'
+                                 'Possible models: std | cplex | copt | highs | xpress | cbc')
+    MIP_parser.add_argument('-s', '--solver', required=True, nargs='+', type=str,
+                            choices=['gurobi', 'cplex', 'copt', 'highs', 'xpress', 'cbc', 'all'],
+                            help='Select one or more solvers for MIP formulation. '
+                                 'Write "all" to execute with all solvers.\n'
+                                 'Possible solvers: gurobi | cplex | copt | highs | xpress | cbc')
+
     args = parser.parse_args()
 
-    if args.Paradigm == "CP" :
+    if args.Paradigm == "CP":
         for model in args.model:
             for solver in args.solver:
                 cp = CPSolver(
@@ -38,16 +48,16 @@ if __name__ == '__main__':
                     args.rotation,
                     args.print_img
                 )
-                cp.execute(args.instance)                   
+                cp.execute(args.instance)
 
     elif args.Paradigm == "SAT":
-        OUT_DIRECTORY_RELATIVE_PATH = '/out/' 
-        IMG_DIRECTORY_RELATIVE_PATH = '/img/' 
-        STATS_RELATIVE_PATH = '/stats/' 
+        OUT_DIRECTORY_RELATIVE_PATH = '/out/'
+        IMG_DIRECTORY_RELATIVE_PATH = '/img/'
+        STATS_RELATIVE_PATH = '/stats/'
 
-        #SAT_solver = SAT(args.instance, 
+        #SAT_solver = SAT(args.instance,
         #                 args.model,
-        #                 args.rotation_allowed, 
+        #                 args.rotation_allowed,
         #                 args.symmetry_required,
         #                 args.encoding_type,
         #                 args.number_of_instances,
@@ -58,9 +68,9 @@ if __name__ == '__main__':
         #                 OUT_DIRECTORY_RELATIVE_PATH,
         #                 IMG_DIRECTORY_RELATIVE_PATH,
         #                 STATS_RELATIVE_PATH)
-    
+
         for encoder in ['np', 'seq', 'bw', 'he']:
-            SATSolver('SATModel', rotation_allowed = False,
+            SAT('SATModel', rotation_allowed = False,
                             symmetry_required=False,
                             encoding_type=encoder,
                             number_of_instances=40,
@@ -75,7 +85,7 @@ if __name__ == '__main__':
 
         for rotation in [True, False]:
             for symmetry_required in [True, False]:
-                SATSolver('SATModel', rotation_allowed = rotation,
+                SAT('SATModel', rotation_allowed = rotation,
                                 symmetry_required=symmetry_required,
                                 encoding_type='bw',
                                 number_of_instances=40,
@@ -92,7 +102,7 @@ if __name__ == '__main__':
     elif args.Paradigm == "SMT":
         pass
 
-    elif args.Paradigm == "LP":
+    elif args.Paradigm == "MIP":
         pass
 
 
