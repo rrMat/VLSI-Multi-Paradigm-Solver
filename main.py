@@ -1,6 +1,7 @@
 import argparse
 from CP.src.CPSolver import CPSolver
 from SAT.src.SATSolver import SAT
+from MIP.src.mip import MIP
 
 if __name__ == '__main__':
 
@@ -27,15 +28,17 @@ if __name__ == '__main__':
     CP_parser.add_argument("-s", "--solver", required=True, nargs='+', type=str, choices=["chuffed", "gecode", "or-tools"],  help='select solver. \nAcceptable values: chugged | gecode')
 
     # MIP arguments
-    MIP_parser.add_argument('-m', '--model', required=False, default='std', nargs='+', type=str,
+    MIP_parser.add_argument('-m', '--model', required=True, nargs='+', type=str,
                             choices=['std'],
-                            help='Select MIP model. Write "all" to execute with all models. Default is "std"\n'
+                            help='Select MIP model.\n'
                                  'Possible models: std | cplex | copt | highs | xpress | cbc')
     MIP_parser.add_argument('-s', '--solver', required=True, nargs='+', type=str,
-                            choices=['gurobi', 'cplex', 'copt', 'highs', 'xpress', 'cbc', 'all'],
-                            help='Select one or more solvers for MIP formulation. '
-                                 'Write "all" to execute with all solvers.\n'
+                            choices=['gurobi', 'cplex', 'copt', 'highs', 'xpress', 'cbc'],
+                            help='Select one or more solvers for MIP formulation.\n'
                                  'Possible solvers: gurobi | cplex | copt | highs | xpress | cbc')
+    MIP_parser.add_argument('-a', '--ampl_dir', required=False, default=None, type=str,
+                            help='If the AMPL installation directory is not in the system search path '
+                                 'you need to specify the full path to the AMPL installation directory.')
 
     args = parser.parse_args()
 
@@ -103,6 +106,12 @@ if __name__ == '__main__':
         pass
 
     elif args.Paradigm == "MIP":
-        pass
+        mip = MIP(ampl_dir=args.ampl_dir, rotation=args.rotation, print_image=args.print_img)
+
+        for model in args.model:
+            mip.set_model(model)
+            for solver in args.solver:
+                mip.set_solver(solver)
+                mip.execute(args.instance)
 
 
