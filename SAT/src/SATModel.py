@@ -45,8 +45,6 @@ class SATModel:
 
         # Available positions of chips
         chip_places = {k: [] for k in range(self.n_chips)}
-        if self.rotation:
-            chip_rotated_places = {k: [] for k in range(self.n_chips)}
         
         start_time = time.time()
 
@@ -88,14 +86,7 @@ class SATModel:
                         
                         
 
-                                                                                                        
-                # *. With rotation (if needed)
-                if self.rotation:
-                    for y in range(new_height - 1,  self.chips_widths[k] - 2, -1):
-                        for x in range(self.plate_width - self.chips_heights[k] + 1):
-                            chip_rotated_places[k].append(sat_utils.all_true([self.plate[y - slide_y][x + slide_x][k] for slide_x in range(self.chips_heights[k]) 
-                                                                                                                      for slide_y in range(self.chips_widths[k])]))
-
+           
             # Defining constraints:
             # - 1° constraint 
             overlapping_check += [sat_utils.at_most_one[self.encoding_type](self.plate[i][j]) for i in range(self.plate_height, new_height) 
@@ -121,8 +112,8 @@ class SATModel:
             # We have so created a model with a height increased by one respect to before...
             self.plate_height = new_height
 
-            #if self.plate_height == self.min_height:
-            #    continue
+            if self.plate_height == self.min_height:
+                continue
             
 
             # Solve the model
