@@ -108,10 +108,10 @@ if __name__ == '__main__':
     elif args.Paradigm == "MIP":
         mip = MIP(ampl_dir=args.ampl_dir, rotation=args.rotation, print_image=args.print_img)
 
-        for model in args.model:
-            mip.set_model(model)
-            for solver in args.solver:
-                mip.set_solver(solver)
+        for solver in args.solver:
+            mip.set_solver(solver)
+            for model in args.model:
+                mip.set_model(model)
                 mip.execute(args.instance)
 
 

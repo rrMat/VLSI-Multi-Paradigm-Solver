@@ -71,6 +71,8 @@ class MIP:
         self.output_folder_path.mkdir(parents=True, exist_ok=True)
 
     def solve(self, instance):
+        print(f'Solving instance {instance}')
+
         image_path = (self.image_folder_path / f'{instance}.jpg').resolve()
         output_path = (self.output_folder_path / f'{instance}.txt').resolve()
 
