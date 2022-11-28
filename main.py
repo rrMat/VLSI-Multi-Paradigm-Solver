@@ -1,6 +1,6 @@
 import argparse
 from CP.src.CPSolver import CPSolver
-from SAT.src.SATSolver import SAT
+from SAT.src.SATSolver import SATSolver
 from MIP.src.mip import MIP
 
 if __name__ == '__main__':
@@ -73,7 +73,7 @@ if __name__ == '__main__':
         #                 STATS_RELATIVE_PATH)
 
         for encoder in ['np', 'seq', 'bw', 'he']:
-            SAT('SATModel', rotation_allowed = False,
+            SATSolver('SATModel', rotation_allowed = False,
                             symmetry_required=False,
                             encoding_type=encoder,
                             number_of_instances=40,
@@ -88,7 +88,7 @@ if __name__ == '__main__':
 
         for rotation in [True, False]:
             for symmetry_required in [True, False]:
-                SAT('SATModel', rotation_allowed = rotation,
+                SATSolver('SATModel', rotation_allowed = rotation,
                                 symmetry_required=symmetry_required,
                                 encoding_type='bw',
                                 number_of_instances=40,

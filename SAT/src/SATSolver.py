@@ -75,7 +75,6 @@ class SATSolver:
 
         
         # Set timeout
-        print('ciao')
         manager = multiprocessing.Manager()
         return_dict = manager.dict()
         p = multiprocessing.Process(target=solver.solve, args=(1, return_dict))
@@ -87,7 +86,6 @@ class SATSolver:
         
         # Get return values of the provess
         is_solved = return_dict.values()[0]
-        solver = return_dict.values()[1]
         
         if is_solved:
             # Evaluate the solution
