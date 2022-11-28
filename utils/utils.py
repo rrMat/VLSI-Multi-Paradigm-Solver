@@ -120,7 +120,7 @@ def plot_device(pos_x: list, pos_y: list, widths: list, heights: list, w: int, h
     plt.close()
 
 
-def write_sol(path: str, w: int, h: int, n: int, widths: list, heights: list, pos_x: list, pos_y: list, rotation: list):
+def write_sol(path, w: int, h: int, n: int, widths: list, heights: list, pos_x: list, pos_y: list, rotation: list):
 
     """
     Save solution in txt format in the format requested by the project description
@@ -143,7 +143,7 @@ def write_sol(path: str, w: int, h: int, n: int, widths: list, heights: list, po
         The x positions of the chips
     :param pos_y: list
         The y positions of the chips
-    :param rotations: list
+    :param rotation: list
         An array of bool reporting the rotated chips
 
     """

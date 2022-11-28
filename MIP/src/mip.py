@@ -98,12 +98,14 @@ class MIP:
             widths_r = [heights[i] if rotated[i] else widths[i] for i in range(n)]
             heights_r = [widths[i] if rotated[i] else heights[i] for i in range(n)]
             widths, heights = widths_r, heights_r
+        else:
+            rotated = np.zeros(n)
 
         if self.print_image:
-            plot_device(coordinates_x, coordinates_y, widths, heights, w, max_height, rotations=[])
+            plot_device(coordinates_x, coordinates_y, widths, heights, w, max_height, rotated)
 
-        plot_device(coordinates_x, coordinates_y, widths, heights, w, max_height, [], image_path)
-        write_sol(output_path, w, max_height, n, widths, heights, coordinates_x, coordinates_y)
+        plot_device(coordinates_x, coordinates_y, widths, heights, w, max_height, rotated, image_path)
+        write_sol(output_path, w, max_height, n, widths, heights, coordinates_x, coordinates_y, rotated)
         write_stat_line(self.stats_path, instance, max_height, height_lb, solve_time)
 
     def execute(self, instance):
