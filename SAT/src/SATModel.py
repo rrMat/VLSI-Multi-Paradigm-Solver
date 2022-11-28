@@ -21,7 +21,7 @@ class SATModel:
         self.time_available = time_available
         self.interrupt = interrupt
 
-        self.min_height = math.ceil(np.sum(chips_widths * chips_heights) / plate_width) + 2
+        self.min_height = math.ceil(np.sum(chips_widths * chips_heights) / plate_width) + 1
         self.max_height = np.sum([min(h, w) for h, w in zip(chips_heights, chips_widths)]) if rotation else np.sum(chips_heights)
 
         # Literals containers
@@ -49,6 +49,11 @@ class SATModel:
             chip_rotated_places = {k: [] for k in range(self.n_chips)}
         
         start_time = time.time()
+
+        values = {}
+        for k in range(self.n_chips):
+            values[k] = []
+
         for new_height in range(self.min_height, self.max_height):
             if verbose:
                 print('Height: ', new_height)
@@ -63,17 +68,23 @@ class SATModel:
                 print(f'Plate height: {self.plate_height}')
                 print(f'New height: {new_height}')
 
+                
             # Defining available positions for each chip
             for k in range(self.n_chips):
+                
+                template_false = [self.plate[h][w][k] for h in range(new_height)
+                                                      for w in range(self.plate_width)]
+                
                 # Define all the possible positions of each chipset with literals
                 # *. Without rotation
                 for y in range(new_height - 1, self.chips_heights[k] - 2, -1):
                     for x in range(self.plate_width - self.chips_widths[k] + 1):
-                        values = [self.plate[y - slide_y][x + slide_x][k] for slide_x in range(self.chips_widths[k]) 
-                                                                          for slide_y in range(self.chips_heights[k])]
-                        values_false = [self.plate[y][x][k] for x in range(self.plate_width) 
-                                                            for y in range(new_height)]
-                        chip_places[k].append(And(sat_utils.all_true(values), sat_utils.all_false(list(set(values_false) - set(values)))))
+                        values[k].append([self.plate[y - slide_y][x + slide_x][k] for slide_x in range(self.chips_widths[k]) 
+                                                                                  for slide_y in range(self.chips_heights[k])])     
+                               
+                        chip_places[k].append(And(sat_utils.all_true(values[k][-1]), 
+                                                  sat_utils.all_false(list(set(template_false) - set(values[k][-1])))))
+
                         
                         
 
@@ -110,6 +121,8 @@ class SATModel:
             # We have so created a model with a height increased by one respect to before...
             self.plate_height = new_height
 
+            #if self.plate_height == self.min_height:
+            #    continue
             
 
             # Solve the model
