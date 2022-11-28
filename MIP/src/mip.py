@@ -5,7 +5,8 @@ from pathlib import Path
 from utils.utils import load_data, plot_device, write_sol, write_stat_line
 
 models_dict = {
-    'std': 'standard'
+    'std': 'standard',
+    'strong': 'strong_bounds'
 }
 
 time_options_dict = {
@@ -17,7 +18,7 @@ time_options_dict = {
     'cbc': ('cbc_options', 'seconds=300')
 }
 
-cwd = Path.cwd()
+src_path = Path(__file__).parent
 
 
 class MIP:
@@ -61,10 +62,10 @@ class MIP:
         if rotation:
             rot = '_rot'
 
-        self.model_path = (cwd / f'models/{models_dict[model]}{rot}.mod').resolve()
-        self.image_folder_path = (cwd / f'../img/{models_dict[model]}_{solver}{rot}').resolve()
-        self.output_folder_path = (cwd / f'../out/{models_dict[model]}_{solver}{rot}').resolve()
-        self.stats_path = (cwd / f'../stats/{models_dict[model]}_{solver}{rot}.csv').resolve()
+        self.model_path = (src_path / f'models/{models_dict[model]}{rot}.mod').resolve()
+        self.image_folder_path = (src_path / f'../img/{models_dict[model]}_{solver}{rot}').resolve()
+        self.output_folder_path = (src_path / f'../out/{models_dict[model]}_{solver}{rot}').resolve()
+        self.stats_path = (src_path / f'../stats/{models_dict[model]}_{solver}{rot}.csv').resolve()
 
         self.image_folder_path.mkdir(parents=True, exist_ok=True)
         self.output_folder_path.mkdir(parents=True, exist_ok=True)

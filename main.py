@@ -29,7 +29,7 @@ if __name__ == '__main__':
 
     # MIP arguments
     MIP_parser.add_argument('-m', '--model', required=True, nargs='+', type=str,
-                            choices=['std'],
+                            choices=['std', 'strong'],
                             help='Select MIP model.\n'
                                  'Possible models: std | cplex | copt | highs | xpress | cbc')
     MIP_parser.add_argument('-s', '--solver', required=True, nargs='+', type=str,
