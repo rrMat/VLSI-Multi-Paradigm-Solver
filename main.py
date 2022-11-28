@@ -72,7 +72,7 @@ if __name__ == '__main__':
         #                 IMG_DIRECTORY_RELATIVE_PATH,
         #                 STATS_RELATIVE_PATH)
 
-        for encoder in ['np', 'seq', 'bw', 'he']:
+        for encoder in ['seq', 'np', 'bw', 'he']:
             SATSolver('SATModel', rotation_allowed = False,
                             symmetry_required=False,
                             encoding_type=encoder,

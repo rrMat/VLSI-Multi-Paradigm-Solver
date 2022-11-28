@@ -21,7 +21,7 @@ class SATModel:
         self.time_available = time_available
         self.interrupt = interrupt
 
-        self.min_height = math.ceil(np.sum(chips_widths * chips_heights) / plate_width)
+        self.min_height = math.ceil(np.sum(chips_widths * chips_heights) / plate_width) + 2
         self.max_height = np.sum([min(h, w) for h, w in zip(chips_heights, chips_widths)]) if rotation else np.sum(chips_heights)
 
         # Literals containers
@@ -36,7 +36,7 @@ class SATModel:
 
 
 
-    def solve(self, _, returned_values):
+    def solve(self, _, returned_values, verbose):
         returned_values['is_solved'] = False
                 
         # Constraint initialization
@@ -49,41 +49,56 @@ class SATModel:
             chip_rotated_places = {k: [] for k in range(self.n_chips)}
         
         start_time = time.time()
-        self.min_height = self.min_height  + 2
         for new_height in range(self.min_height, self.max_height):
-            print('Height: ', new_height)
+            if verbose:
+                print('Height: ', new_height)
 
             # Defining literals
-            self.plate += [[[Bool(f"plate_{k}_{j}_{i}") for i in range(self.n_chips)] for j in range(self.plate_width)] for k in range(self.plate_height, new_height)]
+            self.plate += [[[Bool(f"plate_{k}_{j}_{i}") for i in range(self.n_chips)] 
+                                                        for j in range(self.plate_width)] 
+                                                        for k in range(self.plate_height, new_height)]
+
+            if verbose:
+                print(f'Size of plate: ({len(self.plate)}, {len(self.plate[-1])}, {len(self.plate[-1][-1])})')
+                print(f'Plate height: {self.plate_height}')
+                print(f'New height: {new_height}')
 
             # Defining available positions for each chip
             for k in range(self.n_chips):
                 # Define all the possible positions of each chipset with literals
                 # *. Without rotation
-                for x in range(self.plate_width - self.chips_widths[k] + 1):
-                    for y in range(new_height - 1, self.chips_heights[k] - 2, -1):
-                        chip_places[k].append(sat_utils.all_true([self.plate[y - slide_y][x + slide_x][k] for slide_x in range(self.chips_widths[k]) 
-                                                                                                          for slide_y in range(self.chips_heights[k])]))
+                for y in range(new_height - 1, self.chips_heights[k] - 2, -1):
+                    for x in range(self.plate_width - self.chips_widths[k] + 1):
+                        values = [self.plate[y - slide_y][x + slide_x][k] for slide_x in range(self.chips_widths[k]) 
+                                                                          for slide_y in range(self.chips_heights[k])]
+                        values_false = [self.plate[y][x][k] for x in range(self.plate_width) 
+                                                            for y in range(new_height)]
+                        chip_places[k].append(And(sat_utils.all_true(values), sat_utils.all_false(list(set(values_false) - set(values)))))
+                        
+                        
+
+                                                                                                        
                 # *. With rotation (if needed)
                 if self.rotation:
-                    for x in range(self.plate_width - self.chips_heights[k] + 1):
-                        for y in range(new_height - 1,  self.chips_widths[k] -2, -1):
-                            chip_rotated_places[k].append(sat_utils.all_true([self.plate[y + slide_y][x + slide_x][k] for slide_x in range(self.chips_heights[k]) 
+                    for y in range(new_height - 1,  self.chips_widths[k] - 2, -1):
+                        for x in range(self.plate_width - self.chips_heights[k] + 1):
+                            chip_rotated_places[k].append(sat_utils.all_true([self.plate[y - slide_y][x + slide_x][k] for slide_x in range(self.chips_heights[k]) 
                                                                                                                       for slide_y in range(self.chips_widths[k])]))
 
             # Defining constraints:
             # - 1° constraint 
-            overlapping_check += [sat_utils.at_most_one[self.encoding_type](self.plate[i][j]) for i in range(self.plate_height, new_height) for j in range(self.plate_width)]
+            overlapping_check += [sat_utils.at_most_one[self.encoding_type](self.plate[i][j]) for i in range(self.plate_height, new_height) 
+                                                                                              for j in range(self.plate_width)]
             # - 2° constraint
             placing_check = []
             for k in range(self.n_chips):  
                 if not self.rotation:
-                    placing_check = placing_check + [sat_utils.exactly_one[self.encoding_type](chip_places[k])]
+                    placing_check += [sat_utils.exactly_one[self.encoding_type](chip_places[k])]
                 else:
-                    placing_check = placing_check + [sat_utils.exactly_one[self.encoding_type]([
-                        And([sat_utils.exactly_one[self.encoding_type](chip_places[k])] + [Not(self.rotated[k])]),
-                        And([sat_utils.exactly_one[self.encoding_type](chip_rotated_places[k])] + [self.rotated[k]])
-                    ])]
+                    placing_check += [sat_utils.exactly_one[self.encoding_type]([
+                                        And([sat_utils.exactly_one[self.encoding_type](chip_places[k])] + [Not(self.rotated[k])]),
+                                        And([sat_utils.exactly_one[self.encoding_type](chip_rotated_places[k])] + [self.rotated[k]])
+                                    ])]
             
             # Solver initialization
             solver = Solver()
@@ -94,6 +109,8 @@ class SATModel:
 
             # We have so created a model with a height increased by one respect to before...
             self.plate_height = new_height
+
+            
 
             # Solve the model
             if solver.check() == sat:
@@ -110,6 +127,9 @@ class SATModel:
                 returned_values['min_height'] = self.min_height
                 returned_values['plate_height'] = self.plate_height
                 returned_values['rotation'] = rotation
+
+                
+                sat_utils.plot_device(solver.model(), self.plate, self.plate_width, self.plate_height, self.n_chips, 'SAT/img')
 
                 return True
             else:
@@ -139,6 +159,33 @@ class SATModel:
                             chip_positions.append((y, x, self.chips_widths[k], self.chips_heights[k], False))
                         found = True
                         
+                        if x + self.chips_heights[k] > self.plate_height or y + self.chips_widths[k] > self.plate_width:
+                            print(f'{k} block out of boundaries')
+                        else:
+                            for h in range(self.chips_heights[k]):
+                                for w in range(self.chips_widths[k]):
+                                    if not model.evaluate(self.plate[x + h][y + w][k]):
+                                        print(f'{k} block should be also in {x+h} {y+w}')
+                                        
+        for x in range(self.plate_height):
+            for y in range(self.plate_width):
+                for k in range(self.n_chips):
+                    if model.evaluate(self.plate[x][y][k]):
+                        print(f'({x},{y}) -> {k}')
+        
+        # Check if some blocks are overlapped
+        for x in range(self.plate_height):
+            for y in range(self.plate_width):
+                sum = 0 
+                for k in range(self.n_chips):
+                    if model.evaluate(self.plate[x][y][k]):
+                        sum += 1
+                if sum > 1:
+                    print(f'Overlapping ({x} {y})')
+                if sum == 0:
+                    print(f'None occupy this zone {x} {y}')
+                        
+                
         pos_x = [x for x, _, _, _, _ in chip_positions]
         pos_y = [y for _, y, _, _, _ in chip_positions]
         chips_w_a = [w for _, _, w, _, _ in chip_positions]

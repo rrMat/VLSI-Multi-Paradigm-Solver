@@ -77,7 +77,7 @@ class SATSolver:
         # Set timeout
         manager = multiprocessing.Manager()
         return_dict = manager.dict()
-        p = multiprocessing.Process(target=solver.solve, args=(1, return_dict))
+        p = multiprocessing.Process(target=solver.solve, args=(1, return_dict, self.verbose))
         p.start()
         p.join(self.time_available)
         if p.is_alive():
@@ -102,7 +102,8 @@ class SATSolver:
 
 
             # Save results
-            utils.plot_device(pos_x, pos_y, chips_w_a, chips_h_a, plate_width, plate_height, rotation, IMG_FILE_PATH)
+            #utils.plot_device(pos_x, pos_y, chips_w_a, chips_h_a, plate_width, plate_height, rotation, IMG_FILE_PATH)
+
             utils.write_sol(OUT_FILE_PATH, 
                             plate_width, 
                             plate_height, 
