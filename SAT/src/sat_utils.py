@@ -5,6 +5,15 @@ import time
 from tqdm import tqdm
 import numpy as np
 import random 
+import os
+from random import randint
+import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle, Patch
+from matplotlib.legend_handler import HandlerTuple
+from matplotlib.image import imread
+import pandas as pd
+import numpy as np
+
 
 
 # Naive Paiwise
@@ -105,6 +114,9 @@ exactly_one = {
 def all_true(bool_vars):
     return And(bool_vars)
 
+def all_false(bool_vars):
+    return And([Not(var) for var in bool_vars])
+
 def bool_greater_eq(x, y):
     return Or(x, Not(y))
     
@@ -126,3 +138,58 @@ def z3_lex_less_eq(x, y, n):
                                                 z3_less_eq(x[i], y[i])
                                             ) for i in range(1, len(x))]
                 )
+
+
+
+def plot_device(model, plate, w: int, h: int, n_chips, img_path=""):
+
+    """
+    Create, save or show an image of the predicted plate when rotation is allowed
+
+    Parameters
+    ----------
+    pos_x: list
+        The x positions of the chips
+    pos_y: list
+        The y positions of the chips
+    widths: list
+        The chip's widths
+    heights: list
+        The chip's height
+    w: int
+        The plate width
+    h: int
+        The plate height
+    rotations:
+        An array of bool reporting the rotated chips
+    img_path:
+        The path where the image will be saved, if not specified the image will be shown but not saved.
+        It can be string or Path.
+
+    """
+    colors = {}
+    for k in range(n_chips):
+        colors[k] = (randint(0,100)/100, randint(0,100)/100, randint(0,100)/100)
+
+    fig, ax = plt.subplots()
+    ax.axis([0, w, 0, h])
+    for y in range(h):
+        for x in range(w):
+            for k in range(n_chips):
+                if model.evaluate(plate[y][x][k]):
+                    rect = Rectangle(
+                        (x, y),
+                        1, 1,
+                        facecolor=colors[k],
+                        edgecolor=(0,0,0),
+                        linewidth=2,
+                    )
+                    ax.add_patch(rect)
+    if img_path == "":
+        plt.show()
+    else:
+        if (os.path.isfile(img_path)) or not os.path.isfile(img_path):
+            print(img_path)
+            plt.savefig(img_path)
+
+    plt.close()
