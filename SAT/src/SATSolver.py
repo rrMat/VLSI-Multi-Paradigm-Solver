@@ -6,12 +6,14 @@ import utils.utils as utils
 import multiprocessing
 
 from SAT.src.SATModel import SATModel
+from SAT.src.SATModel_onlyBorders import SATModel_onlyBorders
 import SAT.src.sat_utils as sat_utils
 
 class SATSolver:
 
     MODEL_names = {
-        'SATBaseModel': SATModel
+        'SATModel': SATModel,
+        'SATModel_onlyBorders': SATModel,
     }
 
     def __init__(self, model_name, rotation_allowed, symmetry_required, encoding_type, 
@@ -29,8 +31,9 @@ class SATSolver:
         self.OVERRIDE = OVERRIDE
 
         # Define the result label
-        self.LABEL = 'rotation' if self.rotation_allowed else 'no_rotation'
-        self.LABEL = self.LABEL + '/' + self.model_name
+        self.LABEL = self.model_name
+        self.LABEL = self.LABEL + '/' + ('rotation' if self.rotation_allowed else 'no_rotation') 
+        self.LABEL = self.LABEL + '/' + ('symmetry_breaking' if self.rotation_allowed else 'no_symmetry_breaking')
         self.LABEL = self.LABEL + '/' + self.solver + '/'
         
         # Define the paths of the results
@@ -82,7 +85,6 @@ class SATSolver:
                                               time_available = self.time_available,
                                               interrupt = self.interrupt)
 
-        
         # Set timeout and verify the satisfability of the model
         manager = multiprocessing.Manager()
         return_dict = manager.dict()
@@ -105,11 +107,8 @@ class SATSolver:
             chips_w_a = return_dict['chips_w_a']
             chips_h_a = return_dict['chips_h_a']
             plate_width = return_dict['plate_width']
-            plate_min_height = return_dict['min_height']
             plate_height = return_dict['plate_height']
             rotation = return_dict['rotation']
-
-            print(return_dict)
 
             # Save image
             utils.plot_device(pos_x, pos_y, chips_w_a, chips_h_a, plate_width, plate_height, rotation, IMG_FILE_PATH)
@@ -126,10 +125,10 @@ class SATSolver:
                             rotation)
 
         else: # The model is not satisfable...
-            plate_height, plate_min_height, solving_time = solver.getSolutionUnsolved()
+            plate_height, solving_time = solver.getSolutionUnsolved()
             
         utils.write_stat_line(STAT_FILE_PATH,
                               i,
                               plate_height,
-                              plate_min_height,
-                              solving_time) 
+                              solving_time, 
+                              return_dict['result']) 

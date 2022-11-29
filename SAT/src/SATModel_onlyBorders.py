@@ -6,9 +6,9 @@ import time
 import SAT.src.sat_utils as sat_utils
 
 
-class SATModel:
+class SATModel_onlyBorders:
 
-    NAME = 'SATModel'
+    NAME = 'SATModel_onlyBorders'
 
     def __init__(self, plate_width, n_chips, chips_widths, chips_heights, rotation, symmetry_breaking, encoding_type, time_available, interrupt):
         self.plate_width = plate_width
@@ -39,12 +39,11 @@ class SATModel:
 
         # By now the problem hasn't been solved yet...
         returned_values['is_solved'] = False
-        returned_values['result'] = 'N|A'
                 
         # Constraint initialization
         overlapping_check = []
         placing_check = []
-        symmetry_breaking_check = []
+        symmetry_breaking = []
 
         # For each chip the combinations of literals which describe all the possible positions 
         values = {k: [] for k in range(self.n_chips)}           # Those which has to be True
@@ -89,8 +88,13 @@ class SATModel:
                 # *. Without rotation
                 for y in range(new_height - 1, max(self.chips_heights[k] - 2, self.plate_height - 1), -1):
                     for x in range(self.plate_width - self.chips_widths[k] + 1):
-                        values[k].append([self.plate[y - slide_y][x + slide_x][k] for slide_x in range(self.chips_widths[k]) 
-                                                                                  for slide_y in range(self.chips_heights[k])])     
+                        points = []
+                        points += [self.plate[y][x + slide_x][k] for slide_x in range(self.chips_widths[k])]
+                        points += [self.plate[y - self.chips_heights[k] - 1][x + slide_x][k] for slide_x in range(self.chips_widths[k])]
+                        points += [self.plate[y - slide_y - 1][x][k] for slide_y in range(self.chips_heights[k]-1)]   
+                        points += [self.plate[y - slide_y - 1][x + self.chips_widths - 1][k] for slide_y in range(self.chips_heights[k]-1)]     
+                        values[k].append(points)
+                             
                         not_values[k].append(list(set(template_false) - set(values[k][-1])))
                 # *. With rotation
                 if self.rotation:
@@ -125,11 +129,6 @@ class SATModel:
                                         And([sat_utils.exactly_one[self.encoding_type](chip_places[k])] + [Not(self.rotated[k])]),
                                         And([sat_utils.exactly_one[self.encoding_type](chip_places_rotated[k])] + [self.rotated[k]])
                                     ])]
-
-            # - 3° constraint
-            if self.symmetry_breaking:
-                # Find the tallest piece
-                symmetry_breaking_check += [self.plate[0][0][np.argmax(self.chips_heights)]]
     
             # Solver initialization
             solver = Solver()
@@ -137,7 +136,7 @@ class SATModel:
             # Add constraints
             solver.add(overlapping_check)
             solver.add(placing_check)
-            solver.add(symmetry_breaking_check)
+            solver.add(symmetry_breaking)
 
             # We have so created a model with a height increased by one respect to before...
             self.plate_height = new_height
@@ -154,11 +153,8 @@ class SATModel:
                 returned_values['min_height'], \
                 returned_values['plate_height'], \
                 returned_values['rotation'] = self.getSolutionParsed(solver.model())
-                returned_values['result'] = 'optimal'
-                returned_values['result'] = 'optimal' if new_height == self.min_height else 'non-optimal'
-                
-                if verbose:
-                    sat_utils.plot_device(solver.model(), self.plate, self.plate_width, self.plate_height, self.n_chips, 'SAT/img/img.png')
+
+                sat_utils.plot_device(solver.model(), self.plate, self.plate_width, self.plate_height, self.n_chips, 'SAT/img/img.png')
                 return True
             else:
                 if verbose:
@@ -168,7 +164,6 @@ class SATModel:
         # Any valid model has been found            
         returned_values['solving_time'] = time.time() - start_time
         returned_values['is_solved'] = False
-        returned_values['result'] = 'UNSAT'
         return False
     
     def getSolutionParsed(self, model):
@@ -193,10 +188,10 @@ class SATModel:
         return pos_x, pos_y, chips_w_a, chips_h_a, self.plate_width, self.min_height, self.plate_height, rotated
 
     def getSolutionUnsolved(self):
-        return self.plate_height, self.solving_time
+        return self.plate_height, self.min_height, self.solving_time
 
     def __str__(self):
         returned_values = f'Time available: {self.time_available}\nMin height: {self.min_height}\nMax height: {self.max_height}\n\nWidth of the plate: {self.plate_width}\nNumber of chips: {self.n_chips}\n\n'
         for i in range(self.n_chips):
             returned_values += f'Size of {i}° chip: ({self.chips_widths[i]}, {self.chips_heights[i]})\n' 
-        return returned_values
+        return returned_values 
