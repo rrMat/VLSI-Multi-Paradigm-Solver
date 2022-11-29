@@ -26,8 +26,7 @@ class SATModel:
 
         # Literals containers
         self.plate = []
-        if self.rotation:
-            self.rotated = [Bool(f"rotated_{i}") for i in range(self.n_chips)]
+        self.rotated = []
 
         # Init
         self.solved = False
@@ -37,26 +36,34 @@ class SATModel:
 
 
     def solve(self, _, returned_values, verbose):
+        # Timer
+        start_time = time.time()
+
+        # By now the problem hasn't been solved yet...
         returned_values['is_solved'] = False
                 
         # Constraint initialization
         overlapping_check = []
-        placing_check = None
+        placing_check = []
 
-        # Available positions of chips
-        chip_places = {k: [] for k in range(self.n_chips)}
-        
-        start_time = time.time()
+        # For each chip the combinations of literals which describe all the possible positions 
+        values = {k: [] for k in range(self.n_chips)}           # Those which has to be True
+        not_values = {k: [] for k in range(self.n_chips)}       # Those which has to be False
+        if self.rotation:
+            values_rotated = {k: [] for k in range(self.n_chips)}           # Those which has to be True (with rotation)
+            not_values_rotated = {k: [] for k in range(self.n_chips)}       # Those which has to be False (with rotation)
+            
+        if verbose:
+            print(f'Min height: {self.min_height}')
+            print(f'Max height: {self.max_height}')
+            print(f'With rotation: {self.rotation}')
 
-        values = {}
-        for k in range(self.n_chips):
-            values[k] = []
+        if self.rotation:
+            self.rotated += [Bool(f"rotated_{i}") for i in range(self.n_chips)]
 
-        print(f'Height: {self.max_height}')
-        for new_height in range(self.min_height, self.max_height + 1):
-            if verbose:
-                print('Height: ', new_height)
-
+        # Starting from the lowest height, try all of them, increasing one by one
+        for new_height in range(self.min_height, self.max_height):
+            
             # Defining literals
             self.plate += [[[Bool(f"plate_{k}_{j}_{i}") for i in range(self.n_chips)] 
                                                         for j in range(self.plate_width)] 
@@ -67,28 +74,44 @@ class SATModel:
                 print(f'Plate height: {self.plate_height}')
                 print(f'New height: {new_height}')
 
-                
             # Defining available positions for each chip
             for k in range(self.n_chips):
                 
                 template_false = [self.plate[h][w][k] for h in range(new_height)
                                                       for w in range(self.plate_width)]
-                
+                template_line_false = [self.plate[new_height - 1][w][k] for w in range(self.plate_width)]
+                for i in range(len(not_values[k])):
+                    not_values[k][i] += template_line_false
+                    if self.rotation:
+                        not_values_rotated[k][i] += template_line_false
+                        
                 # Define all the possible positions of each chipset with literals
                 # *. Without rotation
                 for y in range(new_height - 1, max(self.chips_heights[k] - 2, self.plate_height - 1), -1):
                     for x in range(self.plate_width - self.chips_widths[k] + 1):
                         values[k].append([self.plate[y - slide_y][x + slide_x][k] for slide_x in range(self.chips_widths[k]) 
                                                                                   for slide_y in range(self.chips_heights[k])])     
-                chip_places[k] = []
+                        not_values[k].append(list(set(template_false) - set(values[k][-1])))
+                
+                if self.rotation:
+                    # *. With rotation
+                    for y in range(new_height - 1, max(self.chips_widths[k] - 2, self.plate_height - 1), -1):
+                        for x in range(self.plate_width - self.chips_heights[k] + 1):
+                            values_rotated[k].append([self.plate[y - slide_y][x + slide_x][k] for slide_x in range(self.chips_heights[k]) 
+                                                                                              for slide_y in range(self.chips_widths[k])])     
+                            not_values_rotated[k].append(list(set(template_false) - set(values_rotated[k][-1])))
+
+            # Available positions of chips
+            chip_places = {k: [] for k in range(self.n_chips)}
+            if self.rotation:
+                chip_places_rotated = {k: [] for k in range(self.n_chips)}
+                
+            for k in range(self.n_chips):
                 for i in range(len(values[k])):             
-                    chip_places[k].append(And(sat_utils.all_true(values[k][i]), 
-                                                sat_utils.all_false(list(set(template_false) - set(values[k][i])))))
-
-                        
-                        
-
-           
+                    chip_places[k].append(And(sat_utils.all_true(values[k][i]), sat_utils.all_false(not_values[k][i])))
+                    if self.rotation:
+                        chip_places_rotated[k].append(And(sat_utils.all_true(values_rotated[k][i]), sat_utils.all_false(not_values_rotated[k][i])))
+                    
             # Defining constraints:
             # - 1° constraint 
             overlapping_check += [sat_utils.at_most_one[self.encoding_type](self.plate[i][j]) for i in range(self.plate_height, new_height) 
@@ -101,7 +124,7 @@ class SATModel:
                 else:
                     placing_check += [sat_utils.exactly_one[self.encoding_type]([
                                         And([sat_utils.exactly_one[self.encoding_type](chip_places[k])] + [Not(self.rotated[k])]),
-                                        And([sat_utils.exactly_one[self.encoding_type](chip_rotated_places[k])] + [self.rotated[k]])
+                                        And([sat_utils.exactly_one[self.encoding_type](chip_places_rotated[k])] + [self.rotated[k]])
                                     ])]
             
             # Solver initialization
@@ -113,10 +136,6 @@ class SATModel:
 
             # We have so created a model with a height increased by one respect to before...
             self.plate_height = new_height
-
-            if self.plate_height == self.min_height:
-                continue
-            
 
             # Solve the model
             if solver.check() == sat:
@@ -132,11 +151,9 @@ class SATModel:
                 returned_values['plate_width'] = self.plate_width
                 returned_values['min_height'] = self.min_height
                 returned_values['plate_height'] = self.plate_height
-                returned_values['rotation'] = rotation
+                returned_values['rotation'] = self.rotation
 
-                
                 sat_utils.plot_device(solver.model(), self.plate, self.plate_width, self.plate_height, self.n_chips, 'SAT/img')
-
                 return True
             else:
                 print('Height not valid.')
