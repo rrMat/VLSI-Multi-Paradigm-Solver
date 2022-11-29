@@ -102,8 +102,6 @@ for i in range(1,41):
     max_h = sum(chip_h)
     print("current i", i)
 
-
-
     resul = plate(w, n, min_h, max_h, chip_w, chip_h, time_available)
 
     if resul != None:
@@ -112,7 +110,7 @@ for i in range(1,41):
         '../out/std/sol' + str(i) + ".txt"
       )
       tim.append((i, resul[4]))
-      ut.write_sol(sol_path, w, resul[3]-1, n, chip_w, chip_h, resul[1], resul[2])
+      ut.write_sol(sol_path, w, resul[3]-1, n, chip_w, chip_h, resul[1], resul[2],  rotation =  [])
     else:
       tim.append((i, False))
 
@@ -121,7 +119,9 @@ for i in range(1,41):
         os.path.dirname(__file__),
         '../out_img/plot' + str(i) + '.png'
       )
-      ut.plot_device(resul[1], resul[2], chip_w, chip_h, w, resul[3]-1, out_pat)
+      ut.plot_device(pos_x= resul[1], pos_y = resul[2], widths=  chip_w, heights = chip_h, w= w, 
+      h= resul[3]-1,  img_path=out_pat,  rotations = [] )
+
  
 
 txt_path = os.path.join(

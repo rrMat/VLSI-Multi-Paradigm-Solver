@@ -5,7 +5,8 @@ from pathlib import Path
 from utils.utils import load_data, plot_device, write_sol, write_stat_line
 
 models_dict = {
-    'std': 'standard'
+    'std': 'standard',
+    'strong': 'strong_bounds'
 }
 
 time_options_dict = {
@@ -17,7 +18,7 @@ time_options_dict = {
     'cbc': ('cbc_options', 'seconds=300')
 }
 
-cwd = Path.cwd()
+src_path = Path(__file__).parent
 
 
 class MIP:
@@ -61,15 +62,17 @@ class MIP:
         if rotation:
             rot = '_rot'
 
-        self.model_path = (cwd / f'models/{models_dict[model]}{rot}.mod').resolve()
-        self.image_folder_path = (cwd / f'../img/{models_dict[model]}_{solver}{rot}').resolve()
-        self.output_folder_path = (cwd / f'../out/{models_dict[model]}_{solver}{rot}').resolve()
-        self.stats_path = (cwd / f'../stats/{models_dict[model]}_{solver}{rot}.csv').resolve()
+        self.model_path = (src_path / f'models/{models_dict[model]}{rot}.mod').resolve()
+        self.image_folder_path = (src_path / f'../img/{models_dict[model]}_{solver}{rot}').resolve()
+        self.output_folder_path = (src_path / f'../out/{models_dict[model]}_{solver}{rot}').resolve()
+        self.stats_path = (src_path / f'../stats/{models_dict[model]}_{solver}{rot}.csv').resolve()
 
         self.image_folder_path.mkdir(parents=True, exist_ok=True)
         self.output_folder_path.mkdir(parents=True, exist_ok=True)
 
     def solve(self, instance):
+        print(f'Solving instance {instance}')
+
         image_path = (self.image_folder_path / f'{instance}.jpg').resolve()
         output_path = (self.output_folder_path / f'{instance}.txt').resolve()
 
@@ -97,12 +100,14 @@ class MIP:
             widths_r = [heights[i] if rotated[i] else widths[i] for i in range(n)]
             heights_r = [widths[i] if rotated[i] else heights[i] for i in range(n)]
             widths, heights = widths_r, heights_r
+        else:
+            rotated = np.zeros(n)
 
         if self.print_image:
-            plot_device(coordinates_x, coordinates_y, widths, heights, w, max_height, rotations=[])
+            plot_device(coordinates_x, coordinates_y, widths, heights, w, max_height, rotated)
 
-        plot_device(coordinates_x, coordinates_y, widths, heights, w, max_height, [], image_path)
-        write_sol(output_path, w, max_height, n, widths, heights, coordinates_x, coordinates_y)
+        plot_device(coordinates_x, coordinates_y, widths, heights, w, max_height, rotated, image_path)
+        write_sol(output_path, w, max_height, n, widths, heights, coordinates_x, coordinates_y, rotated)
         write_stat_line(self.stats_path, instance, max_height, height_lb, solve_time)
 
     def execute(self, instance):
