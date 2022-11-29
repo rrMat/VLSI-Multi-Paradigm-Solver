@@ -1,7 +1,8 @@
 from amplpy import AMPL, Environment
 from pathlib import Path
+import re
 
-from utils.utils import load_data, plot_device, write_sol, write_stat_line
+from utils.utils import load_data, plot_device, write_sol, write_stat_line, write_experimental_result
 
 models_dict = {
     'std': 'standard',
@@ -128,8 +129,14 @@ class MIP:
 
 
 if __name__ == '__main__':
-    mip = MIP(ampl_dir='C:/Program Files/ampl.mswin64/', solver='highs', print_image=False, rotation=False)
-    mip.solve(1)
+    result_path = (src_path / f'../stats/results_mip.csv').resolve()
+    stat_paths = [p for p in (src_path / f'../stats/').resolve().glob('*.csv') if result_path != p]
+    names = [re.search(r"(.+).csv", p.name).group(1) for p in stat_paths]
+
+    write_experimental_result(result_path, stat_paths, names)
+
+    #mip = MIP(ampl_dir='C:/Program Files/ampl.mswin64/', solver='highs', print_image=False, rotation=False)
+    #mip.solve(1)
 
 
 
