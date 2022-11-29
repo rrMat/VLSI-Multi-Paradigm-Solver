@@ -33,8 +33,6 @@ class SATModel:
         self.plate_height = 0
         self.solving_time = 0
 
-
-
     def solve(self, _, returned_values, verbose):
         # Timer
         start_time = time.time()
@@ -45,6 +43,7 @@ class SATModel:
         # Constraint initialization
         overlapping_check = []
         placing_check = []
+        symmetry_breaking = []
 
         # For each chip the combinations of literals which describe all the possible positions 
         values = {k: [] for k in range(self.n_chips)}           # Those which has to be True
@@ -92,9 +91,8 @@ class SATModel:
                         values[k].append([self.plate[y - slide_y][x + slide_x][k] for slide_x in range(self.chips_widths[k]) 
                                                                                   for slide_y in range(self.chips_heights[k])])     
                         not_values[k].append(list(set(template_false) - set(values[k][-1])))
-                
+                # *. With rotation
                 if self.rotation:
-                    # *. With rotation
                     for y in range(new_height - 1, max(self.chips_widths[k] - 2, self.plate_height - 1), -1):
                         for x in range(self.plate_width - self.chips_heights[k] + 1):
                             values_rotated[k].append([self.plate[y - slide_y][x + slide_x][k] for slide_x in range(self.chips_heights[k]) 
@@ -126,13 +124,14 @@ class SATModel:
                                         And([sat_utils.exactly_one[self.encoding_type](chip_places[k])] + [Not(self.rotated[k])]),
                                         And([sat_utils.exactly_one[self.encoding_type](chip_places_rotated[k])] + [self.rotated[k]])
                                     ])]
-            
+    
             # Solver initialization
             solver = Solver()
 
             # Add constraints
             solver.add(overlapping_check)
             solver.add(placing_check)
+            solver.add(symmetry_breaking)
 
             # We have so created a model with a height increased by one respect to before...
             self.plate_height = new_height
@@ -141,35 +140,28 @@ class SATModel:
             if solver.check() == sat:
                 returned_values['solving_time'] = time.time() - start_time
                 returned_values['is_solved'] = True
-                
-                pos_x, pos_y, chips_w_a, chips_h_a, self.plate_width, self.min_height, self.plate_height, rotation, self.solving_time = self.get_solution_solved_parsed(solver.model())
-
-                returned_values['pos_x'] = pos_x
-                returned_values['pos_y'] = pos_y
-                returned_values['chips_w_a'] = chips_w_a
-                returned_values['chips_h_a'] = chips_h_a
-                returned_values['plate_width'] = self.plate_width
-                returned_values['min_height'] = self.min_height
-                returned_values['plate_height'] = self.plate_height
-                returned_values['rotation'] = self.rotation
+                returned_values['pos_x'], \
+                returned_values['pos_y'], \
+                returned_values['chips_w_a'], \
+                returned_values['chips_h_a'], \
+                returned_values['plate_width'], \
+                returned_values['min_height'], \
+                returned_values['plate_height'], \
+                returned_values['rotation'] = self.getSolutionParsed(solver.model())
 
                 sat_utils.plot_device(solver.model(), self.plate, self.plate_width, self.plate_height, self.n_chips, 'SAT/img')
                 return True
             else:
-                print('Height not valid.')
-            
+                if verbose:
+                    print(f'Height {new_height} not valid')
+    
             
         # Any valid model has been found            
         returned_values['solving_time'] = time.time() - start_time
         returned_values['is_solved'] = False
         return False
     
-
-
-    def get_solution_unsolved_parsed(self):
-        return self.plate_height, self.min_height, self.solving_time
-
-    def get_solution_solved_parsed(self, model):
+    def getSolutionParsed(self, model):
         chip_positions = []
         for k in range(self.n_chips):
             found = False
@@ -177,48 +169,21 @@ class SATModel:
                 for y in range(self.plate_width):
                     if not found and model.evaluate(self.plate[x][y][k]):
                         if self.rotation:   
-                            chip_positions.append((y, x, self.chips_widths[k], self.chips_heights[k], model.evaluate(self.rotated[k])))
+                            chip_positions.append((y, x, self.chips_widths[k], self.chips_heights[k], True if model.evaluate(self.rotated[k]) else False))
                         else:
                             chip_positions.append((y, x, self.chips_widths[k], self.chips_heights[k], False))
                         found = True
                         
-                        if x + self.chips_heights[k] > self.plate_height or y + self.chips_widths[k] > self.plate_width:
-                            print(f'{k} block out of boundaries')
-                        else:
-                            for h in range(self.chips_heights[k]):
-                                for w in range(self.chips_widths[k]):
-                                    if not model.evaluate(self.plate[x + h][y + w][k]):
-                                        print(f'{k} block should be also in {x+h} {y+w}')
-                                        
-        for x in range(self.plate_height):
-            for y in range(self.plate_width):
-                for k in range(self.n_chips):
-                    if model.evaluate(self.plate[x][y][k]):
-                        print(f'({x},{y}) -> {k}')
-        
-        # Check if some blocks are overlapped
-        for x in range(self.plate_height):
-            for y in range(self.plate_width):
-                sum = 0 
-                for k in range(self.n_chips):
-                    if model.evaluate(self.plate[x][y][k]):
-                        sum += 1
-                if sum > 1:
-                    print(f'Overlapping ({x} {y})')
-                if sum == 0:
-                    print(f'None occupy this zone {x} {y}')
-                        
-                
         pos_x = [x for x, _, _, _, _ in chip_positions]
         pos_y = [y for _, y, _, _, _ in chip_positions]
         chips_w_a = [w for _, _, w, _, _ in chip_positions]
         chips_h_a = [h for _, _, _, h, _ in chip_positions]
         rotated = [r for _, _, _, _, r in chip_positions]
-        print(chip_positions)
 
-        return pos_x, pos_y, chips_w_a, chips_h_a, self.plate_width, self.min_height, self.plate_height, rotated, self.solving_time
+        return pos_x, pos_y, chips_w_a, chips_h_a, self.plate_width, self.min_height, self.plate_height, rotated
 
-
+    def getSolutionUnsolved(self):
+        return self.plate_height, self.min_height, self.solving_time
 
     def __str__(self):
         returned_values = f'Time available: {self.time_available}\nMin height: {self.min_height}\nMax height: {self.max_height}\n\nWidth of the plate: {self.plate_width}\nNumber of chips: {self.n_chips}\n\n'
