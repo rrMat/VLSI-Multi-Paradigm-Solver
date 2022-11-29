@@ -24,8 +24,12 @@ if __name__ == '__main__':
     MIP_parser = parsers.add_parser("MIP", parents=[base_parser])
 
     #CP parameters (required)
-    CP_parser.add_argument("-m", "--model", required=True, nargs='+', type=str, choices=["max", "sbs"], help='select models. \nAcceptable values: max | sbs')
-    CP_parser.add_argument("-s", "--solver", required=True, nargs='+', type=str, choices=["chuffed", "gecode", "or-tools"],  help='select solver. \nAcceptable values: chugged | gecode')
+    CP_parser.add_argument("-m", "--model", required=True, nargs='+', type=str, 
+                           choices=CPSolver.acceptable_models, 
+                           help='select models. \nAcceptable values: max | sbs')
+    CP_parser.add_argument("-s", "--solver", required=True, nargs='+', type=str, 
+                           choices=CPSolver.acceptable_solvers,  
+                           help='select solver. \nAcceptable values: chugged | gecode')
 
     # MIP arguments
     MIP_parser.add_argument('-m', '--model', required=True, nargs='+', type=str,
@@ -42,7 +46,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-
+    print(args.Paradigm)
     if args.Paradigm == "CP" :
 
         cp = CPSolver(
@@ -57,9 +61,6 @@ if __name__ == '__main__':
                 cp.execute(args.instance)                   
 
     elif args.Paradigm == "SAT":
-        OUT_DIRECTORY_RELATIVE_PATH = '/out/'
-        IMG_DIRECTORY_RELATIVE_PATH = '/img/'
-        STATS_RELATIVE_PATH = '/stats/'
 
         #SAT_solver = SAT(args.instance,
         #                 args.model,
@@ -76,31 +77,27 @@ if __name__ == '__main__':
         #                 STATS_RELATIVE_PATH)
 
         for encoder in ['seq', 'np', 'bw', 'he']:
-            SATSolver('SATModel', rotation_allowed = False,
+            SATSolver('SATBaseModel', rotation_allowed = True,
                             symmetry_required=False,
                             encoding_type=encoder,
                             number_of_instances=40,
                             time_available=300,
                             interrupt=True,
                             verbose=True,
-                            out_directory_path = 'SAT' + OUT_DIRECTORY_RELATIVE_PATH,
-                            img_directory_path = 'SAT' + IMG_DIRECTORY_RELATIVE_PATH,
-                            stats_directory_path = 'SAT' + STATS_RELATIVE_PATH,
+                            solver='z3',
                             OVERRIDE = True
                 ).execute()
 
         for rotation in [True, False]:
             for symmetry_required in [True, False]:
-                SATSolver('SATModel', rotation_allowed = rotation,
+                SATSolver('SATBaseModel', rotation_allowed = rotation,
                                 symmetry_required=symmetry_required,
                                 encoding_type='bw',
                                 number_of_instances=40,
                                 time_available=300,
                                 interrupt=True,
                                 verbose=True,
-                                out_directory_path = 'SAT' + OUT_DIRECTORY_RELATIVE_PATH,
-                                img_directory_path = 'SAT' + IMG_DIRECTORY_RELATIVE_PATH,
-                                stats_directory_path = 'SAT' + STATS_RELATIVE_PATH,
+                                solver='z3',
                                 OVERRIDE = False
                 ).execute()
 

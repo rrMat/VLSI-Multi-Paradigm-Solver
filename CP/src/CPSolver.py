@@ -12,7 +12,7 @@ from utils.utils import plot_device, load_data, write_sol
 
 class CPSolver:
 
-    acceptable_models = ["max", "sbs"]
+    acceptable_models = ["std", "cml", "syb"]
     acceptable_solvers = ["chuffed", "gecode", "or-tools"]
 
     def __init__(self, model: str=None, solver: str=None, rotation: bool=False, print_img:bool=False):
@@ -210,8 +210,9 @@ class CPSolver:
                             widths,
                             heights,
                             pos_x,
-                            pos_y
-                        )
+                            pos_y,
+                            rotations
+                        )                        
 
                         if self.__print_img:
                             plot_device(pos_x, pos_y, widths, heights, w, h, rotations, self.__img_path +'device-' + str(i) +'.png')

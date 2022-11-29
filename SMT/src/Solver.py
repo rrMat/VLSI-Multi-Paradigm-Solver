@@ -30,6 +30,8 @@ def plate(w, n, min_h, max_h, chip_w, chip_h, time_available):
       
           s = Solver()
           set_option(timeout=int(time_remained))
+          #set_option(timeout=300)
+          print("current h: ", h)
           print("current h: ", h)
 
 
@@ -97,7 +99,7 @@ def plate(w, n, min_h, max_h, chip_w, chip_h, time_available):
 
 tim = []
 
-for i in range(1,3):
+for i in range(1,2):
     f = ut.load_data(i)
     w = f[0]
     n = f[1]

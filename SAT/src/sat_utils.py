@@ -139,8 +139,6 @@ def z3_lex_less_eq(x, y, n):
                                             ) for i in range(1, len(x))]
                 )
 
-
-
 def plot_device(model, plate, w: int, h: int, n_chips, img_path=""):
 
     """

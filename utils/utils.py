@@ -70,7 +70,6 @@ def load_data(index: int):
 
 # plot the image for rotation
 def plot_device(pos_x: list, pos_y: list, widths: list, heights: list, w: int, h: int, rotations: list, img_path="", override=True):
-
     """
     Create, save or show an image of the predicted plate when rotation is allowed
 
@@ -96,16 +95,16 @@ def plot_device(pos_x: list, pos_y: list, widths: list, heights: list, w: int, h
 
     """
     if len(rotations) != 0:
-        widths = [(widths[i] * (1-rotations[i])) + (heights[i]*rotations[i]) for i in range(0, len(widths))]
-        heights = [(heights[i] * (1-rotations[i])) + (widths[i]*rotations[i]) for i in range(0, len(widths))]
+        widths_a = [(widths[i] * (1-rotations[i])) + (heights[i]*rotations[i]) for i in range(0, len(widths))]
+        heights_a = [(heights[i] * (1-rotations[i])) + (widths[i]*rotations[i]) for i in range(0, len(widths))]
 
     fig, ax = plt.subplots()
     ax.axis([0, w, 0, h])
-    for i in range(0, len(pos_x)):
+    for i in range(0, len(widths_a)):
         color = (randint(0,100)/100, randint(0,100)/100, randint(0,100)/100)
         rect = Rectangle(
             (pos_x[i], pos_y[i]),
-            widths[i], heights[i],
+            widths_a[i], heights_a[i],
             facecolor=color,
             edgecolor=(0,0,0),
             linewidth=2,
@@ -161,7 +160,7 @@ def write_sol(path, w: int, h: int, n: int, widths: list, heights: list, pos_x: 
         else:
             for i in range(n):
 
-                f.write(f'{widths[i]} {heights[i]} {int(pos_x[i])} {int(pos_y[i])}\n')
+                f.write(f'{widths[i]} {heights[i]} {int(pos_x[i])} {int(pos_y[i])} NR \n')
 
             f.close()
 
