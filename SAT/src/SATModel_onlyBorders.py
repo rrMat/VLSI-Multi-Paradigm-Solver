@@ -6,9 +6,9 @@ import time
 import SAT.src.sat_utils as sat_utils
 
 
-class SATModel:
+class SATModel_onlyBorders:
 
-    NAME = 'SATModel'
+    NAME = 'SATModel_onlyBorders'
 
     def __init__(self, plate_width, n_chips, chips_widths, chips_heights, rotation, symmetry_breaking, encoding_type, time_available, interrupt):
         self.plate_width = plate_width

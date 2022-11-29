@@ -77,29 +77,31 @@ if __name__ == '__main__':
         #                 STATS_RELATIVE_PATH)
 
         for encoder in ['seq', 'np', 'bw', 'he']:
-            SATSolver('SATBaseModel', rotation_allowed = False,
-                                      symmetry_required = False,
-                                      encoding_type = encoder,
-                                      number_of_instances = 40,
-                                      time_available = 300,
-                                      interrupt = True,
-                                      verbose = True,
-                                      solver = 'z3',
-                                      OVERRIDE = True
-                    ).execute()
+            SATSolver('SATModel', 
+                      rotation_allowed = False,
+                      symmetry_required = False,
+                      encoding_type = encoder,
+                      number_of_instances = 40,
+                      time_available = 300,
+                      interrupt = True,
+                      verbose = True,
+                      solver = 'z3',
+                      OVERRIDE = True ).execute()
 
-        for rotation in [True, False]:
-            for symmetry_required in [True, False]:
-                SATSolver('SATBaseModel', rotation_allowed = rotation,
-                                symmetry_required=symmetry_required,
-                                encoding_type='bw',
-                                number_of_instances=40,
-                                time_available=300,
-                                interrupt=True,
-                                verbose=True,
-                                solver='z3',
-                                OVERRIDE = False
-                ).execute()
+        for model in ['SATModel', 'SATModel_onlyBorders']:
+            for rotation in [True, False]:
+                for symmetry_required in [True, False]:
+                    for encoder in ['seq', 'np', 'bw', 'he']:
+                        SATSolver(model = model, 
+                                  rotation_allowed = rotation,
+                                  symmetry_required = symmetry_required,
+                                  encoding_type = encoder,
+                                  number_of_instances=40,
+                                  time_available=300,
+                                  interrupt=True,
+                                  verbose=True,
+                                  solver='z3',
+                                  OVERRIDE = False).execute()
 
 
     elif args.Paradigm == "SMT":
