@@ -10,15 +10,14 @@ import SAT.src.sat_utils as sat_utils
 
 class SATSolver:
 
-    MODELS = {
-        'SATModel': SATModel
+    MODEL_names = {
+        'SATBaseModel': SATModel
     }
 
-    def __init__(self, model, rotation_allowed, symmetry_required, encoding_type, 
-                       number_of_instances, time_available, interrupt, verbose, out_directory_path, 
-                       img_directory_path, stats_directory_path, OVERRIDE):
+    def __init__(self, model_name, rotation_allowed, symmetry_required, encoding_type, 
+                       number_of_instances, time_available, interrupt, verbose, solver, OVERRIDE):
         
-        self.model = model
+        self.model_name = model_name
         self.rotation_allowed = rotation_allowed
         self.symmetry_required = symmetry_required
         self.encoding_type = encoding_type
@@ -26,55 +25,65 @@ class SATSolver:
         self.time_available = time_available
         self.interrupt = interrupt
         self.verbose = verbose
+        self.solver = solver
         self.OVERRIDE = OVERRIDE
 
-        self.label = self.model + ('_rot_' if self.rotation_allowed else '_not_rot_') + ('sb_' if self.symmetry_required else 'not_sb_') + self.encoding_type
-        self.OUTS_DIRECTORY = out_directory_path + self.label + '/'
-        self.IMGS_DIRECTORY = img_directory_path + self.label + '/'
-        self.STATS_DIRECTORY = stats_directory_path
+        # Define the result label
+        self.LABEL = 'rotation' if self.rotation_allowed else 'no_rotation'
+        self.LABEL = self.LABEL + '/' + self.model_name
+        self.LABEL = self.LABEL + '/' + self.solver + '/'
         
-        os.makedirs(self.OUTS_DIRECTORY, exist_ok=True)
-        os.makedirs(self.IMGS_DIRECTORY, exist_ok=True)
-
+        # Define the paths of the results
+        self.OUT_DIRECTORY = 'SAT/out/' + self.LABEL
+        self.IMG_DIRECTORY = 'SAT/img/' + self.LABEL
+        self.STAT_DIRECTORY = 'SAT/stats/' + self.LABEL
+        
+        # Create the directories
+        os.makedirs(self.OUT_DIRECTORY, exist_ok=True)
+        os.makedirs(self.IMG_DIRECTORY, exist_ok=True)
+        os.makedirs(self.STAT_DIRECTORY, exist_ok=True)
 
     def execute(self):
-        STATS_FILE_PATH = self.STATS_DIRECTORY + self.label + '.csv'
         for instance_number in range(1, self.number_of_instances + 1):
-            OUT_FILE_PATH = self.OUTS_DIRECTORY + str(instance_number) + '.txt'
-            IMG_FILE_PATH = self.IMGS_DIRECTORY + str(instance_number) + '.jpg'
+            IMG_FILE_PATH = f'{self.IMG_DIRECTORY}device-{str(instance_number)}.png'
+            OUT_FILE_PATH = f'{self.OUT_DIRECTORY}solution-{str(instance_number)}.txt'
+            STAT_FILE_PATH = f'{self.STAT_DIRECTORY}data.csv'
             
             if self.verbose:
-                print(f'Instance number: {str(instance_number)}')
+                print(f'-----------------------------------------')
+                print(f'[Instance number: {str(instance_number)}]')
 
-            stats = utils.load_stats(STATS_FILE_PATH)
+            stats = utils.load_stats(STAT_FILE_PATH)
             if (instance_number) not in stats.index or self.OVERRIDE:
                 if self.verbose:
-                    print('- Computing solution...')
+                    print('Computing solution...')
 
-                self.solve(self.model, instance_number, OUT_FILE_PATH, IMG_FILE_PATH, STATS_FILE_PATH)
+                self.solve(self.model_name, instance_number, OUT_FILE_PATH, IMG_FILE_PATH, STAT_FILE_PATH)
             else:
                 if self.verbose:
-                    print('- Solution already exists...')
+                    print('Solution already exists...')
                     print(f'-- Time required: {stats.at[instance_number, "time"]} seconds')
-              
+            
+            if self.verbose:
+                print(f'-----------------------------------------')
 
-    def solve(self, model, i, OUT_FILE_PATH, IMG_FILE_PATH, STATS_FILE_PATH):
+    def solve(self, model_name, i, OUT_FILE_PATH, IMG_FILE_PATH, STAT_FILE_PATH):
         # Load instance
         plate_width, n_chips, chips_widths, chips_heights = utils.load_data(i)
 
         # Solve instance
-        solver = self.MODELS[model](plate_width, 
-                                    n_chips, 
-                                    chips_widths, 
-                                    chips_heights, 
-                                    rotation = self.rotation_allowed, 
-                                    symmetry_breaking = self.symmetry_required,
-                                    encoding_type = self.encoding_type,
-                                    time_available = self.time_available,
-                                    interrupt = self.interrupt)
+        solver = self.MODEL_names[model_name](plate_width, 
+                                              n_chips, 
+                                              chips_widths, 
+                                              chips_heights, 
+                                              rotation = self.rotation_allowed, 
+                                              symmetry_breaking = self.symmetry_required,
+                                              encoding_type = self.encoding_type,
+                                              time_available = self.time_available,
+                                              interrupt = self.interrupt)
 
         
-        # Set timeout
+        # Set timeout and verify the satisfability of the model
         manager = multiprocessing.Manager()
         return_dict = manager.dict()
         p = multiprocessing.Process(target=solver.solve, args=(1, return_dict, self.verbose))
@@ -84,12 +93,13 @@ class SATSolver:
             p.terminate()
             p.join()
         
-        # Get return values of the provess
+        # Get result
         is_solved = return_dict.values()[0]
         
+        # The model is satisfable...
         if is_solved:
             # Evaluate the solution
-            print(return_dict)
+            solving_time = return_dict['solving_time']
             pos_x = return_dict['pos_x']
             pos_y = return_dict['pos_y']
             chips_w_a = return_dict['chips_w_a']
@@ -98,12 +108,13 @@ class SATSolver:
             plate_min_height = return_dict['min_height']
             plate_height = return_dict['plate_height']
             rotation = return_dict['rotation']
-            solving_time = return_dict['solving_time']
 
+            print(return_dict)
 
-            # Save results
-            #utils.plot_device(pos_x, pos_y, chips_w_a, chips_h_a, plate_width, plate_height, rotation, IMG_FILE_PATH)
+            # Save image
+            utils.plot_device(pos_x, pos_y, chips_w_a, chips_h_a, plate_width, plate_height, rotation, IMG_FILE_PATH)
 
+            # Save result
             utils.write_sol(OUT_FILE_PATH, 
                             plate_width, 
                             plate_height, 
@@ -113,10 +124,11 @@ class SATSolver:
                             pos_x, 
                             pos_y,
                             rotation)
-        else:
-            plate_height, plate_min_height, solving_time = solver.get_solution_unsolved_parsed()
+
+        else: # The model is not satisfable...
+            plate_height, plate_min_height, solving_time = solver.getSolutionUnsolved()
             
-        utils.write_stat_line(STATS_FILE_PATH,
+        utils.write_stat_line(STAT_FILE_PATH,
                               i,
                               plate_height,
                               plate_min_height,
