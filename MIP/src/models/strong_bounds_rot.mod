@@ -5,11 +5,9 @@ param widths {1..n}; # widths of the circuits
 param heights {1..n}; # heights of the circuits
 
 param min_widths_heights := min(min {i in I} (widths[i]), min {i in I} (heights[i]));
-param rotated_widths {i in I} := heights[i];
-param rotated_heights {i in I} := widths[i];
 
 param h_lb := (sum {i in I} widths[i]*heights[i]) / w; # lower bound for H
-param h_ub := sum {i in I} min(heights[i], widths[i]); # upper bound for H
+param h_ub := sum {i in I} heights[i]; # upper bound for H
 
 # big Ms for max and overlapping constraint
 param M_horizontal := w;
