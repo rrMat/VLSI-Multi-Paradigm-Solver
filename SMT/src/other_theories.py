@@ -63,18 +63,11 @@ with Solver(name="z3") as solver:
             y_pos.append(m[y_position[i]])
 
 
-print(x_pos)
-print(y_pos)
-print(min_h)
- 
-print(type(y_pos[1]._content[2]))
-
 def ToInt(element):
     new_list = []
     for i in range(len(element)):
         new_list.append(element[i]._content[2])   
     return new_list
-
 
 
 out_pat = os.path.join(
