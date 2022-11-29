@@ -220,13 +220,15 @@ def write_stat_line(path, instance: int, height: int, time: float, solution_type
         - N/A 
 
     """
-    print(path)
-    if not os.path.exists(path):
-        dataframe = pd.DataFrame(columns=['height', 'time', 'solution type'])
-        dataframe.to_csv(path)
 
-    dataframe = pd.read_csv(path, index_col=0)
-    dataframe.loc[instance] = [height, time, solution_type]
+    if not os.path.exists(path):
+        dataframe = pd.DataFrame(columns=['instance', 'height', 'time', 'solution type'])
+        dataframe.set_index('instance')
+    else:
+        dataframe = pd.read_csv(path, index_col=0)
+        dataframe.set_index('instance')
+
+    dataframe.loc["ins-" + str(instance)] = [instance, height, time, solution_type]
     dataframe.to_csv(path)
 
 
