@@ -70,13 +70,6 @@ def load_data(index: int):
 
 # plot the image for rotation
 def plot_device(pos_x: list, pos_y: list, widths: list, heights: list, w: int, h: int, rotations: list, img_path="", override=True):
-    print(pos_x)
-    print(pos_y)
-    print(widths)
-    print(heights)
-    print(w)
-    print(h)
-    print(rotations)
     """
     Create, save or show an image of the predicted plate when rotation is allowed
 
@@ -104,9 +97,6 @@ def plot_device(pos_x: list, pos_y: list, widths: list, heights: list, w: int, h
     if len(rotations) != 0:
         widths_a = [(widths[i] * (1-rotations[i])) + (heights[i]*rotations[i]) for i in range(0, len(widths))]
         heights_a = [(heights[i] * (1-rotations[i])) + (widths[i]*rotations[i]) for i in range(0, len(widths))]
-
-    print(widths)
-    print(heights)
 
     fig, ax = plt.subplots()
     ax.axis([0, w, 0, h])
