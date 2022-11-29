@@ -9,16 +9,17 @@ from matplotlib.patches import Rectangle
 import time
 from itertools import combinations
 import utils.utils as ut
+import multiprocessing
 
-def free_solver(w, n, min_h, max_h, chip_w, chip_h):
-    
+def free_solver(w, n, min_h, max_h, chip_w, chip_h, Theo):
+    start_time = time.time()
     x_position = [Symbol(f"x_pos{s}", INT) for s in range(n)]
     y_position = [Symbol(f"y_pos{s}", INT) for s in range(n)]
 
     for h in range(min_h, max_h + 1):
         
         print("current h: ", h)
-        with Solver(name=Theory) as solver:
+        with Solver(name=Theo) as solver:
 
             #Constrains
             ##Boundaries
@@ -35,15 +36,25 @@ def free_solver(w, n, min_h, max_h, chip_w, chip_h):
                                             x_position[i] + chip_w[i] <= x_position[j],
                                             x_position[j] + chip_w[j] <= x_position[i]))
 
-            ##Cumulatively on the columns
+            # ##Cumulatively on the columns
             # for u in range(w):
-            #     solver.add_assertion(h >= Plus([Iff(And(x_position[i] <= u, u < x_position[i] + chip_w[i]),
-            #                               chip_h[i], 0) for i in range(n)]))
+            #     solver.add_assertion(LE(Plus([Ite(And(x_position[i] <= u, u < x_position[i] + chip_w[i]), chip_h[i], 0) for i in range(n)]), h))
+            
 
 
-            # for u in range(w):
-            #     s.add(h >= Sum([If(And(x_positions[i] <= u, u < x_positions[i] + chip_w[i]),
-            #                                  chip_h[i], 0) for i in range(n)]))
+            #  #symmetry breaking
+            # def precedes(a1, a2):
+            #     if not a1:
+            #         return TRUE
+            #     if not a2:
+            #         return FALSE
+            #     return Or(a1[0] <= a2[0], And(a1[0] == a2[0], precedes(a1[1:], a2[1:])))
+          
+            # solver.add_assertion( precedes(y_position,[h - y_position[i] - chip_h[i] for i in range(0, len(y_position))] ))
+
+
+            # solver.add_assertion( precedes(x_positions,[w - x_positions[i] - chip_w[i] for i in range(0, len(x_positions))] ))
+
 
             if not solver.solve():
                 print("Domain is not SAT!!!")
@@ -58,8 +69,9 @@ def free_solver(w, n, min_h, max_h, chip_w, chip_h):
                 y_pos = []
                 for i in range(n):
                     y_pos.append(m[y_position[i]])
-
-            return m, x_pos, y_pos, h
+                elapsed_time = time.time() - start_time
+                print(f'{elapsed_time * 1000:.1f} ms')
+                return m, x_pos, y_pos, h, elapsed_time
 
 
 def ToInt(element):
@@ -68,8 +80,8 @@ def ToInt(element):
         new_list.append(element[i]._content[2])   
     return new_list
 
-
-Theory = "z3"
+tim = []
+Theo = ["z3", "cvc4", "yices", "btor", "picosat", "bdd"]
 for i in range(1,10):
     f = ut.load_data(i)
     w = f[0]
@@ -81,14 +93,28 @@ for i in range(1,10):
     print("current i", i)
     print(w, n, min_h, max_h, chip_w, chip_h)
 
-    resul = free_solver(w, n, min_h, max_h, chip_w, chip_h)
-
-
-    out_pat = os.path.join(
-        os.path.dirname(__file__),
-        '../out_img/plot' + str(i) + '.png'
+    resul = free_solver(w, n, min_h, max_h, chip_w, chip_h, Theo[1])
+    if resul != None:
+        sol_path = os.path.join(
+            os.path.dirname(__file__),
+            '../out/pySMT/sol' + str(i) + ".txt"
         )
-    ut.plot_device(pos_x= ToInt(resul[1]), pos_y = ToInt(resul[2]), widths=  chip_w, heights = chip_h, w= w, 
-        h= resul[3],  img_path=out_pat,  rotations = [] )
+        tim.append((i, resul[4]))
+    else:
+        tim.append((i, False))
 
- 
+    if resul != None:
+        out_pat = os.path.join(
+            os.path.dirname(__file__),
+            '../out_img/pySMT' + str(i) + '.png'
+            )
+        ut.plot_device(pos_x= ToInt(resul[1]), pos_y = ToInt(resul[2]), widths=  chip_w, heights = chip_h, w= w, 
+            h= resul[3],  img_path=out_pat,  rotations = [] )
+        
+
+txt_path = os.path.join(
+os.path.dirname(__file__),
+'../timings/pySMT.csv'
+)
+
+np.savetxt(txt_path, tim, fmt = "%f")
