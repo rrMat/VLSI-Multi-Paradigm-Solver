@@ -22,7 +22,7 @@ def plate(w, n, min_h, max_h, chip_w, chip_h, time_available):
   #s
   
     
-  for h in range(min_h + 1, max_h):
+  for h in range(min_h, max_h+1):
           time_remained = time_available - (time.time() - start_time)
           if time_remained <= 1:
             print("Took too long")
@@ -32,11 +32,11 @@ def plate(w, n, min_h, max_h, chip_w, chip_h, time_available):
           s = Solver()
           set_option(timeout=int(time_remained))
           #set_option(timeout=300)
-          print("current h: ", h - 1)
+          print("current h: ", h)
           s.add([And(0 <= x_positions[i], x_positions[i] <= w - chip_w[i])
                              for i in range(n)])
           
-          s.add([And(0 <= y_positions[i], y_positions[i] < h - chip_h[i])
+          s.add([And(0 <= y_positions[i], y_positions[i] <= h - chip_h[i])
                              for i in range(n)])
           
           #cumulatively on the rows
@@ -92,7 +92,7 @@ def plate(w, n, min_h, max_h, chip_w, chip_h, time_available):
 
 tim = []
 
-for i in range(1,41):
+for i in range(1,2):
     f = ut.load_data(i)
     w = f[0]
     n = f[1]

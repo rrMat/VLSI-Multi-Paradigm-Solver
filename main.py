@@ -24,8 +24,12 @@ if __name__ == '__main__':
     MIP_parser = parsers.add_parser("MIP", parents=[base_parser])
 
     #CP parameters (required)
-    CP_parser.add_argument("-m", "--model", required=True, nargs='+', type=str, choices=["max", "sbs"], help='select models. \nAcceptable values: max | sbs')
-    CP_parser.add_argument("-s", "--solver", required=True, nargs='+', type=str, choices=["chuffed", "gecode", "or-tools"],  help='select solver. \nAcceptable values: chugged | gecode')
+    CP_parser.add_argument("-m", "--model", required=True, nargs='+', type=str, 
+                           choices=CPSolver.acceptable_models, 
+                           help='select models. \nAcceptable values: max | sbs')
+    CP_parser.add_argument("-s", "--solver", required=True, nargs='+', type=str, 
+                           choices=CPSolver.acceptable_solvers,  
+                           help='select solver. \nAcceptable values: chugged | gecode')
 
     # MIP arguments
     MIP_parser.add_argument('-m', '--model', required=True, nargs='+', type=str,
@@ -42,7 +46,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-
+    print(args.Paradigm)
     if args.Paradigm == "CP" :
 
         cp = CPSolver(

@@ -161,7 +161,7 @@ def write_sol(path, w: int, h: int, n: int, widths: list, heights: list, pos_x: 
         else:
             for i in range(n):
 
-                f.write(f'{widths[i]} {heights[i]} {int(pos_x[i])} {int(pos_y[i])}\n')
+                f.write(f'{widths[i]} {heights[i]} {int(pos_x[i])} {int(pos_y[i])} NR \n')
 
             f.close()
 
