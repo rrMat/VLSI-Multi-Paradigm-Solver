@@ -22,17 +22,22 @@ def plate(w, n, min_h, max_h, chip_w, chip_h, time_available):
   #s
   
     
-  for h in range(min_h, max_h+1):
+  for h in range(min_h, max_h + 1):
           time_remained = time_available - (time.time() - start_time)
           if time_remained <= 1:
             print("Took too long")
             break
-          # CONSTRAINTS
-          #domani bounds
+      
           s = Solver()
           set_option(timeout=int(time_remained))
           #set_option(timeout=300)
           print("current h: ", h)
+          print("current h: ", h)
+
+
+           # CONSTRAINTS 
+
+          #domain bundaries
           s.add([And(0 <= x_positions[i], x_positions[i] <= w - chip_w[i])
                              for i in range(n)])
           
@@ -71,11 +76,13 @@ def plate(w, n, min_h, max_h, chip_w, chip_h, time_available):
           s.add( precedes(y_positions,[h - y_positions[i] - chip_h[i] for i in range(0, len(y_positions))] ))
           s.add( precedes(x_positions,[w - x_positions[i] - chip_w[i] for i in range(0, len(x_positions))] ))
 
+          #all zero
+
            
 
               
           if s.check() != sat:
-            #print("unsat")
+            print(s.check())
             continue
           else:
             m = s.model()
@@ -101,9 +108,9 @@ for i in range(1,2):
     min_h = sum([chip_w[k] * chip_h[k] for k in range(n)]) // w
     max_h = sum(chip_h)
     print("current i", i)
-
+    print(w, n, min_h, max_h, chip_w, chip_h, time_available)
     resul = plate(w, n, min_h, max_h, chip_w, chip_h, time_available)
-
+    print(type(resul))
     if resul != None:
       sol_path = os.path.join(
         os.path.dirname(__file__),
