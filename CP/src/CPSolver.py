@@ -7,7 +7,7 @@ import os
 import csv
 from datetime import timedelta
 from minizinc import Solver, Instance, Model
-from utils.utils import plot_device, load_data, write_sol
+from utils.utils import plot_device, load_data, write_sol, write_stat_line
 
 
 class CPSolver:
@@ -166,64 +166,63 @@ class CPSolver:
 
         # execute on all instances    
         if index is None:
-            with open(self.__stats_path, mode="w", newline="") as file:
-                header = ['device width', 'number of chips', "h", "solve time", "solution tipe"]
-                writer = csv.writer(file)
-                writer.writerow(header)
 
-                print("\nStarting solving with {} model and {} solver:".format(
-                    self.__model.upper(),
-                    self.__solver
-                ))
-                print("---------------------------------------------------")
-                print()
+            print("\nStarting solving with {} model and {} solver:".format(
+                self.__model.upper(),
+                self.__solver
+            ))
+            print("---------------------------------------------------")
+            print()
 
-                for i in range(1,41):
+            for i in range(1,41):
 
-                    w, n, widths, heights = load_data(i)
+                w, n, widths, heights = load_data(i)
 
-                    print("Solving ins-{}...".format(i), end="", flush=True)
-                    
-                    try:
-                        (pos_x, pos_y, h, elapsed_time, rotations) = self.__solve(
-                            w,
-                            n,
-                            widths,
-                            heights
-                        )
-                        # Optimal solution
-                        if elapsed_time < 300:
-                            print("solved in: {} s".format(elapsed_time))
-                            solution_type = "optimal"
-                        # non-optimal solution
-                        else:
-                            print("process Terminated, non-optimal solution found")
-                            solution_type = "non-optimal"
+                print("Solving ins-{}...".format(i), end="", flush=True)
+                
+                try:
+                    (pos_x, pos_y, h, elapsed_time, rotations) = self.__solve(
+                        w,
+                        n,
+                        widths,
+                        heights
+                    )
+                    # Optimal solution
+                    if elapsed_time < 300:
+                        print("solved in: {} s".format(elapsed_time))
+                        solution_type = "optimal"
+                    # non-optimal solution
+                    else:
+                        print("process Terminated, non-optimal solution found")
+                        solution_type = "non-optimal"
 
-                        data = [w, n, h, elapsed_time, solution_type]
+                    write_sol(
+                        self.__out_path + "/solution-" + str(i) + ".txt",
+                        w,
+                        h,
+                        n,
+                        widths,
+                        heights,
+                        pos_x,
+                        pos_y,
+                        rotations
+                    )                      
 
-                        write_sol(
-                            self.__out_path + "/solution-" + str(i) + ".txt",
-                            w,
-                            h,
-                            n,
-                            widths,
-                            heights,
-                            pos_x,
-                            pos_y,
-                            rotations
-                        )                        
-
-                        if self.__print_img:
-                            plot_device(pos_x, pos_y, widths, heights, w, h, rotations, self.__img_path +'device-' + str(i) +'.png')
-                    
-                    # no solution found within 5 mins
-                    except:
-                        print("process terminated, no solution found")
-                        solution_type = "not-found"
-                        data = ["","","", 300, solution_type]
-                    
-                    writer.writerow(data)                    
+                    if self.__print_img:
+                        plot_device(pos_x, pos_y, widths, heights, w, h, rotations, self.__img_path +'device-' + str(i) +'.png')
+                
+                # no solution found within 5 mins
+                except:
+                    print("process terminated, no solution found")
+                    solution_type = "N/A"
+                
+                write_stat_line(
+                        self.__stats_path,
+                        i,
+                        h,
+                        elapsed_time,
+                        solution_type
+                    )                     
         
         # Execution on single instance
         else:
@@ -261,8 +260,8 @@ class CPSolver:
                     plot_device(
                         pos_x, pos_y,
                         widths, heights,
-                         w, h, rotations,
-                          self.__img_path + '/device-' + str(index) +'.png'
+                        w, h, rotations,
+                        self.__img_path + '/device-' + str(index) +'.png'
                 )
             
             # no solution found within 5 mins

@@ -95,8 +95,10 @@ def plot_device(pos_x: list, pos_y: list, widths: list, heights: list, w: int, h
 
     """
     if len(rotations) != 0:
-        widths_a = [(widths[i] * (1-rotations[i])) + (heights[i]*rotations[i]) for i in range(0, len(widths))]
-        heights_a = [(heights[i] * (1-rotations[i])) + (widths[i]*rotations[i]) for i in range(0, len(widths))]
+        temp_w = [(widths[i] * (1-rotations[i])) + (heights[i]*rotations[i]) for i in range(0, len(widths))]
+        temp_h = [(heights[i] * (1-rotations[i])) + (widths[i]*rotations[i]) for i in range(0, len(widths))]
+        widths = temp_w
+        heights = temp_h
 
     fig, ax = plt.subplots()
     ax.axis([0, w, 0, h])
@@ -104,7 +106,7 @@ def plot_device(pos_x: list, pos_y: list, widths: list, heights: list, w: int, h
         color = (randint(0,100)/100, randint(0,100)/100, randint(0,100)/100)
         rect = Rectangle(
             (pos_x[i], pos_y[i]),
-            widths_a[i], heights_a[i],
+            widths[i], heights[i],
             facecolor=color,
             edgecolor=(0,0,0),
             linewidth=2,
@@ -197,7 +199,7 @@ def load_sol(path):
     return plate_width, plate_height, n_chips, chips_widths, chips_heights, pos_x, pos_y
 
 
-def write_stat_line(path, instance: int, height: int, height_lb: int, time: float):
+def write_stat_line(path, instance: int, height: int, time: float, solution_type: str):
     """
     Append to the csv file (or create it if file does not exist)
     the stats related to the solution of a specified instance
@@ -208,19 +210,25 @@ def write_stat_line(path, instance: int, height: int, height_lb: int, time: floa
         number of the solved instance
     :param height: int
         found height of the silicon plate
-    :param height_lb: int
-        lower bound for that silicon plate
     :param time: float
         time spent to solve the instance
+    :param solution_type: str
+        Type of found solution\n
+        - optimal\n
+        - non-optimal\n
+        - UNSAT\n
+        - N/A 
 
     """
-    print(path)
-    if not os.path.exists(path):
-        dataframe = pd.DataFrame(columns=['height', 'height_lb', 'time'])
-        dataframe.to_csv(path)
 
-    dataframe = pd.read_csv(path, index_col=0)
-    dataframe.loc[instance] = [height, height_lb, time]
+    if not os.path.exists(path):
+        dataframe = pd.DataFrame(columns=['instance', 'height', 'time', 'solution type'])
+        dataframe.set_index('instance')
+    else:
+        dataframe = pd.read_csv(path, index_col=0)
+        dataframe.set_index('instance')
+
+    dataframe.loc["ins-" + str(instance)] = [instance, height, time, solution_type]
     dataframe.to_csv(path)
 
 

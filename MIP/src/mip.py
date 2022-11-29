@@ -95,13 +95,7 @@ class MIP:
         coordinates_x = [c[1] for c in self.ampl.get_variable('Coordinates_x').get_values().to_list()]
         coordinates_y = [c[1] for c in self.ampl.get_variable('Coordinates_y').get_values().to_list()]
 
-        if self.rotation:
-            rotated = [r[1] for r in self.ampl.get_variable('Rotated').get_values().to_list()]
-            widths_r = [heights[i] if rotated[i] else widths[i] for i in range(n)]
-            heights_r = [widths[i] if rotated[i] else heights[i] for i in range(n)]
-            widths, heights = widths_r, heights_r
-        else:
-            rotated = np.zeros(n)
+        rotated = [r[1] for r in self.ampl.get_variable('Rotated').get_values().to_list()] if self.rotation else []
 
         if self.print_image:
             plot_device(coordinates_x, coordinates_y, widths, heights, w, max_height, rotated)
