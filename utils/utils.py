@@ -1,3 +1,4 @@
+import csv
 import os
 from random import randint
 import matplotlib.pyplot as plt
@@ -217,7 +218,7 @@ def write_stat_line(path, instance: int, height: int, time: float, solution_type
         - optimal\n
         - non-optimal\n
         - UNSAT\n
-        - N/A 
+        - N|A
 
     """
 
@@ -315,3 +316,37 @@ def display_times_comparison(paths, model_names, number_of_instances):
         dataframe = load_stats(path)
         data.append(dataframe['time'][:number_of_instances].tolist())
     plot_bar_graph(data, model_names, figsize=(10,5), y_lim=350)
+
+
+def write_experimental_result(result_path, stat_paths: list, names: list):
+    """
+    Create csv for experimental result section in latex report
+
+    Parameters
+    ----------
+
+    result_path:
+        The path of the csv where the result will be written. Can be string or path
+    stat_paths: list
+        A list containing the paths to all the stats of a paradigm.
+        There should be a csv for each technique used (e.g. chuffed w rotation, geocode w/out rotation...)
+    names: list
+        A list containing the names of the techniques used. It must have the same lenght as stat_paths
+    """
+    result = [names]
+    result.extend([['' for method in range(len(names))] for i in range(1, 41)])
+
+    for name_idx, path in enumerate(stat_paths):
+        df = pd.read_csv(path, index_col=0)
+        for _, row in df.iterrows():
+            instance = row['instance']
+            if row['solution type'] == 'N|A' or row['solution type'] == 'UNSAT':
+                result[instance][name_idx] = row['solution type']
+            elif row['solution type'] == 'optimal':
+                result[instance][name_idx] = f'\\textbf{{{row["height"]}}}'
+            else:
+                result[instance][name_idx] = row["height"]
+
+    with open(result_path, 'w', newline='') as file:
+        wr = csv.writer(file)
+        wr.writerows(result)
