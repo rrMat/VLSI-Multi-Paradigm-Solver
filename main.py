@@ -77,16 +77,16 @@ if __name__ == '__main__':
         #                 STATS_RELATIVE_PATH)
 
         for encoder in ['seq', 'np', 'bw', 'he']:
-            SATSolver('SATBaseModel', rotation_allowed = True,
-                            symmetry_required=False,
-                            encoding_type=encoder,
-                            number_of_instances=40,
-                            time_available=300,
-                            interrupt=True,
-                            verbose=True,
-                            solver='z3',
-                            OVERRIDE = True
-                ).execute()
+            SATSolver('SATBaseModel', rotation_allowed = False,
+                                      symmetry_required = False,
+                                      encoding_type = encoder,
+                                      number_of_instances = 40,
+                                      time_available = 300,
+                                      interrupt = True,
+                                      verbose = True,
+                                      solver = 'z3',
+                                      OVERRIDE = True
+                    ).execute()
 
         for rotation in [True, False]:
             for symmetry_required in [True, False]:

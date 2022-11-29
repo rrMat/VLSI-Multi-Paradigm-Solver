@@ -100,7 +100,7 @@ def plot_device(pos_x: list, pos_y: list, widths: list, heights: list, w: int, h
 
     fig, ax = plt.subplots()
     ax.axis([0, w, 0, h])
-    for i in range(0, len(widths_a)):
+    for i in range(0, len(widths)):
         color = (randint(0,100)/100, randint(0,100)/100, randint(0,100)/100)
         rect = Rectangle(
             (pos_x[i], pos_y[i]),

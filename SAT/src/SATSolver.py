@@ -109,8 +109,6 @@ class SATSolver:
             plate_height = return_dict['plate_height']
             rotation = return_dict['rotation']
 
-            print(return_dict)
-
             # Save image
             utils.plot_device(pos_x, pos_y, chips_w_a, chips_h_a, plate_width, plate_height, rotation, IMG_FILE_PATH)
 
