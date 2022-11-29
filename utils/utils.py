@@ -95,8 +95,10 @@ def plot_device(pos_x: list, pos_y: list, widths: list, heights: list, w: int, h
 
     """
     if len(rotations) != 0:
-        widths_a = [(widths[i] * (1-rotations[i])) + (heights[i]*rotations[i]) for i in range(0, len(widths))]
-        heights_a = [(heights[i] * (1-rotations[i])) + (widths[i]*rotations[i]) for i in range(0, len(widths))]
+        temp_w = [(widths[i] * (1-rotations[i])) + (heights[i]*rotations[i]) for i in range(0, len(widths))]
+        temp_h = [(heights[i] * (1-rotations[i])) + (widths[i]*rotations[i]) for i in range(0, len(widths))]
+        widths = temp_w
+        heights = temp_h
 
     fig, ax = plt.subplots()
     ax.axis([0, w, 0, h])
@@ -104,7 +106,7 @@ def plot_device(pos_x: list, pos_y: list, widths: list, heights: list, w: int, h
         color = (randint(0,100)/100, randint(0,100)/100, randint(0,100)/100)
         rect = Rectangle(
             (pos_x[i], pos_y[i]),
-            widths_a[i], heights_a[i],
+            widths[i], heights[i],
             facecolor=color,
             edgecolor=(0,0,0),
             linewidth=2,

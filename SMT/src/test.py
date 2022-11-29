@@ -36,9 +36,9 @@ def free_solver(w, n, min_h, max_h, chip_w, chip_h):
                                             x_position[j] + chip_w[j] <= x_position[i]))
 
             ##Cumulatively on the columns
-            for u in range(w):
-                solver.add_assertion(h >= Plus([Iff(And(x_position[i] <= u, u < x_position[i] + chip_w[i]),
-                                          chip_h[i], 0) for i in range(n)]))
+            # for u in range(w):
+            #     solver.add_assertion(h >= Plus([Iff(And(x_position[i] <= u, u < x_position[i] + chip_w[i]),
+            #                               chip_h[i], 0) for i in range(n)]))
 
 
             # for u in range(w):
