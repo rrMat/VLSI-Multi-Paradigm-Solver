@@ -198,7 +198,7 @@ def load_sol(path):
     return plate_width, plate_height, n_chips, chips_widths, chips_heights, pos_x, pos_y
 
 
-def write_stat_line(path, instance: int, height: int, height_lb: int, time: float):
+def write_stat_line(path, instance: int, height: int, time: float, solution_type: str):
     """
     Append to the csv file (or create it if file does not exist)
     the stats related to the solution of a specified instance
@@ -209,19 +209,23 @@ def write_stat_line(path, instance: int, height: int, height_lb: int, time: floa
         number of the solved instance
     :param height: int
         found height of the silicon plate
-    :param height_lb: int
-        lower bound for that silicon plate
     :param time: float
         time spent to solve the instance
+    :param solution_type: str
+        Type of found solution\n
+        - optimal\n
+        - non-optimal\n
+        - UNSAT\n
+        - N/A 
 
     """
     print(path)
     if not os.path.exists(path):
-        dataframe = pd.DataFrame(columns=['height', 'height_lb', 'time'])
+        dataframe = pd.DataFrame(columns=['height', 'time', 'solution type'])
         dataframe.to_csv(path)
 
     dataframe = pd.read_csv(path, index_col=0)
-    dataframe.loc[instance] = [height, height_lb, time]
+    dataframe.loc[instance] = [height, time, solution_type]
     dataframe.to_csv(path)
 
 
