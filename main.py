@@ -12,7 +12,7 @@ if __name__ == '__main__':
 
     base_parser = argparse.ArgumentParser(add_help=False)
     #Optinal shared arguments
-    base_parser.add_argument("-ins", "--instance", type=int, help="The instance's number to execute (1-40). Omit to execute all the instances")
+    base_parser.add_argument("-i", "--instance", type=int, help="The instance's number to execute (1-40). Omit to execute all the instances")
     base_parser.add_argument("-p", "--print_img", action='store_true', help="Print image representation of solution")
     base_parser.add_argument("-r", "--rotation", action='store_true', help="Allow rotation of chips in solving")
 
@@ -24,8 +24,12 @@ if __name__ == '__main__':
     MIP_parser = parsers.add_parser("MIP", parents=[base_parser])
 
     #CP parameters (required)
-    CP_parser.add_argument("-m", "--model", required=True, nargs='+', type=str, choices=["max", "sbs"], help='select models. \nAcceptable values: max | sbs')
-    CP_parser.add_argument("-s", "--solver", required=True, nargs='+', type=str, choices=["chuffed", "gecode", "or-tools"],  help='select solver. \nAcceptable values: chugged | gecode')
+    CP_parser.add_argument("-m", "--model", required=True, nargs='+', type=str, 
+                           choices=CPSolver.acceptable_models, 
+                           help='select models. \nAcceptable values: max | sbs')
+    CP_parser.add_argument("-s", "--solver", required=True, nargs='+', type=str, 
+                           choices=CPSolver.acceptable_solvers,  
+                           help='select solver. \nAcceptable values: chugged | gecode')
 
     # MIP arguments
     MIP_parser.add_argument('-m', '--model', required=True, nargs='+', type=str,
@@ -42,16 +46,19 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    if args.Paradigm == "CP":
+    print(args.Paradigm)
+    if args.Paradigm == "CP" :
+
+        cp = CPSolver(
+            rotation=args.rotation,
+            print_img = args.print_img
+        )
+
         for model in args.model:
             for solver in args.solver:
-                cp = CPSolver(
-                    model,
-                    solver,
-                    args.rotation,
-                    args.print_img
-                )
-                cp.execute(args.instance)
+                cp.update_model(model)
+                cp.update_solver(solver)
+                cp.execute(args.instance)                   
 
     elif args.Paradigm == "SAT":
 

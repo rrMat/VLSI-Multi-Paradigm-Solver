@@ -25,12 +25,12 @@ def plate(w, n, min_h, max_h, chip_w, chip_h):
   
     
 
-  for h in range(min_h + 1, min_h + 2):
+  for h in range(min_h, max_h + 1):
           time_remained = time_available - (time.time() - start_time)
           if time_remained <= 1:
             print("Took too long")
             break
-          print("current h: ", h - 1)
+          print("current h: ", h)
 
           s = Solver()
           s.set("timeout", int(time_remained))
@@ -53,7 +53,7 @@ def plate(w, n, min_h, max_h, chip_w, chip_h):
           s.add([And(0 <= x_position[i], x_position[i] <= w - chip_w_true[i])
                              for i in range(n)])
           
-          s.add([And(0 <= y_position[i], y_position[i] < h - chip_h_true[i])
+          s.add([And(0 <= y_position[i], y_position[i] <= h - chip_h_true[i])
                              for i in range(n)])
           
           #cumulatively on the rows
@@ -99,6 +99,7 @@ def plate(w, n, min_h, max_h, chip_w, chip_h):
 
 
           if s.check() != sat:
+            print(s.check())
             continue
           else:
             m = s.model()
