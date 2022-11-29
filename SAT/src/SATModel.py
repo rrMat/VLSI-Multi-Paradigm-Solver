@@ -149,7 +149,7 @@ class SATModel:
                 returned_values['plate_height'], \
                 returned_values['rotation'] = self.getSolutionParsed(solver.model())
 
-                sat_utils.plot_device(solver.model(), self.plate, self.plate_width, self.plate_height, self.n_chips, 'SAT/img')
+                sat_utils.plot_device(solver.model(), self.plate, self.plate_width, self.plate_height, self.n_chips, 'SAT/img/img.png')
                 return True
             else:
                 if verbose:
