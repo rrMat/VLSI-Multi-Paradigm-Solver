@@ -12,7 +12,10 @@ from utils.utils import plot_device, load_data, write_sol
 
 class CPSolver:
 
-    def __init__(self, model: str=None, solver: str=None, rotation: bool=None, print_img:bool=False):
+    acceptable_models = ["max", "sbs"]
+    acceptable_solvers = ["chuffed", "gecode", "or-tools"]
+
+    def __init__(self, model: str=None, solver: str=None, rotation: bool=False, print_img:bool=False):
 
         self.__rotation = rotation
         self.__model = model
@@ -20,43 +23,65 @@ class CPSolver:
         self.__print_img = print_img
         self.__set_paths()
         
-
+    # create and updates paths value base on rotation, model and solver selected
     def __set_paths(self):
-        self.__stats_path = "CP/stats/{}/{}/out_data_{}.csv".format(
-            "rotation" if self.__rotation else "no_rotation",
-            self.__solver,
-            self.__model
-        )
-        self.__model_path = "CP/src/solvers{}/MODEL_{}.mzn".format(
-            "_rotation" if self.__rotation else "",
-            self.__model.upper()
-        )
-        self.__img_path = "CP/img/{}/{}/{}/".format(
-            "rotation" if self.__rotation else "no_rotation",
-            self.__model.upper(),
-            self.__solver
-        )
-        self.__out_path = "CP/out/{}/{}/{}/".format(
-            "rotation" if self.__rotation else "no_rotation",
-            self.__model.upper(),
-            self.__solver
-        )
-        os.makedirs(os.path.dirname(self.__stats_path), exist_ok=True)
-        os.makedirs(os.path.dirname(self.__img_path), exist_ok=True)
-        os.makedirs(os.path.dirname(self.__out_path), exist_ok=True)
 
+        if self.__solver is not None and self.__solver is not None:
+            self.__stats_path = "CP/stats/{}/{}/out_data_{}.csv".format(
+                "rotation" if self.__rotation else "no_rotation",
+                self.__solver,
+                self.__model
+            )
+
+            self.__img_path = "CP/img/{}/{}/{}/".format(
+                "rotation" if self.__rotation else "no_rotation",
+                self.__model.upper(),
+                self.__solver
+            )
+            self.__out_path = "CP/out/{}/{}/{}/".format(
+                "rotation" if self.__rotation else "no_rotation",
+                self.__model.upper(),
+                self.__solver
+            )
+            os.makedirs(os.path.dirname(self.__stats_path), exist_ok=True)
+            os.makedirs(os.path.dirname(self.__img_path), exist_ok=True)
+            os.makedirs(os.path.dirname(self.__out_path), exist_ok=True)
+
+        if self.__model is not None:
+            self.__model_path = "CP/src/solvers{}/MODEL_{}.mzn".format(
+                "_rotation" if self.__rotation else "",
+                self.__model.upper()
+            )   
 
     def update_model(self, model: str):
-        self.__model = model
-        self.__set_paths()
+        '''
+        Update selected model. Creates (if needed) and updates paths.
+
+        Parameters
+        ----------
+        model: str
+            the new model, value accepted: max | sbs
+        '''
+        if model in self.acceptable_models:
+            self.__model = model
+            self.__set_paths()
 
     def update_rotation(self, rotation: bool):
         self.__rotation = rotation
         self.__set_paths()
 
     def update_solver(self, solver: str):
-        self.__solver = solver
-        self.__set_paths()
+        '''
+        Update selected solver. Creates (if needed) and updates paths.
+
+        Parameters
+        ----------
+        solver: str
+            the new solver, value accepted: chuffed | gecode
+        '''
+        if solver in self.acceptable_solvers:
+            self.__solver = solver
+            self.__set_paths()
 
 
     def __solve(self, w: int, n: int, widths: list, heights: list):
@@ -75,8 +100,6 @@ class CPSolver:
             The chips's widths
         Heights: int
             The chips's heights
-        model_path: str
-            The path of the minizinc model
 
         Returns
         -------
@@ -90,7 +113,9 @@ class CPSolver:
         h: int
             Plate height
         widths: list
+            The widths of the chips
         height: list
+            The heights of the chips
         elapsed_time: float
             The time needed to find a solution
         """
@@ -106,16 +131,20 @@ class CPSolver:
         start = time.time()
         out = inst.solve(timeout=timedelta(seconds=300), free_search=True)
         end = time.time()    
+        
+        try:
+            x_pos = out.solution.positions_x
+            y_pos = out.solution.positions_y
+            h = out.solution.h
 
-        x_pos = out.solution.positions_x
-        y_pos = out.solution.positions_y
-        h = out.solution.h
-
-        if self.__rotation:
-            rotations = out.solution.rotations
-        else:
-            rotations = []
-
+            if self.__rotation:
+                rotations = out.solution.rotations
+            else:
+                rotations = []
+        
+        # chatch for no solution found
+        except:
+            raise Exception()
 
         return (x_pos, y_pos, h, (end - start), rotations)
 
@@ -130,66 +159,115 @@ class CPSolver:
         Parameters
         ----------
         index: int
-            The indtances index (if 0 is selected all the instances will be executed)
+            The indtances index (if index is None all the instances will be executed)
 
 
         """        
-            
+
+        # execute on all instances    
         if index is None:
             with open(self.__stats_path, mode="w", newline="") as file:
-                header = ['device width', 'number of chips', "h", "solve time"]
+                header = ['device width', 'number of chips', "h", "solve time", "solution tipe"]
                 writer = csv.writer(file)
                 writer.writerow(header)
+
+                print("\nStarting solving with {} model and {} solver:".format(
+                    self.__model.upper(),
+                    self.__solver
+                ))
+                print("---------------------------------------------------")
+                print()
+
                 for i in range(1,41):
 
                     w, n, widths, heights = load_data(i)
 
-                    print("Solving instance {} with {} model and {} solver...".format(
-                        i,
-                        self.__model.upper(),
-                        self.__solver
-                    ), end="", flush=True)
-
-                    (pos_x, pos_y, h, elapsed_time, rotations) = self.__solve(
-                        w,
-                        n,
-                        widths,
-                        heights
-                    )
-                    print("Solved in: {} s".format(elapsed_time))
-                    data = [w, n, h, elapsed_time]
-                    writer.writerow(data)
+                    print("Solving ins-{}...".format(i), end="", flush=True)
                     
-                    write_sol(
-                        self.__out_path + "/solution-" + str(i) + ".txt",
-                        w,
-                        h,
-                        n,
-                        widths,
-                        heights,
-                        pos_x,
-                        pos_y
-                    )
+                    try:
+                        (pos_x, pos_y, h, elapsed_time, rotations) = self.__solve(
+                            w,
+                            n,
+                            widths,
+                            heights
+                        )
+                        # Optimal solution
+                        if elapsed_time < 300:
+                            print("solved in: {} s".format(elapsed_time))
+                            solution_type = "optimal"
+                        # non-optimal solution
+                        else:
+                            print("process Terminated, non-optimal solution found")
+                            solution_type = "non-optimal"
 
-                    if self.__print_img:
-                        plot_device(pos_x, pos_y, widths, heights, w, h, rotations, self.__img_path +'device-' + str(i) +'.png')
+                        data = [w, n, h, elapsed_time, solution_type]
 
+                        write_sol(
+                            self.__out_path + "/solution-" + str(i) + ".txt",
+                            w,
+                            h,
+                            n,
+                            widths,
+                            heights,
+                            pos_x,
+                            pos_y
+                        )
+
+                        if self.__print_img:
+                            plot_device(pos_x, pos_y, widths, heights, w, h, rotations, self.__img_path +'device-' + str(i) +'.png')
+                    
+                    # no solution found within 5 mins
+                    except:
+                        print("process terminated, no solution found")
+                        solution_type = "not-found"
+                        data = ["","","", 300, solution_type]
+                    
+                    writer.writerow(data)                    
+        
+        # Execution on single instance
         else:
             w, n, widths, heights = load_data(index)
-            (pos_x, pos_y, h, elapsed_time, rotations) = self.__solve(
-                w,
-                n,
-                widths,
-                heights
-            )
-            
-            print("Minimun Height Found: {}".format(h))
-            print("Solve Time: {}".format(elapsed_time))
-            print("--------------------------------")
-            print()
 
-            if self.__print_img:
-                plot_device(pos_x, pos_y, widths, heights, w, h, rotations, self.__img_path + '/device-' + str(index) +'.png')
+            print("\nSolving instance {} with {} model and {} solver:".format(
+                index,
+                self.__model.upper(),
+                self.__solver
+            ))
+            print("---------------------------------------------------")
+            print()
+            
+            try:
+                (pos_x, pos_y, h, elapsed_time, rotations) = self.__solve(
+                    w,
+                    n,
+                    widths,
+                    heights
+                )
+                # optimal solution found
+                if elapsed_time < 300:
+                    print("Minimun Height Found: {}".format(h))
+                    print("Solve Time: {}".format(elapsed_time))
+                    print("--------------------------------")
+                    print()
+                # non optimal solution found
+                else:
+                    print("PROCESS TERMINATED, NON OPTIMAL SOLUTION FOUND:")
+                    print("Minimun Height Found: {}".format(h))
+                    print("--------------------------------")
+                    print()
+
+                if self.__print_img:
+                    plot_device(
+                        pos_x, pos_y,
+                        widths, heights,
+                         w, h, rotations,
+                          self.__img_path + '/device-' + str(index) +'.png'
+                )
+            
+            # no solution found within 5 mins
+            except:
+                print("PROCESS TERMINATED, NO SOLUTION FOUND")
+
 
 
 
