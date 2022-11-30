@@ -343,9 +343,9 @@ def write_experimental_result(result_path, stat_paths: list, names: list):
             if row['solution type'] == 'N|A' or row['solution type'] == 'UNSAT':
                 result[instance][name_idx] = row['solution type']
             elif row['solution type'] == 'optimal':
-                result[instance][name_idx] = f'\\textbf{{{row["height"]}}}'
+                result[instance][name_idx] = f'\\textbf{{{int(row["height"])}}}'
             else:
-                result[instance][name_idx] = row["height"]
+                result[instance][name_idx] = int(row["height"])
 
     with open(result_path, 'w', newline='') as file:
         wr = csv.writer(file)
