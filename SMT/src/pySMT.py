@@ -36,26 +36,7 @@ def free_solver(w, n, min_h, max_h, chip_w, chip_h, Theo):
                                             x_position[i] + chip_w[i] <= x_position[j],
                                             x_position[j] + chip_w[j] <= x_position[i]))
 
-            # ##Cumulatively on the columns
-            # for u in range(w):
-            #     solver.add_assertion(LE(Plus([Ite(And(x_position[i] <= u, u < x_position[i] + chip_w[i]), chip_h[i], 0) for i in range(n)]), h))
             
-
-
-            #  #symmetry breaking
-            # def precedes(a1, a2):
-            #     if not a1:
-            #         return TRUE
-            #     if not a2:
-            #         return FALSE
-            #     return Or(a1[0] <= a2[0], And(a1[0] == a2[0], precedes(a1[1:], a2[1:])))
-          
-            # solver.add_assertion( precedes(y_position,[h - y_position[i] - chip_h[i] for i in range(0, len(y_position))] ))
-
-
-            # solver.add_assertion( precedes(x_positions,[w - x_positions[i] - chip_w[i] for i in range(0, len(x_positions))] ))
-
-
             if not solver.solve():
                 print("Domain is not SAT!!!")
                 exit()
@@ -81,8 +62,9 @@ def ToInt(element):
     return new_list
 
 tim = []
-Theo = ["z3", "cvc4", "yices", "btor", "picosat", "bdd"]
-for i in range(1,10):
+Theo = ["z3",  "msat"]
+choseen_theory = 1
+for i in range(1,15):
     f = ut.load_data(i)
     w = f[0]
     n = f[1]
@@ -93,20 +75,22 @@ for i in range(1,10):
     print("current i", i)
     print(w, n, min_h, max_h, chip_w, chip_h)
 
-    resul = free_solver(w, n, min_h, max_h, chip_w, chip_h, Theo[1])
+    resul = free_solver(w, n, min_h, max_h, chip_w, chip_h, Theo[choseen_theory])
     if resul != None:
         sol_path = os.path.join(
             os.path.dirname(__file__),
-            '../out/pySMT/sol' + str(i) + ".txt"
+            '../out/pySMT/sol' + str(Theo[choseen_theory])+ str(i) + ".txt"
+            
         )
         tim.append((i, resul[4]))
+        ut.write_sol(sol_path, w, resul[3]-1, n, chip_w, chip_h, ToInt(resul[1]), ToInt(resul[2]),  rotation =  [])
     else:
         tim.append((i, False))
 
     if resul != None:
         out_pat = os.path.join(
             os.path.dirname(__file__),
-            '../out_img/pySMT' + str(i) + '.png'
+            '../out_img/pySMT' + str(Theo[choseen_theory])+ "_" + str(i) + '.png'
             )
         ut.plot_device(pos_x= ToInt(resul[1]), pos_y = ToInt(resul[2]), widths=  chip_w, heights = chip_h, w= w, 
             h= resul[3],  img_path=out_pat,  rotations = [] )
@@ -114,7 +98,7 @@ for i in range(1,10):
 
 txt_path = os.path.join(
 os.path.dirname(__file__),
-'../timings/pySMT.csv'
+'../timings/pySMT' + str(Theo[choseen_theory])+ '.csv'
 )
 
 np.savetxt(txt_path, tim, fmt = "%f")
