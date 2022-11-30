@@ -1,8 +1,5 @@
 
 from pysmt.shortcuts import Symbol, Implies, TRUE, FALSE, Not
-# The first example shows how to use multiple solvers in the with the
-# is_sat shortcut
-#
 from pysmt.shortcuts import is_sat
 import logging
 from pysmt.shortcuts import Portfolio

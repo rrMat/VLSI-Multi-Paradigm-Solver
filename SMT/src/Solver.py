@@ -28,8 +28,11 @@ def plate(w, n, min_h, max_h, chip_w, chip_h, time_available):
             print("Took too long")
             break
           
+          # s = SolverFor("QF_LIA")
           s = Solver()
           set_option(timeout=int(time_remained))
+
+          
           print("current h: ", h)
           
 
