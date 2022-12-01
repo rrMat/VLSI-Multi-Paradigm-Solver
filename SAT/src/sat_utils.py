@@ -16,6 +16,13 @@ import numpy as np
 
 
 
+def all_true(bool_vars):
+    return And(bool_vars)
+
+def all_false(bool_vars):
+    return And([Not(var) for var in bool_vars])
+
+
 # Naive Paiwise
 def at_least_one_np(bool_vars):
     return Or(bool_vars)
@@ -26,6 +33,7 @@ def at_most_one_np(bool_vars):
 
 def exactly_one_np(bool_vars):
     return And(at_most_one_np(bool_vars), at_least_one_np(bool_vars))
+
 
 # Sequential
 def at_least_one_seq(bool_vars):
@@ -46,6 +54,7 @@ def at_most_one_seq(bool_vars):
 
 def exactly_one_seq(bool_vars):
     return And(at_least_one_seq(bool_vars), at_most_one_seq(bool_vars))
+
 
 # Bitwise
 def toBinary(num, length = None):
@@ -74,6 +83,7 @@ def at_most_one_bw(bool_vars):
 
 def exactly_one_bw(bool_vars):
     return And(at_least_one_bw(bool_vars), at_most_one_bw(bool_vars)) 
+
 
 # Heule
 def at_least_one_he(bool_vars):
@@ -111,33 +121,6 @@ exactly_one = {
     'he': exactly_one_he
 }
 
-def all_true(bool_vars):
-    return And(bool_vars)
-
-def all_false(bool_vars):
-    return And([Not(var) for var in bool_vars])
-
-def bool_greater_eq(x, y):
-    return Or(x, Not(y))
-    
-def z3_less_eq(x, y):
-    return And(
-            [bool_greater_eq(x[0], y[0])] +
-            [
-                Implies(
-                    And([x[j] == y[j] for j in range(i)]),
-                    bool_greater_eq(x[i], y[i])
-                )
-                for i in range(1, len(x))
-            ]
-    )
-
-def z3_lex_less_eq(x, y, n):
-    return And([z3_less_eq(x[0], y[0])] + [Implies(
-                                                And([And([x[j][k] == y[j][k] for k in range(n)]) for j in range(i)]),
-                                                z3_less_eq(x[i], y[i])
-                                            ) for i in range(1, len(x))]
-                )
 
 def plot_device(model, plate, w: int, h: int, n_chips, img_path=""):
 

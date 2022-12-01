@@ -34,6 +34,7 @@ class SATSolver:
         self.LABEL = self.model_name
         self.LABEL = self.LABEL + '/' + ('rotation' if self.rotation_allowed else 'no_rotation') 
         self.LABEL = self.LABEL + '/' + ('symmetry_breaking' if self.rotation_allowed else 'no_symmetry_breaking')
+        self.LABEL = self.LABEL + '/' + encoding_type 
         self.LABEL = self.LABEL + '/' + self.solver + '/'
         
         # Define the paths of the results
@@ -47,17 +48,19 @@ class SATSolver:
         os.makedirs(self.STAT_DIRECTORY, exist_ok=True)
 
     def execute(self):
+        STAT_FILE_PATH = f'{self.STAT_DIRECTORY}data.csv'
         for instance_number in range(1, self.number_of_instances + 1):
             IMG_FILE_PATH = f'{self.IMG_DIRECTORY}device-{str(instance_number)}.png'
             OUT_FILE_PATH = f'{self.OUT_DIRECTORY}solution-{str(instance_number)}.txt'
-            STAT_FILE_PATH = f'{self.STAT_DIRECTORY}data.csv'
             
             if self.verbose:
                 print(f'-----------------------------------------')
                 print(f'[Instance number: {str(instance_number)}]')
 
             stats = utils.load_stats(STAT_FILE_PATH)
-            if (instance_number) not in stats.index or self.OVERRIDE:
+
+            key = 'ins-' + str(instance_number)
+            if key not in stats.index or self.OVERRIDE:
                 if self.verbose:
                     print('Computing solution...')
 
@@ -65,10 +68,12 @@ class SATSolver:
             else:
                 if self.verbose:
                     print('Solution already exists...')
-                    print(f'-- Time required: {stats.at[instance_number, "time"]} seconds')
+                    print(f'-- Time required: {stats.at[key, "time"]} seconds')
             
             if self.verbose:
                 print(f'-----------------------------------------')
+
+        return STAT_FILE_PATH
 
     def solve(self, model_name, i, OUT_FILE_PATH, IMG_FILE_PATH, STAT_FILE_PATH):
         # Load instance

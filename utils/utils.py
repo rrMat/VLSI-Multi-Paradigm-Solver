@@ -299,25 +299,6 @@ def display_img(paths, instances, figsize=(10,15)):
     plt.show()
 
 
-def load_stats(path):
-    if not os.path.exists(path):
-        return pd.DataFrame(columns=['height', 'height_lb', 'time'])
-    return pd.read_csv(path, index_col = 0)
-
-
-def display_times(path):
-    dataframe = load_stats(path)
-    plot_bar_graph([list(dataframe['time'])], ['Solved', 'Unsolved'], figsize=(10,5), y_lim=350)
-
-
-def display_times_comparison(paths, model_names, number_of_instances):
-    data = []
-    for path in paths:
-        dataframe = load_stats(path)
-        data.append(dataframe['time'][:number_of_instances].tolist())
-    plot_bar_graph(data, model_names, figsize=(10,5), y_lim=350)
-
-
 def write_experimental_result(result_path, stat_paths: list, names: list):
     """
     Create csv for experimental result section in latex report
@@ -350,3 +331,18 @@ def write_experimental_result(result_path, stat_paths: list, names: list):
     with open(result_path, 'w', newline='') as file:
         wr = csv.writer(file)
         wr.writerows(result)
+
+def load_stats(path):
+        if not os.path.exists(path):
+            return pd.DataFrame(columns=['instance', 'height', 'time', 'solution type'])
+        return pd.read_csv(path, index_col = 0)
+
+def display_times_comparison(paths, model_names, number_of_instances, output_path):
+    data = []
+    for path in paths:
+        dataframe = load_stats(path)
+        data.append(dataframe['time'][:number_of_instances].tolist())
+    plot_bar_graph(data, model_names, figsize=(10,5), saving_path=output_path)
+    
+
+
