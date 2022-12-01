@@ -31,7 +31,7 @@ class SATModel:
         # Init
         self.solved = False
         self.plate_height = 0
-        self.solving_time = 0
+        self.solving_time = time_available
 
     def solve(self, _, returned_values, verbose):
         # Timer
@@ -39,11 +39,13 @@ class SATModel:
 
         # By now the problem hasn't been solved yet...
         returned_values['is_solved'] = False
+        returned_values['result'] = 'N|A'
+        returned_values['solving_time'] = self.solving_time
                 
         # Constraint initialization
         overlapping_check = []
         placing_check = []
-        symmetry_breaking = []
+        symmetry_breaking_check = []
 
         # For each chip the combinations of literals which describe all the possible positions 
         values = {k: [] for k in range(self.n_chips)}           # Those which has to be True
@@ -114,6 +116,8 @@ class SATModel:
             # - 1° constraint 
             overlapping_check += [sat_utils.at_most_one[self.encoding_type](self.plate[i][j]) for i in range(self.plate_height, new_height) 
                                                                                               for j in range(self.plate_width)]
+            #print(overlapping_check[0])
+
             # - 2° constraint
             placing_check = []
             for k in range(self.n_chips):  
@@ -124,6 +128,13 @@ class SATModel:
                                         And([sat_utils.exactly_one[self.encoding_type](chip_places[k])] + [Not(self.rotated[k])]),
                                         And([sat_utils.exactly_one[self.encoding_type](chip_places_rotated[k])] + [self.rotated[k]])
                                     ])]
+            #print(placing_check[0])
+            
+            
+            # - 3° constraint
+            if self.symmetry_breaking:
+                # Find the tallest piece
+                symmetry_breaking_check += [self.plate[0][0][np.argmax(self.chips_heights)]]
     
             # Solver initialization
             solver = Solver()
@@ -131,7 +142,7 @@ class SATModel:
             # Add constraints
             solver.add(overlapping_check)
             solver.add(placing_check)
-            solver.add(symmetry_breaking)
+            solver.add(symmetry_breaking_check)
 
             # We have so created a model with a height increased by one respect to before...
             self.plate_height = new_height
@@ -148,8 +159,11 @@ class SATModel:
                 returned_values['min_height'], \
                 returned_values['plate_height'], \
                 returned_values['rotation'] = self.getSolutionParsed(solver.model())
-
-                sat_utils.plot_device(solver.model(), self.plate, self.plate_width, self.plate_height, self.n_chips, 'SAT/img/img.png')
+                returned_values['result'] = 'optimal'
+                returned_values['result'] = 'optimal' if new_height == self.min_height else 'non-optimal'
+                
+                if verbose:
+                    sat_utils.plot_device(solver.model(), self.plate, self.plate_width, self.plate_height, self.n_chips, 'SAT/img/img.png')
                 return True
             else:
                 if verbose:
@@ -159,6 +173,7 @@ class SATModel:
         # Any valid model has been found            
         returned_values['solving_time'] = time.time() - start_time
         returned_values['is_solved'] = False
+        returned_values['result'] = 'UNSAT'
         return False
     
     def getSolutionParsed(self, model):
@@ -183,10 +198,10 @@ class SATModel:
         return pos_x, pos_y, chips_w_a, chips_h_a, self.plate_width, self.min_height, self.plate_height, rotated
 
     def getSolutionUnsolved(self):
-        return self.plate_height, self.min_height, self.solving_time
+        return self.plate_height, self.solving_time
 
     def __str__(self):
         returned_values = f'Time available: {self.time_available}\nMin height: {self.min_height}\nMax height: {self.max_height}\n\nWidth of the plate: {self.plate_width}\nNumber of chips: {self.n_chips}\n\n'
         for i in range(self.n_chips):
             returned_values += f'Size of {i}° chip: ({self.chips_widths[i]}, {self.chips_heights[i]})\n' 
-        return returned_values 
+        return returned_values

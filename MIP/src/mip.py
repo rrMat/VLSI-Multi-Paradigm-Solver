@@ -1,8 +1,8 @@
 from amplpy import AMPL, Environment
-import numpy as np
 from pathlib import Path
+import re
 
-from utils.utils import load_data, plot_device, write_sol, write_stat_line
+from utils.utils import load_data, plot_device, write_sol, write_stat_line, write_experimental_result
 
 models_dict = {
     'std': 'standard',
@@ -43,14 +43,17 @@ class MIP:
         self.set_solver(solver)
 
     def set_model(self, model):
+        print(f'Solving with {model} model')
         self.model = model
         self.__set_paths(self.model, self.rotation, self.solver)
 
     def set_rotation(self, rotation):
+        print(f'Rotation is {rotation}')
         self.rotation = rotation
         self.__set_paths(self.model, self.rotation, self.solver)
 
     def set_solver(self, solver):
+        print(f'Solving with {solver}')
         self.solver = solver
         self.ampl.set_option('solver', self.solver)
         option, value = time_options_dict[solver]
@@ -81,28 +84,41 @@ class MIP:
         self.ampl.read(self.model_path)
 
         w, n, widths, heights = load_data(instance)
-        height_lb = (np.array(widths)@np.array(heights)) / w
 
         self.ampl.get_parameter('w').set(w)
         self.ampl.get_parameter('n').set(n)
         self.ampl.get_parameter('widths').set_values(widths)
         self.ampl.get_parameter('heights').set_values(heights)
 
-        self.ampl.solve()
+        self.ampl.get_output('solve;')
 
+        solve_result = self.ampl.get_value("solve_result")
         solve_time = self.ampl.get_data('_total_solve_time').to_list()[0]
         max_height = self.ampl.get_objective('H').value()
         coordinates_x = [c[1] for c in self.ampl.get_variable('Coordinates_x').get_values().to_list()]
         coordinates_y = [c[1] for c in self.ampl.get_variable('Coordinates_y').get_values().to_list()]
-
         rotated = [r[1] for r in self.ampl.get_variable('Rotated').get_values().to_list()] if self.rotation else []
 
-        if self.print_image:
-            plot_device(coordinates_x, coordinates_y, widths, heights, w, max_height, rotated)
+        if solve_result == 'solved':
+            sol_type = 'optimal'
+        elif (solve_result == 'failure' or solve_result == 'limit') and max_height > 0:
+            sol_type = 'non-optimal'
+        elif solve_result == 'infeasible':
+            sol_type = 'UNSAT'
+        else:
+            sol_type = 'N|A'
 
-        plot_device(coordinates_x, coordinates_y, widths, heights, w, max_height, rotated, image_path)
-        write_sol(output_path, w, max_height, n, widths, heights, coordinates_x, coordinates_y, rotated)
-        write_stat_line(self.stats_path, instance, max_height, height_lb, solve_time)
+        print(f'Instance solved with result: {sol_type}\n'
+              f'Height found: {max_height}')
+
+        if sol_type == 'optimal' or sol_type == 'non-optimal':
+            if self.print_image:
+                plot_device(coordinates_x, coordinates_y, widths, heights, w, max_height, rotated)
+
+            plot_device(coordinates_x, coordinates_y, widths, heights, w, max_height, rotated, image_path)
+            write_sol(output_path, w, max_height, n, widths, heights, coordinates_x, coordinates_y, rotated)
+
+        write_stat_line(self.stats_path, instance, max_height, solve_time, sol_type)
 
     def execute(self, instance):
         if instance is not None:
@@ -113,8 +129,15 @@ class MIP:
 
 
 if __name__ == '__main__':
-    mip = MIP(ampl_dir='C:/Program Files/ampl.mswin64/', solver='gurobi', print_image=False, rotation=False)
-    mip.solve(15)
+    result_path = (src_path / f'../stats/results_mip.csv').resolve()
+    stat_paths = [p for p in (src_path / f'../stats/').resolve().glob('*.csv') if result_path != p]
+    names = [re.search(r"(.+).csv", p.name).group(1) for p in stat_paths]
+
+    write_experimental_result(result_path, stat_paths, names)
+
+    #mip = MIP(ampl_dir='C:/Program Files/ampl.mswin64/', solver='highs', print_image=False, rotation=False)
+    #mip.solve(1)
+
 
 
 
