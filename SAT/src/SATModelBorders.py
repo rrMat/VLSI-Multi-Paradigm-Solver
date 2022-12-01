@@ -2,12 +2,13 @@ from z3 import *
 import math
 import numpy as np 
 import time
+
 import SAT.src.sat_utils as sat_utils
 
 
-class SATModel:
+class SATModelBorders:
 
-    NAME = 'SATModel'
+    NAME = 'SATModelBorders'
 
     def __init__(self, plate_width, n_chips, chips_widths, chips_heights, rotation, symmetry_breaking, encoding_type, time_available, interrupt):
         self.plate_width = plate_width
@@ -88,17 +89,42 @@ class SATModel:
                 # Define all the possible positions of each chipset with literals
                 # *. Without rotation
                 for y in range(new_height - 1, max(self.chips_heights[k] - 2, self.plate_height - 1), -1):
-                    for x in range(self.plate_width - self.chips_widths[k] + 1):
-                        values[k].append([self.plate[y - slide_y][x + slide_x][k] for slide_x in range(self.chips_widths[k]) 
-                                                                                  for slide_y in range(self.chips_heights[k])])     
+                    for x in range(self.plate_width - self.chips_widths[k] + 1):   
+                        points = []
+                        points += [self.plate[y][x + slide_x][k] for slide_x in range(self.chips_widths[k])]
+                        points += [self.plate[y - (self.chips_heights[k] - 1)][x + slide_x][k] for slide_x in range(self.chips_widths[k])]
+                        points += [self.plate[y - slide_y - 1][x][k] for slide_y in range(self.chips_heights[k]-1)]   
+                        points += [self.plate[y - slide_y - 1][x + self.chips_widths[k] - 1][k] for slide_y in range(self.chips_heights[k]-1)]     
+                             
+                        inside_empty = [self.plate[y - slide_y][x + slide_x][c] for slide_x in range(1, self.chips_widths[k] - 1) 
+                                                                                for slide_y in range(1, self.chips_heights[k] - 1)
+                                                                                for c in range(self.n_chips)]  
+                            
+                        values[k].append(points)
+                        
                         not_values[k].append(list(set(template_false) - set(values[k][-1])))
+                        not_values[k][-1] += inside_empty
+
                 # *. With rotation
                 if self.rotation:
                     for y in range(new_height - 1, max(self.chips_widths[k] - 2, self.plate_height - 1), -1):
                         for x in range(self.plate_width - self.chips_heights[k] + 1):
                             values_rotated[k].append([self.plate[y - slide_y][x + slide_x][k] for slide_x in range(self.chips_heights[k]) 
                                                                                               for slide_y in range(self.chips_widths[k])])     
+                            points = []
+                            points += [self.plate[y][x + slide_x][k] for slide_x in range(self.chips_heights[k])]
+                            points += [self.plate[y - self.chips_widths[k] - 1][x + slide_x][k] for slide_x in range(self.chips_heights[k])]
+                            points += [self.plate[y - slide_y - 1][x][k] for slide_y in range(self.chips_widths[k]-1)]   
+                            points += [self.plate[y - slide_y - 1][x + self.chips_heights[k] - 1][k] for slide_y in range(self.chips_widths[k]-1)]     
+                            
+                            inside_empty = [self.plate[y - slide_y][x + slide_x][c] for slide_x in range(1, self.chips_heights[k] - 1) 
+                                                                                    for slide_y in range(1, self.chips_widths[k] - 1)
+                                                                                    for c in range(self.n_chips)]  
+                            
+                            values_rotated[k].append(points)
+                        
                             not_values_rotated[k].append(list(set(template_false) - set(values_rotated[k][-1])))
+                            not_values_rotated[k][-1] += inside_empty
 
             # Available positions of chips
             chip_places = {k: [] for k in range(self.n_chips)}
@@ -115,7 +141,6 @@ class SATModel:
             # - 1° constraint 
             overlapping_check += [sat_utils.at_most_one[self.encoding_type](self.plate[i][j]) for i in range(self.plate_height, new_height) 
                                                                                               for j in range(self.plate_width)]
-            #print(overlapping_check[0])
 
             # - 2° constraint
             placing_check = []
@@ -127,8 +152,6 @@ class SATModel:
                                         And([sat_utils.exactly_one[self.encoding_type](chip_places[k])] + [Not(self.rotated[k])]),
                                         And([sat_utils.exactly_one[self.encoding_type](chip_places_rotated[k])] + [self.rotated[k]])
                                     ])]
-            #print(placing_check[0])
-            
             
             # - 3° constraint
             if self.symmetry_breaking:
@@ -187,7 +210,7 @@ class SATModel:
                         else:
                             chip_positions.append((y, x, self.chips_widths[k], self.chips_heights[k], False))
                         found = True
-                        
+        
         pos_x = [x for x, _, _, _, _ in chip_positions]
         pos_y = [y for _, y, _, _, _ in chip_positions]
         chips_w_a = [w for _, _, w, _, _ in chip_positions]

@@ -4,16 +4,16 @@ import numpy as np
 import time
 import utils.utils as utils
 import multiprocessing
-
+import os
 from SAT.src.SATModel import SATModel
-from SAT.src.SATModel_onlyBorders import SATModel_onlyBorders
+from SAT.src.SATModelBorders import SATModelBorders
 import SAT.src.sat_utils as sat_utils
 
 class SATSolver:
 
     MODEL_names = {
         'SATModel': SATModel,
-        'SATModel_onlyBorders': SATModel,
+        'SATModelBorders': SATModelBorders,
     }
 
     def __init__(self, model_name, rotation_allowed, symmetry_required, encoding_type, 

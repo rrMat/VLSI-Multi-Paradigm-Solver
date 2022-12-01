@@ -78,7 +78,7 @@ if __name__ == '__main__':
         #                 IMG_DIRECTORY_RELATIVE_PATH,
         #                 STATS_RELATIVE_PATH)
 
-        MODEL_NAMES = ['SATModel', 'SATModel_onlyBorders']
+        MODEL_NAMES = ['SATModel', 'SATModelBorders']
         ENCODERS_NAMES = ['seq', 'np', 'bw', 'he']
         
         NUMBER_OF_INSTANCES = 20
@@ -86,7 +86,7 @@ if __name__ == '__main__':
         INTERRUPT = True
         BEST_ENCODER = 'bw'
         VERBOSE = True
-        BEST_MODEL = 'SATModel_onlyBorders'
+        BEST_MODEL = 'SATModel'
 
         OVERRIDE = False
 
@@ -113,7 +113,7 @@ if __name__ == '__main__':
         names = ['SATModel' + ' + ' + val for val in ENCODERS_NAMES]
         utils.display_times_comparison(csv_paths_encodings, copy.deepcopy(names), NUMBER_OF_INSTANCES, 'SAT/analysis/encodingComparison.png')
         utils.write_experimental_result('SAT/analysis/encodingComparison.csv', csv_paths_encodings, names)
-
+        
         # Comparison of the models 
         print('[WITHOUT ROTATION] Comparison of the models with symmetry and without...')
         csv_paths_models_withoutRotation = []
@@ -122,7 +122,7 @@ if __name__ == '__main__':
             for symmetry_required in [False, True]:
                 csv_path = SATSolver(model_name = model_name, 
                                     rotation_allowed = False,
-                                    symmetry_required = False,
+                                    symmetry_required = symmetry_required,
                                     encoding_type = BEST_ENCODER,
                                     number_of_instances=NUMBER_OF_INSTANCES,
                                     time_available=TIME_AVAILABLE,
@@ -142,7 +142,7 @@ if __name__ == '__main__':
         for model_name in MODEL_NAMES:
             for symmetry_required in [False, True]:
                 csv_path = SATSolver(model_name = model_name, 
-                                    rotation_allowed = False,
+                                    rotation_allowed = True,
                                     symmetry_required = symmetry_required,
                                     encoding_type = BEST_ENCODER,
                                     number_of_instances = NUMBER_OF_INSTANCES,

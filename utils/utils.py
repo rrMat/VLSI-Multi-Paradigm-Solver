@@ -316,7 +316,7 @@ def write_experimental_result(result_path, stat_paths: list, names: list):
     """
     names.insert(0, 'ID')
     result = [names]
-    result.extend([['-' for _ in range(len(names))] for i in range(1, 41)])
+    result.extend([[i] + ['-' for _ in range(len(names) - 1)] for i in range(1, 41)])
 
     for name_idx, path in enumerate(stat_paths):
         df = pd.read_csv(path, index_col=0)
