@@ -176,6 +176,7 @@ class CPSolver:
 
             for i in range(1,41):
 
+                solution_type = ""
                 w, n, widths, heights = load_data(i)
 
                 print("Solving ins-{}...".format(i), end="", flush=True)
@@ -214,7 +215,9 @@ class CPSolver:
                 # no solution found within 5 mins
                 except:
                     print("process terminated, no solution found")
-                    solution_type = "N/A"
+                    h = ""
+                    elapsed_time = 300
+                    solution_type = "N|A"
                 
                 write_stat_line(
                         self.__stats_path,
