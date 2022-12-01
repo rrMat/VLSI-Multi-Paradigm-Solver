@@ -314,19 +314,20 @@ def write_experimental_result(result_path, stat_paths: list, names: list):
     names: list
         A list containing the names of the techniques used. It must have the same lenght as stat_paths
     """
+    names.insert(0, 'ID')
     result = [names]
-    result.extend([['' for method in range(len(names))] for i in range(1, 41)])
+    result.extend([[i for _ in range(len(names))] for i in range(1, 41)])
 
     for name_idx, path in enumerate(stat_paths):
         df = pd.read_csv(path, index_col=0)
         for _, row in df.iterrows():
             instance = row['instance']
             if row['solution type'] == 'N|A' or row['solution type'] == 'UNSAT':
-                result[instance][name_idx] = row['solution type']
+                result[instance][name_idx + 1] = row['solution type']
             elif row['solution type'] == 'optimal':
-                result[instance][name_idx] = f'\\textbf{{{row["height"]}}}'
+                result[instance][name_idx + 1] = f'\\textbf{{{int(row["height"])}}}'
             else:
-                result[instance][name_idx] = row["height"]
+                result[instance][name_idx + 1] = int(row["height"])
 
     with open(result_path, 'w', newline='') as file:
         wr = csv.writer(file)
