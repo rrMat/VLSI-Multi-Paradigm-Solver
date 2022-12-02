@@ -2,7 +2,7 @@ from amplpy import AMPL, Environment
 from pathlib import Path
 import re
 
-from utils.utils import load_data, plot_device, write_sol, write_stat_line, write_experimental_result
+from utils.utils import load_data, plot_device, write_sol, write_stat_line, write_experimental_result, display_times_comparison
 
 models_dict = {
     'std': 'standard',
@@ -134,9 +134,9 @@ def sorting_files(file):
     return result.group(2) + result.group(1)
 
 
-if __name__ == '__main__':
+def write_results():
     result_path = (src_path / f'../stats/results_mip.csv').resolve()
-    stat_paths = [p for p in (src_path / f'../stats/no_rot/').resolve().glob('*.csv') if result_path != p]
+    stat_paths = [p for p in (src_path / f'../stats/no_rot/').resolve().glob('*.csv')]
     stat_paths.sort(key=sorting_files)
 
     names = [re.search(r"(.+).csv", p.name).group(1) for p in stat_paths]
@@ -144,6 +144,24 @@ if __name__ == '__main__':
              for name in names]
 
     write_experimental_result(result_path, stat_paths, names)
+
+
+def plot_times():
+    pattern = re.compile(r"(.+gurobi\.csv)")
+    plot_path = (src_path / f'../img/times_mip.png').resolve()
+    stat_paths = [p for p in (src_path / f'../stats/no_rot/').resolve().glob('*.csv') if pattern.match(p.name)]
+    stat_paths.sort(key=sorting_files)
+
+    names = [re.search(r"(.+).csv", p.name).group(1) for p in stat_paths]
+    names = [name.replace('standard', 'std').replace('strong_bounds', 'stb').replace('_rot', '').replace('_', ' ')
+             for name in names]
+
+    display_times_comparison(stat_paths, names, 40, plot_path)
+
+
+if __name__ == '__main__':
+
+    plot_times()
 
     #mip = MIP(ampl_dir='C:/Program Files/ampl.mswin64/', solver='highs', print_image=False, rotation=False)
     #mip.solve(1)
