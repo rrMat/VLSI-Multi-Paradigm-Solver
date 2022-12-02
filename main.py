@@ -85,7 +85,7 @@ if __name__ == '__main__':
         TIME_AVAILABLE = 300
         INTERRUPT = True
         BEST_ENCODER = 'bw'
-        VERBOSE = False
+        VERBOSE = True
         BEST_MODEL = 'SATModel'
 
         OVERRIDE = False
