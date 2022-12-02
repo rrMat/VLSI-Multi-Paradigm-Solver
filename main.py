@@ -47,14 +47,33 @@ if __name__ == '__main__':
                             help='If the AMPL installation directory is not in the system search path '
                                  'you need to specify the full path to the AMPL installation directory.')
 
+    # SAT arguments 
+    SAT_parser.add_argument('-m', '--model', required=True, type=str, 
+                            choices=['SATModel', 'SATModelBorders'],
+                            help='Select SAT model.\n'
+                                 'Possible models: SATModel | SATModelBorders')
+    SAT_parser.add_argument('-e', '--encoding', default='bw', type=str, 
+                            choices=['seq','np','bw','he'],
+                            help='Select SAT encoding.\n'
+                                 'Possible models: seq | np | bw | he')
+    SAT_parser.add_argument('-sb', '--symmetry_breaking', default=True, type=bool,
+                            help='Choose if the symmetry breaking constraint has to be used\n')
+    SAT_parser.add_argument('-t', '--time_available', default=300, type=int, 
+                            help='Define the time available to solve an instance\n')
+    SAT_parser.add_argument('-o', '--override', default=True, type=bool,
+                            help='Choose if the results have to be override\n')
+    SAT_parser.add_argument('-v', '--verbose', default=False, type=bool,
+                            help='Print results of execution\n')
+    SAT_parser.add_argument('-n', '--number_of_instances', default=40, type=int,
+                            help='Number of instances to execute\n')
+
+
     args = parser.parse_args()
 
     if args.Paradigm == "CP" :
 
-        cp = CPSolver(
-            rotation=args.rotation,
-            print_img = args.print_img
-        )
+        cp = CPSolver(rotation=args.rotation,
+                      print_img = args.print_img)
 
         for model in args.model:
             for solver in args.solver:
@@ -62,121 +81,31 @@ if __name__ == '__main__':
                 cp.update_solver(solver)
                 cp.execute(args.instance)
 
+        # Proposta: mettere questo dentro un metodo di CPSolver chiamato execute(). In questo modo 
+        # l'unica cosa che facciamo nel main è chiamare l'execute() di un certo Solver con certe caratteristiche.
+
     elif args.Paradigm == "SAT":
-
-        #SAT_solver = SAT(args.instance,
-        #                 args.model,
-        #                 args.rotation_allowed,
-        #                 args.symmetry_required,
-        #                 args.encoding_type,
-        #                 args.number_of_instances,
-        #                 args.time_available,
-        #                 args.interrupt,
-        #                 args.verbose,
-        #                 args.override,
-        #                 OUT_DIRECTORY_RELATIVE_PATH,
-        #                 IMG_DIRECTORY_RELATIVE_PATH,
-        #                 STATS_RELATIVE_PATH)
-
-        MODEL_NAMES = ['SATModel', 'SATModelBorders']
-        ENCODERS_NAMES = ['seq', 'np', 'bw', 'he']
-
-        NUMBER_OF_INSTANCES = 20
-        TIME_AVAILABLE = 300
-        INTERRUPT = True
-        BEST_ENCODER = 'bw'
-        VERBOSE = True
-        BEST_MODEL = 'SATModel'
-
-        OVERRIDE = False
-
-
-        # Create the directory which should contains the analysis results
-        os.makedirs('SAT/analysis', exist_ok=True)
-
-        # Comparison of all the encoding approaches
-        print('Comparison of the encodings...')
-        csv_paths_encodings = []
-        names = []
-        for encoder in ENCODERS_NAMES:
-            csv_path = SATSolver('SATModel',
-                                rotation_allowed = False,
-                                symmetry_required = False,
-                                encoding_type = encoder,
-                                number_of_instances = NUMBER_OF_INSTANCES,
-                                time_available = TIME_AVAILABLE,
-                                interrupt = INTERRUPT,
-                                verbose = VERBOSE,
-                                solver = 'z3',
-                                OVERRIDE = True).execute()
-            csv_paths_encodings.append(csv_path)
-            names.append('SATModel' + ''.join(['_'+ letter for letter in encoder]))
-        utils.display_times_comparison(csv_paths_encodings, copy.deepcopy(names), NUMBER_OF_INSTANCES, 'SAT/analysis/encodingComparison.png')
-        utils.write_experimental_result('SAT/analysis/encodingComparison.csv', csv_paths_encodings, names)
+        SATSolver(model_name = args.model,
+                rotation_allowed = args.rotation,
+                symmetry_required = args.symmetry_breaking,
+                encoding_type = args.encoding,
+                number_of_instances=args.number_of_instances,
+                time_available=args.time_available,
+                verbose=args.verbose,
+                solver='z3',
+                OVERRIDE = args.override).execute()
         
-        # Comparison of the models 
-        print('[WITHOUT ROTATION] Comparison of the models with symmetry and without...')
-        csv_paths_models_withoutRotation = []
-        names = []
-        for model_name in MODEL_NAMES:
-            for symmetry_required in [False, True]:
-                csv_path = SATSolver(model_name = model_name,
-                                    rotation_allowed = False,
-                                    symmetry_required = symmetry_required,
-                                    encoding_type = BEST_ENCODER,
-                                    number_of_instances=NUMBER_OF_INSTANCES,
-                                    time_available=TIME_AVAILABLE,
-                                    interrupt=INTERRUPT,
-                                    verbose=VERBOSE,
-                                    solver='z3',
-                                    OVERRIDE = OVERRIDE).execute()
-                csv_paths_models_withoutRotation.append(csv_path)
-                names.append(model_name + ''.join(['_'+ letter for letter in BEST_ENCODER]) + ('+ sb' if symmetry_required else ''))
-        utils.display_times_comparison(csv_paths_models_withoutRotation, copy.deepcopy(names), NUMBER_OF_INSTANCES, 'SAT/analysis/modelsComparison_withoutRotation.png')
-        utils.write_experimental_result('SAT/analysis/modelsComparison_withoutRotation.csv', csv_paths_models_withoutRotation, names)
-
-        # Comparison of the models
-        print('[WITH ROTATION] Comparison of the models with symmetry and without...')
-        csv_paths_models_withRotation = []
-        names = []
-        for model_name in MODEL_NAMES:
-            for symmetry_required in [False, True]:
-                csv_path = SATSolver(model_name = model_name, 
-                                    rotation_allowed = True,
-                                    symmetry_required = symmetry_required,
-                                    encoding_type = BEST_ENCODER,
-                                    number_of_instances = NUMBER_OF_INSTANCES,
-                                    time_available = TIME_AVAILABLE,
-                                    interrupt = INTERRUPT,
-                                    verbose = VERBOSE,
-                                    solver = 'z3',
-                                    OVERRIDE = OVERRIDE).execute()
-                csv_paths_models_withRotation.append(csv_path)
-                names.append(model_name + ''.join(['_'+ letter for letter in BEST_ENCODER]) + ('+ sb' if symmetry_required else ''))
-        utils.display_times_comparison(csv_paths_models_withRotation, copy.deepcopy(names), NUMBER_OF_INSTANCES, 'SAT/analysis/modelsComparison_withRotation.png')
-        utils.write_experimental_result('SAT/analysis/modelsComparison_withRotation.csv', csv_paths_models_withRotation, names)
-        
-
-        for model_name in ['SATModel', 'SATModelBorders']:
-            for rotation in [True, False]:
-                for symmetry_required in [True, False]:
-                    for encoder in ['bw']:
-                        SATSolver(model_name = model_name,
-                                  rotation_allowed = rotation,
-                                  symmetry_required = symmetry_required,
-                                  encoding_type = encoder,
-                                  number_of_instances=NUMBER_OF_INSTANCES,
-                                  time_available=TIME_AVAILABLE,
-                                  interrupt=INTERRUPT,
-                                  verbose=VERBOSE,
-                                  solver='z3',
-                                  OVERRIDE = OVERRIDE).execute()
-
     elif args.Paradigm == "SMT":
         pass
 
     elif args.Paradigm == "MIP":
-        mip = MIP(ampl_dir=args.ampl_dir, rotation=args.rotation, print_image=args.print_img)
+        mip = MIP(ampl_dir=args.ampl_dir, 
+                  rotation=args.rotation, 
+                  print_image=args.print_img)
+
+        
+        # Proposta: mettere questo dentro un metodo di MIP chiamato execute(). In questo modo 
+        # l'unica cosa che facciamo nel main è chiamare l'execute() di un certo Solver con certe caratteristiche.
 
         for solver in args.solver:
             mip.set_solver(solver)

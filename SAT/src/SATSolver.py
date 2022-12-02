@@ -17,7 +17,7 @@ class SATSolver:
     }
 
     def __init__(self, model_name, rotation_allowed, symmetry_required, encoding_type, 
-                       number_of_instances, time_available, interrupt, verbose, solver, OVERRIDE):
+                       number_of_instances, time_available, verbose, solver, OVERRIDE):
         
         self.model_name = model_name
         self.rotation_allowed = rotation_allowed
@@ -25,7 +25,7 @@ class SATSolver:
         self.encoding_type = encoding_type
         self.number_of_instances = number_of_instances
         self.time_available = time_available
-        self.interrupt = interrupt
+        self.interrupt = False if time_available == 0 else True
         self.verbose = verbose
         self.solver = solver
         self.OVERRIDE = OVERRIDE
