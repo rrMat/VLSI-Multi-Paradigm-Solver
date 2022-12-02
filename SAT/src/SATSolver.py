@@ -33,7 +33,7 @@ class SATSolver:
         # Define the result label
         self.LABEL = self.model_name
         self.LABEL = self.LABEL + '/' + ('rotation' if self.rotation_allowed else 'no_rotation') 
-        self.LABEL = self.LABEL + '/' + ('symmetry_breaking' if self.rotation_allowed else 'no_symmetry_breaking')
+        self.LABEL = self.LABEL + '/' + ('symmetry_required' if self.symmetry_required else 'no_symmetry_required')
         self.LABEL = self.LABEL + '/' + encoding_type 
         self.LABEL = self.LABEL + '/' + self.solver + '/'
         

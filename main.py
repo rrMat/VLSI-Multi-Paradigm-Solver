@@ -85,7 +85,7 @@ if __name__ == '__main__':
         TIME_AVAILABLE = 300
         INTERRUPT = True
         BEST_ENCODER = 'bw'
-        VERBOSE = True
+        VERBOSE = False
         BEST_MODEL = 'SATModel'
 
         OVERRIDE = False
@@ -97,6 +97,7 @@ if __name__ == '__main__':
         # Comparison of all the encoding approaches
         print('Comparison of the encodings...')
         csv_paths_encodings = []
+        names = []
         for encoder in ENCODERS_NAMES:
             csv_path = SATSolver('SATModel', 
                                 rotation_allowed = False,
@@ -107,13 +108,12 @@ if __name__ == '__main__':
                                 interrupt = INTERRUPT,
                                 verbose = VERBOSE,
                                 solver = 'z3',
-                                OVERRIDE = OVERRIDE).execute()
+                                OVERRIDE = True).execute()
             csv_paths_encodings.append(csv_path)
-
-        names = ['SATModel' + ' + ' + val for val in ENCODERS_NAMES]
+            names.append('SATModel' + ''.join(['_'+ letter for letter in encoder]))
         utils.display_times_comparison(csv_paths_encodings, copy.deepcopy(names), NUMBER_OF_INSTANCES, 'SAT/analysis/encodingComparison.png')
         utils.write_experimental_result('SAT/analysis/encodingComparison.csv', csv_paths_encodings, names)
-        
+        print(names)
         # Comparison of the models 
         print('[WITHOUT ROTATION] Comparison of the models with symmetry and without...')
         csv_paths_models_withoutRotation = []
@@ -131,7 +131,7 @@ if __name__ == '__main__':
                                     solver='z3',
                                     OVERRIDE = OVERRIDE).execute()
                 csv_paths_models_withoutRotation.append(csv_path)
-                names.append(model_name + ' + ' + ('sb' if symmetry_required else 'not_sb'))
+                names.append(model_name + ''.join(['_'+ letter for letter in BEST_ENCODER]) + ('+ sb' if symmetry_required else ''))
         utils.display_times_comparison(csv_paths_models_withoutRotation, copy.deepcopy(names), NUMBER_OF_INSTANCES, 'SAT/analysis/modelsComparison_withoutRotation.png')
         utils.write_experimental_result('SAT/analysis/modelsComparison_withoutRotation.csv', csv_paths_models_withoutRotation, names)
 
@@ -140,7 +140,7 @@ if __name__ == '__main__':
         csv_paths_models_withRotation = []
         names = []
         for model_name in MODEL_NAMES:
-            for symmetry_required in [False, True]:
+            for symmetry_required in [True, False]:
                 csv_path = SATSolver(model_name = model_name, 
                                     rotation_allowed = True,
                                     symmetry_required = symmetry_required,
@@ -152,11 +152,12 @@ if __name__ == '__main__':
                                     solver = 'z3',
                                     OVERRIDE = OVERRIDE).execute()
                 csv_paths_models_withRotation.append(csv_path)
-                names.append(model_name + ' + ' + ('sb' if symmetry_required else 'not_sb'))
+                names.append(model_name + ''.join(['_'+ letter for letter in BEST_ENCODER]) + ('+ sb' if symmetry_required else ''))
         utils.display_times_comparison(csv_paths_models_withRotation, copy.deepcopy(names), NUMBER_OF_INSTANCES, 'SAT/analysis/modelsComparison_withRotation.png')
         utils.write_experimental_result('SAT/analysis/modelsComparison_withRotation.csv', csv_paths_models_withRotation, names)
+        
 
-        for model_name in ['SATModel', 'SATModel_onlyBorders']:
+        for model_name in ['SATModel', 'SATModelBorders']:
             for rotation in [True, False]:
                 for symmetry_required in [True, False]:
                     for encoder in ['bw']:
