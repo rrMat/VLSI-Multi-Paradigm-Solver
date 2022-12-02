@@ -380,8 +380,8 @@ def display_times_comparison(paths, model_names, number_of_instances, output_pat
 
 if __name__ == '__main__':
     write_paradigm_comparison('comparison.csv',
-                              ['../MIP/stats/results_mip.csv', '../MIP/stats/results_mip.csv',
-                               '../MIP/stats/results_mip.csv', '../MIP/stats/results_mip.csv'])
+                              ['CP RESULTS', 'SAT RESULTS',
+                               'SMT RESULTS', '../MIP/stats/results_mip.csv'])
     write_paradigm_comparison('comparison_rot.csv',
-                              ['../MIP/stats/results_mip_rot.csv', '../MIP/stats/results_mip_rot.csv',
-                               '../MIP/stats/results_mip_rot.csv', '../MIP/stats/results_mip_rot.csv'])
+                              ['CP RESULTS ROTATION', 'SAT RESULTS ROTATION',
+                               'SMT RESULTS ROTATION', '../MIP/stats/results_mip_rot.csv'])
