@@ -373,6 +373,7 @@ def display_times_comparison(paths, model_names, number_of_instances, output_pat
     data = []
     for path in paths:
         dataframe = load_stats(path)
+        print(dataframe)
         data.append(dataframe['time'][:number_of_instances].tolist())
     plot_bar_graph(data, model_names, figsize=(10,5), saving_path=output_path)
 
