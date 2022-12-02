@@ -57,6 +57,8 @@ class SATModel:
             print(f'Min height: {self.min_height}')
             print(f'Max height: {self.max_height}')
             print(f'With rotation: {self.rotation}')
+            print(f'Symmetry breaking: {self.symmetry_breaking}')
+            print(f'Encoder: {self.encoding_type}')
 
         if self.rotation:
             self.rotated += [Bool(f"rotated_{i}") for i in range(self.n_chips)]
