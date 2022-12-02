@@ -2,9 +2,11 @@ import argparse
 from CP.src.CPSolver import CPSolver
 from SAT.src.SATSolver import SATSolver
 from MIP.src.mip import MIP
+from SMT.src import pySMT
 import os
 import utils.utils as utils
 import copy
+import multiprocessing
 
 if __name__ == '__main__':
 
@@ -172,7 +174,15 @@ if __name__ == '__main__':
                                   OVERRIDE = OVERRIDE).execute()
 
     elif args.Paradigm == "SMT":
-        pass
+        print("ciao")
+        manager = multiprocessing.Manager()
+        return_dict = manager.dict()
+        p = multiprocessing.Process(target=free_solver)
+        p.start()
+        p.join(1)
+        if p.is_alive():
+            p.terminate()
+            p.join()
 
     elif args.Paradigm == "MIP":
         mip = MIP(ampl_dir=args.ampl_dir, rotation=args.rotation, print_image=args.print_img)

@@ -11,6 +11,8 @@ from itertools import combinations
 import utils.utils as ut
 import multiprocessing
 
+
+
 def free_solver(w, n, min_h, max_h, chip_w, chip_h, Theo):
     start_time = time.time()
     x_position = [Symbol(f"x_pos{s}", INT) for s in range(n)]
@@ -61,10 +63,13 @@ def ToInt(element):
         new_list.append(element[i]._content[2])   
     return new_list
 
+
+
+
 tim = []
 Theo = ["z3",  "msat"]
 choseen_theory = 1
-for i in range(1,15):
+for i in range(1,40):
     f = ut.load_data(i)
     w = f[0]
     n = f[1]
