@@ -147,9 +147,9 @@ def write_results():
 
 
 def plot_times():
-    pattern = re.compile(r"(.+gurobi\.csv)")
-    plot_path = (src_path / f'../img/times_mip.png').resolve()
-    stat_paths = [p for p in (src_path / f'../stats/no_rot/').resolve().glob('*.csv') if pattern.match(p.name)]
+    pattern = re.compile(r"(.+gurobi.+csv)")
+    plot_path = (src_path / f'../img/times_mip_rot.png').resolve()
+    stat_paths = [p for p in (src_path / f'../stats/rot/').resolve().glob('*.csv') if pattern.match(p.name)]
     stat_paths.sort(key=sorting_files)
 
     names = [re.search(r"(.+).csv", p.name).group(1) for p in stat_paths]
