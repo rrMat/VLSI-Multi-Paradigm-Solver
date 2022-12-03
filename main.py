@@ -72,7 +72,7 @@ if __name__ == '__main__':
     # SMT arguments 
     SMT_parser.add_argument('-m', '--model', required=True, type=str, 
                             choices=['z3Py', 'z3Py_rotation', 'z3Py_parallel_rotation', 
-                            'z3Py_parallel', 'pySMT_z3', 'pySMT_msat'],
+                            'z3Py_parallel', 'pySMT_z3', 'pySMT_msat', 'analysis'],
                             help='Select SMT model.\n'
                                  'Possible models: z3Py')
 

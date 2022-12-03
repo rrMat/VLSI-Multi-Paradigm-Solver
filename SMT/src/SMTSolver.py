@@ -11,6 +11,7 @@ from SMT.src.z3Py_parallel_rotation import z3Py_parallel_rotation
 from SMT.src.z3Py_parallel import z3Py_parallel
 from SMT.src.pySMT_z3 import pySMT_z3
 from SMT.src.pySMT_msat import pySMT_msat
+from SMT.src.analysis import analysis
 
 
 class SMTSolver:
@@ -18,6 +19,7 @@ class SMTSolver:
     TIME_AVAILABLE = 300000
 
     MODELS = {
+        'analysis' : analysis,
         'pySMT_z3' : pySMT_z3,
         'pySMT_msat' : pySMT_msat,
         'z3Py': z3Py,
