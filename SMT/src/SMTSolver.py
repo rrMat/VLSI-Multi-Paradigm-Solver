@@ -6,13 +6,24 @@ import utils.utils as utils
 import multiprocessing
 import os
 from SMT.src.z3Py import z3Py
+from SMT.src.z3Py_rotation import z3Py_rotation
+from SMT.src.z3Py_parallel_rotation import z3Py_parallel_rotation
+from SMT.src.z3Py_parallel import z3Py_parallel
+from SMT.src.pySMT_z3 import pySMT_z3
+from SMT.src.pySMT_msat import pySMT_msat
+
 
 class SMTSolver:
 
     TIME_AVAILABLE = 300000
 
     MODELS = {
-        'z3Py': z3Py
+        'pySMT_z3' : pySMT_z3,
+        'pySMT_msat' : pySMT_msat,
+        'z3Py': z3Py,
+        'z3Py_rotation' : z3Py_rotation,
+        'z3Py_parallel_rotation' : z3Py_parallel_rotation,
+        'z3Py_parallel' : z3Py_parallel,
     }
 
     def __init__(self, model_name):
@@ -22,7 +33,6 @@ class SMTSolver:
         model = self.MODELS[self.model_name]()
 
         manager = multiprocessing.Manager()
-        return_dict = manager.dict()
         p = multiprocessing.Process(target=model.execute)
         p.start()
         p.join(self.TIME_AVAILABLE)

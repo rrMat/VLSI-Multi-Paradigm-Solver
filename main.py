@@ -6,7 +6,7 @@ from SMT.src.SMTSolver import SMTSolver
 import os
 import utils.utils as utils
 import copy
-import multiprocessing
+
 
 if __name__ == '__main__':
 
@@ -71,7 +71,8 @@ if __name__ == '__main__':
 
     # SMT arguments 
     SMT_parser.add_argument('-m', '--model', required=True, type=str, 
-                            choices=['z3Py'],
+                            choices=['z3Py', 'z3Py_rotation', 'z3Py_parallel_rotation', 
+                            'z3Py_parallel', 'pySMT_z3', 'pySMT_msat'],
                             help='Select SMT model.\n'
                                  'Possible models: z3Py')
 
