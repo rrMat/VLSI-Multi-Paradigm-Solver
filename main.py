@@ -86,14 +86,13 @@ if __name__ == '__main__':
 
     elif args.Paradigm == "SAT":
         SATSolver(model_name = args.model,
-                rotation_allowed = args.rotation,
-                symmetry_required = args.symmetry_breaking,
-                encoding_type = args.encoding,
-                number_of_instances=args.number_of_instances,
-                time_available=args.time_available,
-                verbose=args.verbose,
-                solver='z3',
-                OVERRIDE = args.override).execute()
+                  rotation_allowed = args.rotation,
+                  symmetry_required = args.symmetry_breaking,
+                  encoding_type = args.encoding,
+                  number_of_instances=args.number_of_instances,
+                  time_available=args.time_available,
+                  verbose=args.verbose,
+                  OVERRIDE = args.override).execute()
         
     elif args.Paradigm == "SMT":
         pass

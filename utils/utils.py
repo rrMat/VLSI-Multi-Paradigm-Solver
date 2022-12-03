@@ -226,6 +226,8 @@ def write_stat_line(path, instance: int, height: int, time: float, solution_type
     if not os.path.exists(path):
         dataframe = pd.DataFrame(columns=['instance', 'height', 'time', 'solution type'])
         dataframe.set_index('instance')
+        for i in range(40):
+            dataframe.loc["ins-" + str(i+1)] = [i+1, '-', '-1', 'N|A']
     else:
         dataframe = pd.read_csv(path, index_col=0)
         dataframe.set_index('instance')
@@ -365,7 +367,11 @@ def write_paradigm_comparison(comparison_path, result_paths: list):
 
 def load_stats(path):
     if not os.path.exists(path):
-        return pd.DataFrame(columns=['instance', 'height', 'time', 'solution type'])
+        dataframe = pd.DataFrame(columns=['instance', 'height', 'time', 'solution type'])
+        dataframe.set_index('instance')
+        for i in range(40):
+            dataframe.loc["ins-" + str(i+1)] = [i+1, '-', '-1', 'N|A']
+        return dataframe
     return pd.read_csv(path, index_col = 0)
 
 
@@ -373,7 +379,6 @@ def display_times_comparison(paths, model_names, number_of_instances, output_pat
     data = []
     for path in paths:
         dataframe = load_stats(path)
-        print(dataframe)
         data.append(dataframe['time'][:number_of_instances].tolist())
     plot_bar_graph(data, model_names, figsize=(10,5), saving_path=output_path)
 

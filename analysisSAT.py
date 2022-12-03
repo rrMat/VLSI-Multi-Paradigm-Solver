@@ -9,7 +9,8 @@ if __name__ == '__main__':
     MODEL_NAMES = ['SATModel', 'SATModelBorders']
     ENCODERS_NAMES = ['seq', 'np', 'bw', 'he']
 
-    NUMBER_OF_INSTANCES = 20
+    NUMBER_OF_INSTANCES_TO_COMPUTE = 25
+    NUMBER_OF_INSTANCES_TO_PRINT = 40
     TIME_AVAILABLE = 300
     INTERRUPT = True
     BEST_ENCODER = 'bw'
@@ -30,14 +31,13 @@ if __name__ == '__main__':
                             rotation_allowed = False,
                             symmetry_required = False,
                             encoding_type = encoder,
-                            number_of_instances = NUMBER_OF_INSTANCES,
-                            time_available = TIME_AVAILABLE
+                            number_of_instances = NUMBER_OF_INSTANCES_TO_COMPUTE,
+                            time_available = TIME_AVAILABLE,
                             verbose = VERBOSE,
-                            solver = 'z3',
-                            OVERRIDE = True).execute()
+                            OVERRIDE = OVERRIDE).execute()
         csv_paths_encodings.append(csv_path)
         names.append('SATModel' + ''.join(['_'+ letter for letter in encoder]))
-    utils.display_times_comparison(csv_paths_encodings, copy.deepcopy(names), NUMBER_OF_INSTANCES, 'SAT/analysis/encodingComparison.png')
+    utils.display_times_comparison(csv_paths_encodings, copy.deepcopy(names), NUMBER_OF_INSTANCES_TO_PRINT, 'SAT/analysis/encodingComparison.png')
     utils.write_experimental_result('SAT/analysis/encodingComparison.csv', csv_paths_encodings, names)
     
     # Comparison of the models 
@@ -50,14 +50,13 @@ if __name__ == '__main__':
                                 rotation_allowed = False,
                                 symmetry_required = symmetry_required,
                                 encoding_type = BEST_ENCODER,
-                                number_of_instances=NUMBER_OF_INSTANCES,
-                                time_available=TIME_AVAILABLE
+                                number_of_instances=NUMBER_OF_INSTANCES_TO_COMPUTE,
+                                time_available=TIME_AVAILABLE,
                                 verbose=VERBOSE,
-                                solver='z3',
                                 OVERRIDE = OVERRIDE).execute()
             csv_paths_models_withoutRotation.append(csv_path)
             names.append(model_name + ''.join(['_'+ letter for letter in BEST_ENCODER]) + ('+ sb' if symmetry_required else ''))
-    utils.display_times_comparison(csv_paths_models_withoutRotation, copy.deepcopy(names), NUMBER_OF_INSTANCES, 'SAT/analysis/modelsComparison_withoutRotation.png')
+    utils.display_times_comparison(csv_paths_models_withoutRotation, copy.deepcopy(names), NUMBER_OF_INSTANCES_TO_PRINT, 'SAT/analysis/modelsComparison_withoutRotation.png')
     utils.write_experimental_result('SAT/analysis/modelsComparison_withoutRotation.csv', csv_paths_models_withoutRotation, names)
 
     # Comparison of the models
@@ -70,14 +69,13 @@ if __name__ == '__main__':
                                 rotation_allowed = True,
                                 symmetry_required = symmetry_required,
                                 encoding_type = BEST_ENCODER,
-                                number_of_instances = NUMBER_OF_INSTANCES,
-                                time_available = TIME_AVAILABLE
+                                number_of_instances = NUMBER_OF_INSTANCES_TO_COMPUTE,
+                                time_available = TIME_AVAILABLE,
                                 verbose = VERBOSE,
-                                solver = 'z3',
                                 OVERRIDE = OVERRIDE).execute()
             csv_paths_models_withRotation.append(csv_path)
             names.append(model_name + ''.join(['_'+ letter for letter in BEST_ENCODER]) + ('+ sb' if symmetry_required else ''))
-    utils.display_times_comparison(csv_paths_models_withRotation, copy.deepcopy(names), NUMBER_OF_INSTANCES, 'SAT/analysis/modelsComparison_withRotation.png')
+    utils.display_times_comparison(csv_paths_models_withRotation, copy.deepcopy(names), NUMBER_OF_INSTANCES_TO_PRINT, 'SAT/analysis/modelsComparison_withRotation.png')
     utils.write_experimental_result('SAT/analysis/modelsComparison_withRotation.csv', csv_paths_models_withRotation, names)
     
 
@@ -89,9 +87,8 @@ if __name__ == '__main__':
                                 rotation_allowed = rotation,
                                 symmetry_required = symmetry_required,
                                 encoding_type = encoder,
-                                number_of_instances=NUMBER_OF_INSTANCES,
-                                time_available=TIME_AVAILABLE
+                                number_of_instances=NUMBER_OF_INSTANCES_TO_COMPUTE,
+                                time_available=TIME_AVAILABLE,
                                 verbose=VERBOSE,
-                                solver='z3',
                                 OVERRIDE = OVERRIDE).execute()
 
