@@ -21,7 +21,7 @@ result_pat = os.path.join(
 labels = ['z3Py', 'z3Py_parallel', 'pySMT_z3', 'pySMT_msat']
 
 ut.write_experimental_result(result_pat, csv_paths_encodings, labels)
-
+ut.display_times_comparison( csv_paths_encodings, labels, 9, 'SMT/out/comparison.png' )
 #rotation
 
 csv_paths_encodings_rotation = []
@@ -42,6 +42,7 @@ result_pat_rotation = os.path.join(
 labels_rotation = ['z3Py_rotation', 'z3Py_parallel_rotation']
 
 ut.write_experimental_result(result_pat_rotation, csv_paths_encodings_rotation, labels_rotation)
+ut.display_times_comparison( csv_paths_encodings_rotation, labels_rotation, 9, 'SMT/out/comparison_rotation.png' )
 
 
 
