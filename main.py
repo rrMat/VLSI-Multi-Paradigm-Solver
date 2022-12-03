@@ -2,7 +2,7 @@ import argparse
 from CP.src.CPSolver import CPSolver
 from SAT.src.SATSolver import SATSolver
 from MIP.src.mip import MIP
-from SMT.src import pySMT
+from SMT.src.SMTSolver import SMTSolver
 import os
 import utils.utils as utils
 import copy
@@ -69,6 +69,11 @@ if __name__ == '__main__':
     SAT_parser.add_argument('-n', '--number_of_instances', default=40, type=int,
                             help='Number of instances to execute\n')
 
+    # SMT arguments 
+    SMT_parser.add_argument('-m', '--model', required=True, type=str, 
+                            choices=['z3Py'],
+                            help='Select SMT model.\n'
+                                 'Possible models: z3Py')
 
     args = parser.parse_args()
 
@@ -97,16 +102,8 @@ if __name__ == '__main__':
                   OVERRIDE = args.override).execute()
         
     elif args.Paradigm == "SMT":
-        print("ciao")
-        manager = multiprocessing.Manager()
-        return_dict = manager.dict()
-        p = multiprocessing.Process(target=free_solver)
-        p.start()
-        p.join(1)
-        if p.is_alive():
-            p.terminate()
-            p.join()
-
+        SMTSolver(model_name = args.model).execute()
+        
     elif args.Paradigm == "MIP":
         mip = MIP(ampl_dir=args.ampl_dir, 
                   rotation=args.rotation, 
