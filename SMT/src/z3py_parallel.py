@@ -91,7 +91,7 @@ def plate(w, n, min_h, max_h, chip_w, chip_h):
 
 tim = []
 
-for i in range(1,40):
+for i in range(39,40):
     f = ut.load_data(i)
     w = f[0]
     n = f[1]
