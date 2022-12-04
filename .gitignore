@@ -4,6 +4,6 @@
 
 .ipynb_checkpoints/
 
-CDMOp_Project.egg-info/
+*.egg-info/**
 venv/
 
