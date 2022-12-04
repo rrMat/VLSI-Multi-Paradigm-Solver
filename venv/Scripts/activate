@@ -37,7 +37,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="C:\Users\Ltrib\Desktop\CPJ\Combinatorial_Project\venv"
+VIRTUAL_ENV="C:\Users\aless\Desktop\New\Combinatorial_Project\venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

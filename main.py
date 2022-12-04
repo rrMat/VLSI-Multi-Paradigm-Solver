@@ -88,8 +88,8 @@ if __name__ == '__main__':
                   rotation_allowed = args.rotation,
                   symmetry_required = args.symmetry_breaking,
                   encoding_type = args.encoding,
-                  number_of_instances=args.instance
-                  print_img=args.print_img
+                  number_of_instances=args.instance,
+                  print_img=args.print_img,
                   verbose=args.verbose).execute()
         
     elif args.Paradigm == "SMT":
