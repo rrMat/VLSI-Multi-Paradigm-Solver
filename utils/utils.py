@@ -349,7 +349,7 @@ def write_paradigm_comparison(comparison_path, result_paths: list):
         meaning the output of the write_experimental_result function.
         There must be a csv for each paradigm (CP, SAT, SMT, MIP)
     """
-    comparison = [['ID', 'CP', 'SAT', 'SMT', 'MIP']]
+    comparison = [[ 'CP', 'SAT', 'SMT', 'MIP']]
     comparison.extend([[i, '-', '-', '-', '-'] for i in range(1, 41)])
 
     for paradigm_idx, path in enumerate(result_paths):
@@ -387,8 +387,8 @@ if __name__ == '__main__':
     # Without rotation
     write_paradigm_comparison('comparison.csv',
                               ['CP RESULTS', '../SAT/stats/modelsComparison_withoutRotation.csv',
-                               'SMT RESULTS', '../MIP/stats/results_mip.csv'])
+                               '../SMT/src/experimental_result.csv', '../MIP/stats/results_mip.csv'])
     # With rotation
     write_paradigm_comparison('comparison_rot.csv',
                               ['CP RESULTS ROTATION', '../MIP/stats/modelsComparison_withRotation.csv',
-                               'SMT RESULTS ROTATION', '../MIP/stats/results_mip_rot.csv'])
+                               '../SMT/src/experimental_result_rotation.csv', '../MIP/stats/results_mip_rot.csv'])

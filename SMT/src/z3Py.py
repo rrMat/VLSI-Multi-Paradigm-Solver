@@ -11,12 +11,10 @@ import utils.utils as ut
 
 class z3Py:
 
-    TIME_AVAILABLE = 300000
-
     def __init__(self):
         pass
 
-    def plate(self, w, n, min_h, max_h, chip_w, chip_h, time_available):
+    def plate(self, w, n, min_h, max_h, chip_w, chip_h):
         start_time = time.time()
         #VAR.
         x_positions = [Int(f"x_pos{i}") for i in range(n)]
@@ -25,14 +23,8 @@ class z3Py:
         #s
 
         for h in range(min_h, max_h + 1):
-            time_remained = time_available - (time.time() - start_time)
-            if time_remained <= 1:
-              print("Took too long")
-              break
             
-            # s = SolverFor("QF_LIA")
             s = Solver()
-            set_option(timeout=int(time_remained))
 
             
             print("current h: ", h)
@@ -98,47 +90,60 @@ class z3Py:
               return m, x_pos, y_pos, h, elapsed_time
 
 
-    def execute(self):
-        tim = []
-
-        for i in range(1,15):
-            f = ut.load_data(i)
-            w = f[0]
-            n = f[1]
-            chip_w = f[2].tolist()
-            chip_h = f[3].tolist()
-            min_h = sum([chip_w[k] * chip_h[k] for k in range(n)]) // w
-            max_h = sum(chip_h)
-            print("current i", i)
-
-            resul = self.plate(w, n, min_h, max_h, chip_w, chip_h, self.TIME_AVAILABLE)
-
-            if resul != None:
-              sol_path = os.path.join(
-                os.path.dirname(__file__),
-                '../out/z3Py/sol' + str(i) + ".txt"
-              )
-              tim.append((i, resul[4]))
-              ut.write_sol(sol_path, w, resul[3]-1, n, chip_w, chip_h, resul[1], resul[2],  rotation =  [])
-            else:
-              tim.append((i, False))
-
-            if resul != None:
-              out_pat = os.path.join(
-                os.path.dirname(__file__),
-                '../out_img/z3Py' + str(i) + '.png'
-              )
-              ut.plot_device(pos_x= resul[1], pos_y = resul[2], widths=  chip_w, heights = chip_h, w= w, 
-              h= resul[3]-1,  img_path=out_pat,  rotations = [] )
-
-        
-
+    def execute(self, _, i, return_dict):
         txt_path = os.path.join(
+            os.path.dirname(__file__),
+            '../timings/z3Py.csv'
+          )
+        sol_path = os.path.join(
           os.path.dirname(__file__),
-          '../timings/z3Py.csv'
+          '../out/z3Py/sol' + str(i) + ".txt"
         )
+        out_pat = os.path.join(
+            os.path.dirname(__file__),
+            '../out_img/z3Py' + str(i) + '.png'
+          )
 
-        np.savetxt(txt_path, tim, fmt = "%f")
+        return_dict["solved"] = False
+        return_dict["sol_path"] = sol_path
+        return_dict["out_pat"] = out_pat
+
+        f = ut.load_data(i)
+        w = f[0]
+        n = f[1]
+        chip_w = f[2].tolist()
+        chip_h = f[3].tolist()
+        min_h = sum([chip_w[k] * chip_h[k] for k in range(n)]) // w
+        max_h = sum(chip_h)
+        print("current i", i)
+
+        resul = self.plate(w, n, min_h, max_h, chip_w, chip_h)
+
+        return_dict["height"] = resul[3]
+        return_dict["time"] = resul[4]
+        return_dict["txt_path"] = txt_path
+        return_dict["w"] = w
+        return_dict["n"] = n
+        return_dict["chip_w"] = chip_w
+        return_dict["chip_h"] = chip_h
+        return_dict["x_pos"] = resul[1]
+        return_dict["y_pos"] = resul[2]
+        return_dict["rotation"] = []
+
+        # if resul != None:
+         
+        #   ut.write_sol(sol_path, w, resul[3], n, chip_w, chip_h, resul[1], resul[2],  rotation =  [])
+        #   ut.write_stat_line(txt_path, i, resul[3], time = resul[4], solution_type = "optimal")
+        # else:
+        #   tim.append(False)
+        #   ut.write_stat_line(txt_path, i, resul[3], time = resul[4], solution_type = "UNSAT" )
+
+        # if resul != None:
+          
+        #   ut.plot_device(pos_x= resul[1], pos_y = resul[2], widths=  chip_w, heights = chip_h, w= w, 
+        #   h= resul[3]-1,  img_path=out_pat,  rotations = [] )
+
+            
 
 
 
