@@ -21,7 +21,7 @@ if __name__ == '__main__':
     base_parser.add_argument("-i", "--instance", type=int, help="The instance's number to execute (1-40). Omit to execute all the instances")
     base_parser.add_argument("-p", "--print_img", action='store_true', help="Print image representation of solution")
     base_parser.add_argument("-r", "--rotation", action='store_true', help="Allow rotation of chips in solving")
-    base_parser.add_argument('-v', '--verbose', default=False, type=bool, help='Print results of execution\n')
+    base_parser.add_argument('-v', '--verbose', action='store_true', help='Print results of execution\n')
 
     # Parsers for instance
     parsers = parser.add_subparsers(dest="Paradigm")
@@ -60,7 +60,7 @@ if __name__ == '__main__':
                             choices=['seq','np','bw','he'],
                             help='Select SAT encoding.\n'
                                  'Possible models: seq | np | bw | he')
-    SAT_parser.add_argument('-sb', '--symmetry_breaking', default=True, type=bool,
+    SAT_parser.add_argument('-sb', '--symmetry_breaking', action='store_true',
                             help='Choose if the symmetry breaking constraint has to be used\n')
 
     # SMT arguments 
@@ -88,7 +88,7 @@ if __name__ == '__main__':
                   rotation_allowed = args.rotation,
                   symmetry_required = args.symmetry_breaking,
                   encoding_type = args.encoding,
-                  number_of_instances=args.instance,
+                  instance=args.instance,
                   print_img=args.print_img,
                   verbose=args.verbose).execute()
         

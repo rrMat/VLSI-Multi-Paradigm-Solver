@@ -89,7 +89,7 @@ class SATSolver:
                                               rotation = self.rotation_allowed, 
                                               symmetry_breaking = self.symmetry_required,
                                               encoding_type = self.encoding_type,
-                                              time_available = self.time_available,
+                                              time_available = self.TIME_AVAILABLE,
                                               interrupt = self.interrupt)
 
         # Set timeout and verify the satisfability of the model
@@ -97,7 +97,7 @@ class SATSolver:
         return_dict = manager.dict()
         p = multiprocessing.Process(target=solver.solve, args=(1, return_dict, self.verbose))
         p.start()
-        p.join(self.time_available)
+        p.join(self.TIME_AVAILABLE)
         if p.is_alive():
             p.terminate()
             p.join()
