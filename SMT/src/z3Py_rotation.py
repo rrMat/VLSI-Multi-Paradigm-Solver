@@ -135,26 +135,31 @@ class z3Py_rotation:
         min_h = sum([chip_w[k] * chip_h[k] for k in range(n)]) // w
         max_h = sum(chip_h)
         print("current i", i)
-        resul = self.plate(w, n, min_h, max_h, chip_w, chip_h)
 
-        return_dict["height"] = resul[3]
-        return_dict["time"] = resul[4]
         return_dict["txt_path"] = txt_path
         return_dict["w"] = w
         return_dict["n"] = n
         return_dict["chip_w"] = chip_w
         return_dict["chip_h"] = chip_h
-        return_dict["x_pos"] = resul[1]
-        return_dict["y_pos"] = resul[2]
+        return_dict["height"] = min_h
+        return_dict["rotation"] = []
 
-        to_str = [resul[5][i].sexpr() for i in range(n)]
-        to_bool = []
-        for i in range(0,len(to_str)):
-              if to_str[i] == "false":
-                    to_bool.append(False)
-              else: to_bool.append(True)
+        resul = self.plate(w, n, min_h, max_h, chip_w, chip_h)
 
-        return_dict["rotation"] = to_bool
+        if resul != None:
+            return_dict["height"] = resul[3]
+            return_dict["time"] = resul[4]
+            return_dict["x_pos"] = resul[1]
+            return_dict["y_pos"] = resul[2]
+
+            to_str = [resul[5][i].sexpr() for i in range(n)]
+            to_bool = []
+            for i in range(0,len(to_str)):
+                  if to_str[i] == "false":
+                        to_bool.append(False)
+                  else: to_bool.append(True)
+
+            return_dict["rotation"] = to_bool
 
         # if resul != None:
         #   sol_path = os.path.join(

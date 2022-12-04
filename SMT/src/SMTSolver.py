@@ -43,13 +43,12 @@ class SMTSolver:
                         p.terminate()
                         p.join()
         else:
-            for i in range(32,41):
+            for i in range(28,41):
                     manager = multiprocessing.Manager()
                     return_dict = manager.dict()
-                    p = multiprocessing.Process(target=model.execute(1, i, return_dict))
+                    p = multiprocessing.Process(target=model.execute, args = (1, i, return_dict))
                     p.start()
                     p.join(self.TIME_AVAILABLE)
-                    print(return_dict)
                     if len(return_dict) != 10:
                         ut.write_sol(return_dict["sol_path"] , return_dict["w"], return_dict["height"],
                         return_dict["n"], return_dict["chip_w"], return_dict["chip_h"], return_dict["x_pos"], return_dict["y_pos"],  rotation =  return_dict["rotation"])
