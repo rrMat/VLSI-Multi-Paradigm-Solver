@@ -33,7 +33,8 @@ class SATSolver:
         self.LABEL = self.model_name
         self.LABEL = self.LABEL + '/' + ('rotation' if self.rotation_allowed else 'no_rotation') 
         self.LABEL = self.LABEL + '/' + ('symmetry_required' if self.symmetry_required else 'no_symmetry_required')
-        self.LABEL = self.LABEL + '/' + encoding_type + '/'
+        self.LABEL = self.LABEL + '/' + encoding_type
+        self.LABEL = self.LABEL + '/' + 'z3' + '/'
         
         # Define the paths of the results
         self.OUT_DIRECTORY = 'SAT/out/' + self.LABEL
