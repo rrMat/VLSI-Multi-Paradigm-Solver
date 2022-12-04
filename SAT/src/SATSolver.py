@@ -16,24 +16,28 @@ class SATSolver:
         'SATModelBorders': SATModelBorders,
     }
 
+    TIME_AVAILABLE = 300
+    NUMBER_OF_INSTANCES = 40
+
     def __init__(self, model_name, rotation_allowed, symmetry_required, encoding_type, 
-                       number_of_instances, time_available, verbose, OVERRIDE):
+                       instance, print_img, verbose):
         
         self.model_name = model_name
         self.rotation_allowed = rotation_allowed
         self.symmetry_required = symmetry_required
         self.encoding_type = encoding_type
-        self.number_of_instances = number_of_instances
-        self.time_available = time_available
-        self.interrupt = False if time_available == 0 else True
+        self.instances = range(1, self.NUMBER_OF_INSTANCES + 1) if instance is None else [instance]
         self.verbose = verbose
-        self.OVERRIDE = OVERRIDE
+        self.print_img = print_img
+        self.interrupt = False if self.TIME_AVAILABLE == 0 else True
+        self.OVERRIDE = False
 
         # Define the result label
         self.LABEL = self.model_name
         self.LABEL = self.LABEL + '/' + ('rotation' if self.rotation_allowed else 'no_rotation') 
         self.LABEL = self.LABEL + '/' + ('symmetry_required' if self.symmetry_required else 'no_symmetry_required')
-        self.LABEL = self.LABEL + '/' + encoding_type + '/'
+        self.LABEL = self.LABEL + '/' + encoding_type
+        self.LABEL = self.LABEL + '/' + 'z3' + '/'
         
         # Define the paths of the results
         self.OUT_DIRECTORY = 'SAT/out/' + self.LABEL
@@ -47,7 +51,7 @@ class SATSolver:
 
     def execute(self):
         STAT_FILE_PATH = f'{self.STAT_DIRECTORY}data.csv'
-        for instance_number in range(1, self.number_of_instances + 1):
+        for instance_number in self.instances:
             IMG_FILE_PATH = f'{self.IMG_DIRECTORY}device-{str(instance_number)}.png'
             OUT_FILE_PATH = f'{self.OUT_DIRECTORY}solution-{str(instance_number)}.txt'
             
@@ -85,7 +89,7 @@ class SATSolver:
                                               rotation = self.rotation_allowed, 
                                               symmetry_breaking = self.symmetry_required,
                                               encoding_type = self.encoding_type,
-                                              time_available = self.time_available,
+                                              time_available = self.TIME_AVAILABLE,
                                               interrupt = self.interrupt)
 
         # Set timeout and verify the satisfability of the model
@@ -93,7 +97,7 @@ class SATSolver:
         return_dict = manager.dict()
         p = multiprocessing.Process(target=solver.solve, args=(1, return_dict, self.verbose))
         p.start()
-        p.join(self.time_available)
+        p.join(self.TIME_AVAILABLE)
         if p.is_alive():
             p.terminate()
             p.join()
@@ -114,7 +118,8 @@ class SATSolver:
             rotation = return_dict['rotation']
 
             # Save image
-            utils.plot_device(pos_x, pos_y, chips_w_a, chips_h_a, plate_width, plate_height, rotation, IMG_FILE_PATH)
+            if self.print_img:
+                utils.plot_device(pos_x, pos_y, chips_w_a, chips_h_a, plate_width, plate_height, rotation, IMG_FILE_PATH)
 
             # Save result
             utils.write_sol(OUT_FILE_PATH, 

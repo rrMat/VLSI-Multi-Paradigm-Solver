@@ -2,28 +2,46 @@
 
 #### Project Work - Combinatorial Decision Making and Optimization
 
-**Alessandro Lombardini - Giacomo Melacini - Matteo Rossi Reich - Lorenzo Tribuiani**
+**Alessandro Lombardini - alessandr.lombardin3@studio.unibo.it**
 
-[Overleaf link for editing repo](https://it.overleaf.com/9465416397qdwqknsgcnjh)
+**Giacomo Melacini - giacomo.melacini@studio.unibo.it**
 
-# Required Packages and installation
-Clone repository  
-Open a terminal and give: 
+**Matteo Rossi Reich - matteo.rossireich@studio.unibo.it**
 
-```pip install z3-solver```  
-```pip install minizinc``` 
+**Lorenzo Tribuiani - lorenzo.tribuiani@studio.unibo.it**
 
-if not installed, the following packages are required too: 
+## Prerequisites
 
-**numpy**  
-**pandas**  
-**matplotlib**
+### CP
 
-finally give the command:  
+### MIP
 
- ```pip install -e .```
+Install AMPL from [AMPL website](https://portal.ampl.com/account/ampl/login)
 
-# Usage
+## Required Packages and installation
+1. Clone repository
+
+2.  Open a terminal
+
+3. Create and activate a virtual environment with:
+
+   ```python -m venv [name-of-venv]```
+
+   ```./[name-of-venv]/Scripts/activate ```
+
+   ```pip install -e . ```
+
+4. Install the requirements with:
+
+   ```pip install -r requirements.txt```  
+   
+5. Install mathsat and z3 for SMT executions via pysmt with:
+
+   ```pysmt-install --msat```  
+
+   ```pysmt-install --z3```  
+
+## Usage
 
 Once the project is installed, to run an execution give, from the root directory:  
 
@@ -32,5 +50,27 @@ Once the project is installed, to run an execution give, from the root directory
 
  In the following table all the optional and positional argument (shared or selective from paradigm) are reported:  
 
-![Table of commands](/table.png)
+| TABLE OF COMMANDS ||                             |                |
+| :-----------: | :------------: | :---------: | :------------: |
+| long argument | short argument | Description | Allowed params |
+| **OPTIONAL SHARED PARAMETERS** |                |             |                |
+| *--ins* | *-i* | Select instance to solve | 1-40<br />omit to execute all |
+| *--print_img* | *-p* | Toggle image saving | None |
+| *--rotation* | *-r* | Toggle solving with allowed rotation | None |
+| **POSITIONAL ARGUMENTS** |                |             |                |
+| paradigm |                | Select the solving paradigm | CP \| SAT \| SMT \| LP |
+| **CP REQUIRED ARGUMENTS** |                |             |                |
+| *--model* | *-m* | Select CP model | max \|sbs (one or both) |
+| --solver | -s | Select CP solver | chuffed \| gecode (one or both) |
+| **SAT REQUIRED ARGUMENTS** |  |  |  |
+| *--model* | -m | Select SAT model | SATModel \| SATModelBorders |
+| --encoding | -e | Select SAT encoding | seq \| np \| bw \| he |
+| *--symmetry_breaking* | *-sb* | Choose if the symmetry breaking constraint has to be used | None |
+| **SMT REQUIRED ARGUMENTS** |  |  |  |
+| *-m* | --model | Select SMT model | z3Py \| z3Py_rotation \| z3Py_parallel_rotation \| z3Py_parallel \| pySMT_z3 \| pySMT_msat |
+| **MIP REQUIRED ARGUMENTS** |  |  |  |
+| *-m* | *--model* | Select MIP model | std \| strong (one or both) |
+| *-s* | *--solver* | Select MIP solver | gurobi \| cplex \| copt \| highs \| xpress (one or more) |
+| **MIP OPTIONAL ARGUMENTS** |  |  |  |
+| *-a* | *--ampl_dir* | If the AMPL installation directory is not in the system search path, specify the full path to the AMPL installation directory | String with full path to AMPL installation dir |
 

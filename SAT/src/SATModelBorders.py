@@ -186,8 +186,8 @@ class SATModelBorders:
                 returned_values['result'] = 'optimal'
                 returned_values['result'] = 'optimal' if new_height == self.min_height else 'non-optimal'
                 
-                if verbose:
-                    sat_utils.plot_device(solver.model(), self.plate, self.plate_width, self.plate_height, self.n_chips, 'SAT/img/img.png')
+                #if verbose:
+                #    sat_utils.plot_device(solver.model(), self.plate, self.plate_width, self.plate_height, self.n_chips, 'SAT/img/img.png')
                 return True
             else:
                 if verbose:

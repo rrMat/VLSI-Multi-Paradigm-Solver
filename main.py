@@ -16,19 +16,21 @@ if __name__ == '__main__':
     )
 
     base_parser = argparse.ArgumentParser(add_help=False)
-    #Optinal shared arguments
+    
+    # Optinal shared arguments
     base_parser.add_argument("-i", "--instance", type=int, help="The instance's number to execute (1-40). Omit to execute all the instances")
     base_parser.add_argument("-p", "--print_img", action='store_true', help="Print image representation of solution")
     base_parser.add_argument("-r", "--rotation", action='store_true', help="Allow rotation of chips in solving")
+    base_parser.add_argument('-v', '--verbose', action='store_true', help='Print results of execution\n')
 
-    #parsers for instance
+    # Parsers for instance
     parsers = parser.add_subparsers(dest="Paradigm")
     CP_parser = parsers.add_parser("CP", parents=[base_parser])
     SAT_parser = parsers.add_parser("SAT", parents=[base_parser])
     SMT_parser = parsers.add_parser("SMT", parents=[base_parser])
     MIP_parser = parsers.add_parser("MIP", parents=[base_parser])
 
-    #CP parameters (required)
+    # CP parameters (required)
     CP_parser.add_argument("-m", "--model", required=True, nargs='+', type=str,
                            choices=CPSolver.acceptable_models,
                            help='select models. \nAcceptable values: max | sbs')
@@ -58,16 +60,8 @@ if __name__ == '__main__':
                             choices=['seq','np','bw','he'],
                             help='Select SAT encoding.\n'
                                  'Possible models: seq | np | bw | he')
-    SAT_parser.add_argument('-sb', '--symmetry_breaking', default=True, type=bool,
+    SAT_parser.add_argument('-sb', '--symmetry_breaking', action='store_true',
                             help='Choose if the symmetry breaking constraint has to be used\n')
-    SAT_parser.add_argument('-t', '--time_available', default=300, type=int, 
-                            help='Define the time available to solve an instance\n')
-    SAT_parser.add_argument('-o', '--override', default=True, type=bool,
-                            help='Choose if the results have to be override\n')
-    SAT_parser.add_argument('-v', '--verbose', default=False, type=bool,
-                            help='Print results of execution\n')
-    SAT_parser.add_argument('-n', '--number_of_instances', default=40, type=int,
-                            help='Number of instances to execute\n')
 
     # SMT arguments 
     SMT_parser.add_argument('-m', '--model', required=True, type=str, 
@@ -89,18 +83,14 @@ if __name__ == '__main__':
                 cp.update_solver(solver)
                 cp.execute(args.instance)
 
-        # Proposta: mettere questo dentro un metodo di CPSolver chiamato execute(). In questo modo 
-        # l'unica cosa che facciamo nel main è chiamare l'execute() di un certo Solver con certe caratteristiche.
-
     elif args.Paradigm == "SAT":
         SATSolver(model_name = args.model,
                   rotation_allowed = args.rotation,
                   symmetry_required = args.symmetry_breaking,
                   encoding_type = args.encoding,
-                  number_of_instances=args.number_of_instances,
-                  time_available=args.time_available,
-                  verbose=args.verbose,
-                  OVERRIDE = args.override).execute()
+                  instance=args.instance,
+                  print_img=args.print_img,
+                  verbose=args.verbose).execute()
         
     elif args.Paradigm == "SMT":
         SMTSolver(model_name = args.model).execute()
@@ -109,10 +99,6 @@ if __name__ == '__main__':
         mip = MIP(ampl_dir=args.ampl_dir, 
                   rotation=args.rotation, 
                   print_image=args.print_img)
-
-        
-        # Proposta: mettere questo dentro un metodo di MIP chiamato execute(). In questo modo 
-        # l'unica cosa che facciamo nel main è chiamare l'execute() di un certo Solver con certe caratteristiche.
 
         for solver in args.solver:
             mip.set_solver(solver)
