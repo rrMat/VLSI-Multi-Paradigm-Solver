@@ -167,6 +167,7 @@ def write_sol(path, w: int, h: int, n: int, widths: list, heights: list, pos_x: 
 
             f.close()
 
+
 def load_sol(path):
     with open(path, 'r') as f:
         first_line = f.readline()
@@ -225,6 +226,8 @@ def write_stat_line(path, instance: int, height: int, time: float, solution_type
     if not os.path.exists(path):
         dataframe = pd.DataFrame(columns=['instance', 'height', 'time', 'solution type'])
         dataframe.set_index('instance')
+        for i in range(40):
+            dataframe.loc["ins-" + str(i+1)] = [i+1, '-', '-1', 'N|A']
     else:
         dataframe = pd.read_csv(path, index_col=0)
         dataframe.set_index('instance')
@@ -245,10 +248,11 @@ def plot_bar_graph(datas,labels, colors=None, figsize=(10,15), saving_path=""):
         A list containing the list of datas
     labels: list
         A list containing the list of labels
-    color: list
+    colors: list
         A list containing the colors of the bars, if not specified the standard set of color will be used
     figsize: tuple
        A tuple expressing the size of the chart. If not specified (10,15) will be used
+    saving_path
     """
 
     fig, ax = plt.subplots(figsize=figsize)
@@ -256,10 +260,8 @@ def plot_bar_graph(datas,labels, colors=None, figsize=(10,15), saving_path=""):
     width = 0.8/len(datas)
     ax.set_xticks(index)
 
-
     patches = []
     over5_colors = []
-
 
     for i in range(0,len(datas)):
 
@@ -316,7 +318,7 @@ def write_experimental_result(result_path, stat_paths: list, names: list):
     """
     names.insert(0, 'ID')
     result = [names]
-    result.extend([['-' for _ in range(len(names))] for i in range(1, 41)])
+    result.extend([[i] + ['-' for _ in range(len(names) - 1)] for i in range(1, 41)])
 
     for name_idx, path in enumerate(stat_paths):
         df = pd.read_csv(path, index_col=0)
@@ -333,10 +335,45 @@ def write_experimental_result(result_path, stat_paths: list, names: list):
         wr = csv.writer(file)
         wr.writerows(result)
 
+
+def write_paradigm_comparison(comparison_path, result_paths: list):
+    """
+    Create csv for comparing results of different paradigms
+
+    Parameters
+    ----------
+    comparison_path
+        The path of the csv where the comparison will be written. Can be string or path
+    result_paths: list
+        A list containing the paths to the result stat of each paradigm,
+        meaning the output of the write_experimental_result function.
+        There must be a csv for each paradigm (CP, SAT, SMT, MIP)
+    """
+    comparison = [['ID', 'CP', 'SAT', 'SMT', 'MIP']]
+    comparison.extend([[i, '-', '-', '-', '-'] for i in range(1, 41)])
+
+    for paradigm_idx, path in enumerate(result_paths):
+        result = pd.read_csv(path, index_col=0)
+        for instance_idx, row in result.iterrows():
+            row = row.to_list()
+            row_num = [int(v.replace('\\textbf{', '').replace('}', '').replace('UNSAT', '-1').replace('N|A', '-1')) for v in row]
+            max_index = row_num.index(max(row_num))
+            comparison[instance_idx][paradigm_idx + 1] = row[max_index]
+
+        with open(comparison_path, 'w', newline='') as file:
+            wr = csv.writer(file)
+            wr.writerows(comparison)
+
+
 def load_stats(path):
-        if not os.path.exists(path):
-            return pd.DataFrame(columns=['instance', 'height', 'time', 'solution type'])
-        return pd.read_csv(path, index_col = 0)
+    if not os.path.exists(path):
+        dataframe = pd.DataFrame(columns=['instance', 'height', 'time', 'solution type'])
+        dataframe.set_index('instance')
+        for i in range(40):
+            dataframe.loc["ins-" + str(i+1)] = [i+1, '-', '-1', 'N|A']
+        return dataframe
+    return pd.read_csv(path, index_col = 0)
+
 
 def display_times_comparison(paths, model_names, number_of_instances, output_path):
     data = []
@@ -344,6 +381,14 @@ def display_times_comparison(paths, model_names, number_of_instances, output_pat
         dataframe = load_stats(path)
         data.append(dataframe['time'][:number_of_instances].tolist())
     plot_bar_graph(data, model_names, figsize=(10,5), saving_path=output_path)
-    
 
 
+if __name__ == '__main__':
+    # Without rotation
+    write_paradigm_comparison('comparison.csv',
+                              ['CP RESULTS', '../SAT/stats/modelsComparison_withoutRotation.csv',
+                               '../SMT/src/experimental_result.csv', '../MIP/stats/results_mip.csv'])
+    # With rotation
+    write_paradigm_comparison('comparison_rot.csv',
+                              ['CP RESULTS ROTATION', '../MIP/stats/modelsComparison_withRotation.csv',
+                               '../SMT/src/experimental_result_rotation.csv', '../MIP/stats/results_mip_rot.csv'])

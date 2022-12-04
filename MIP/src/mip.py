@@ -2,7 +2,7 @@ from amplpy import AMPL, Environment
 from pathlib import Path
 import re
 
-from utils.utils import load_data, plot_device, write_sol, write_stat_line, write_experimental_result
+from utils.utils import load_data, plot_device, write_sol, write_stat_line, write_experimental_result, display_times_comparison
 
 models_dict = {
     'std': 'standard',
@@ -32,18 +32,18 @@ class MIP:
 
         self.ampl.set_option('time', 1)
 
-        self.__set_paths(model, rotation, solver)
-
-        self.print_image = print_image
-
         self.model = model
         self.rotation = rotation
         self.solver = solver
 
+        self.__set_paths(model, rotation, solver)
+
+        self.print_image = print_image
+
         self.set_solver(solver)
 
     def set_model(self, model):
-        print(f'Solving with {model} model')
+        print(f'\nSOLVING WITH {model} MODEL')
         self.model = model
         self.__set_paths(self.model, self.rotation, self.solver)
 
@@ -53,7 +53,7 @@ class MIP:
         self.__set_paths(self.model, self.rotation, self.solver)
 
     def set_solver(self, solver):
-        print(f'Solving with {solver}')
+        print(f'\n\nSOLVING WITH {solver} SOLVER')
         self.solver = solver
         self.ampl.set_option('solver', self.solver)
         option, value = time_options_dict[solver]
@@ -68,7 +68,7 @@ class MIP:
         self.model_path = (src_path / f'models/{models_dict[model]}{rot}.mod').resolve()
         self.image_folder_path = (src_path / f'../img/{models_dict[model]}_{solver}{rot}').resolve()
         self.output_folder_path = (src_path / f'../out/{models_dict[model]}_{solver}{rot}').resolve()
-        self.stats_path = (src_path / f'../stats/{models_dict[model]}_{solver}{rot}.csv').resolve()
+        self.stats_path = (src_path / f'../stats/{"" if self.rotation else "no_"}rot/{models_dict[model]}_{solver}{rot}.csv').resolve()
 
         self.image_folder_path.mkdir(parents=True, exist_ok=True)
         self.output_folder_path.mkdir(parents=True, exist_ok=True)
@@ -90,10 +90,10 @@ class MIP:
         self.ampl.get_parameter('widths').set_values(widths)
         self.ampl.get_parameter('heights').set_values(heights)
 
-        self.ampl.get_output('solve;')
+        self.ampl.solve()
 
         solve_result = self.ampl.get_value("solve_result")
-        solve_time = self.ampl.get_data('_total_solve_time').to_list()[0]
+        solve_time = self.ampl.get_data('_solve_elapsed_time').to_list()[0]
         max_height = self.ampl.get_objective('H').value()
         coordinates_x = [c[1] for c in self.ampl.get_variable('Coordinates_x').get_values().to_list()]
         coordinates_y = [c[1] for c in self.ampl.get_variable('Coordinates_y').get_values().to_list()]
@@ -101,7 +101,7 @@ class MIP:
 
         if solve_result == 'solved':
             sol_type = 'optimal'
-        elif (solve_result == 'failure' or solve_result == 'limit') and max_height > 0:
+        elif (solve_result == 'failure' or solve_result == 'limit' or solve_result == 'solved?') and max_height > 0:
             sol_type = 'non-optimal'
         elif solve_result == 'infeasible':
             sol_type = 'UNSAT'
@@ -109,7 +109,8 @@ class MIP:
             sol_type = 'N|A'
 
         print(f'Instance solved with result: {sol_type}\n'
-              f'Height found: {max_height}')
+              f'Height found: {max_height}\n'
+              f'Time needed: {solve_time}')
 
         if sol_type == 'optimal' or sol_type == 'non-optimal':
             if self.print_image:
@@ -128,12 +129,39 @@ class MIP:
                 self.solve(i)
 
 
-if __name__ == '__main__':
+def sorting_files(file):
+    result = re.search(r"(.+?)_([a-zA-Z]+)(_rot)?.csv", file.name)
+    return result.group(2) + result.group(1)
+
+
+def write_results():
     result_path = (src_path / f'../stats/results_mip.csv').resolve()
-    stat_paths = [p for p in (src_path / f'../stats/').resolve().glob('*.csv') if result_path != p]
+    stat_paths = [p for p in (src_path / f'../stats/no_rot/').resolve().glob('*.csv')]
+    stat_paths.sort(key=sorting_files)
+
     names = [re.search(r"(.+).csv", p.name).group(1) for p in stat_paths]
+    names = [name.replace('standard', 'std').replace('strong_bounds', 'stb').replace('_rot', '').replace('_', ' ')
+             for name in names]
 
     write_experimental_result(result_path, stat_paths, names)
+
+
+def plot_times():
+    pattern = re.compile(r"(.+gurobi.+csv)")
+    plot_path = (src_path / f'../img/times_mip_rot.png').resolve()
+    stat_paths = [p for p in (src_path / f'../stats/rot/').resolve().glob('*.csv') if pattern.match(p.name)]
+    stat_paths.sort(key=sorting_files)
+
+    names = [re.search(r"(.+).csv", p.name).group(1) for p in stat_paths]
+    names = [name.replace('standard', 'std').replace('strong_bounds', 'stb').replace('_rot', '').replace('_', ' ')
+             for name in names]
+
+    display_times_comparison(stat_paths, names, 40, plot_path)
+
+
+if __name__ == '__main__':
+
+    plot_times()
 
     #mip = MIP(ampl_dir='C:/Program Files/ampl.mswin64/', solver='highs', print_image=False, rotation=False)
     #mip.solve(1)

@@ -4,20 +4,20 @@ import numpy as np
 import time
 import utils.utils as utils
 import multiprocessing
-
+import os
 from SAT.src.SATModel import SATModel
-from SAT.src.SATModel_onlyBorders import SATModel_onlyBorders
+from SAT.src.SATModelBorders import SATModelBorders
 import SAT.src.sat_utils as sat_utils
 
 class SATSolver:
 
     MODEL_names = {
         'SATModel': SATModel,
-        'SATModel_onlyBorders': SATModel,
+        'SATModelBorders': SATModelBorders,
     }
 
     def __init__(self, model_name, rotation_allowed, symmetry_required, encoding_type, 
-                       number_of_instances, time_available, interrupt, verbose, solver, OVERRIDE):
+                       number_of_instances, time_available, verbose, OVERRIDE):
         
         self.model_name = model_name
         self.rotation_allowed = rotation_allowed
@@ -25,17 +25,15 @@ class SATSolver:
         self.encoding_type = encoding_type
         self.number_of_instances = number_of_instances
         self.time_available = time_available
-        self.interrupt = interrupt
+        self.interrupt = False if time_available == 0 else True
         self.verbose = verbose
-        self.solver = solver
         self.OVERRIDE = OVERRIDE
 
         # Define the result label
         self.LABEL = self.model_name
         self.LABEL = self.LABEL + '/' + ('rotation' if self.rotation_allowed else 'no_rotation') 
-        self.LABEL = self.LABEL + '/' + ('symmetry_breaking' if self.rotation_allowed else 'no_symmetry_breaking')
-        self.LABEL = self.LABEL + '/' + encoding_type 
-        self.LABEL = self.LABEL + '/' + self.solver + '/'
+        self.LABEL = self.LABEL + '/' + ('symmetry_required' if self.symmetry_required else 'no_symmetry_required')
+        self.LABEL = self.LABEL + '/' + encoding_type + '/'
         
         # Define the paths of the results
         self.OUT_DIRECTORY = 'SAT/out/' + self.LABEL
@@ -60,7 +58,7 @@ class SATSolver:
             stats = utils.load_stats(STAT_FILE_PATH)
 
             key = 'ins-' + str(instance_number)
-            if key not in stats.index or self.OVERRIDE:
+            if stats.loc[key]['height'] == '-' or self.OVERRIDE:
                 if self.verbose:
                     print('Computing solution...')
 
