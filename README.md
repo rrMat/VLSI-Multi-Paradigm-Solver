@@ -10,7 +10,15 @@
 
 **Lorenzo Tribuiani - lorenzo.tribuiani@studio.unibo.it**
 
-# Required Packages and installation
+## Prerequisites
+
+### CP
+
+### MIP
+
+Install AMPL from [AMPL website](https://portal.ampl.com/account/ampl/login)
+
+## Required Packages and installation
 1. Clone repository
 
 2.  Open a terminal
@@ -26,8 +34,14 @@
 4. Install the requirements with:
 
    ```pip install -r requirements.txt```  
+   
+5. Install mathsat and z3 for SMT executions via pysmt with:
 
-# Usage
+   ```pysmt-install --msat```  
+
+   ```pysmt-install --z3```  
+
+## Usage
 
 Once the project is installed, to run an execution give, from the root directory:  
 
@@ -57,4 +71,6 @@ Once the project is installed, to run an execution give, from the root directory
 | **MIP REQUIRED ARGUMENTS** |  |  |  |
 | *-m* | *--model* | Select MIP model | std \| strong (one or both) |
 | *-s* | *--solver* | Select MIP solver | gurobi \| cplex \| copt \| highs \| xpress (one or more) |
+| **MIP OPTIONAL ARGUMENTS** |  |  |  |
+| *-a* | *--ampl_dir* | If the AMPL installation directory is not in the system search path, specify the full path to the AMPL installation directory | String with full path to AMPL installation dir |
 
