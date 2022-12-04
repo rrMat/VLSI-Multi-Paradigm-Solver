@@ -2,26 +2,30 @@
 
 #### Project Work - Combinatorial Decision Making and Optimization
 
-**Alessandro Lombardini - Giacomo Melacini - Matteo Rossi Reich - Lorenzo Tribuiani**
+**Alessandro Lombardini - alessandr.lombardin3@studio.unibo.it**
 
-[Overleaf link for editing repo](https://it.overleaf.com/9465416397qdwqknsgcnjh)
+**Giacomo Melacini - giacomo.melacini@studio.unibo.it**
+
+**Matteo Rossi Reich - matteo.rossireich@studio.unibo.it**
+
+**Lorenzo Tribuiani - lorenzo.tribuiani@studio.unibo.it**
 
 # Required Packages and installation
-Clone repository  
-Open a terminal and give: 
+1. Clone repository
 
-```pip install z3-solver```  
-```pip install minizinc``` 
+2.  Open a terminal
 
-if not installed, the following packages are required too: 
+3. Create and activate a virtual environment with:
 
-**numpy**  
-**pandas**  
-**matplotlib**
+   ```python -m venv [name-of-venv]```
 
-finally give the command:  
+   ```./[name-of-venv]/Scripts/activate ```
 
- ```pip install -e .```
+   ```pip install -e . ```
+
+4. Install the requirements with:
+
+   ```pip install -r requirements.txt```  
 
 # Usage
 
@@ -32,5 +36,25 @@ Once the project is installed, to run an execution give, from the root directory
 
  In the following table all the optional and positional argument (shared or selective from paradigm) are reported:  
 
-![Table of commands](/table.png)
+| TABLE OF COMMANDS ||                             |                |
+| :-----------: | :------------: | :---------: | :------------: |
+| long argument | short argument | Description | Allowed params |
+| **OPTIONAL SHARED PARAMETERS** |                |             |                |
+| *--ins* | *-i* | Select instance to solve | 1-40<br />omit to execute all |
+| *--print_img* | *-p* | Toggle image saving | None |
+| *--rotation* | *-r* | Toggle solving with allowed rotation | None |
+| **POSITIONAL ARGUMENTS** |                |             |                |
+| paradigm |                | Select the solving paradigm | CP \| SAT \| SMT \| LP |
+| **CP REQUIRED ARGUMENTS** |                |             |                |
+| *--model* | *-m* | Select CP model | max \|sbs (one or both) |
+| --solver | -s | Select CP solver | chuffed \| gecode (one or both) |
+| **SAT REQUIRED ARGUMENTS** |  |  |  |
+| *--model* | -m | Select SAT model | SATModel \| SATModelBorders |
+| --encoding | -e | Select SAT encoding | seq \| np \| bw \| he |
+| *--symmetry_breaking* | *-sb* | Choose if the symmetry breaking constraint has to be used | None |
+| **SMT REQUIRED ARGUMENTS** |  |  |  |
+| *-m* | --model | Select SMT model | z3Py \| z3Py_rotation \| z3Py_parallel_rotation \| z3Py_parallel \| pySMT_z3 \| pySMT_msat |
+| **MIP REQUIRED ARGUMENTS** |  |  |  |
+| *-m* | *--model* | Select MIP model | std \| strong (one or both) |
+| *-s* | *--solver* | Select MIP solver | gurobi \| cplex \| copt \| highs \| xpress (one or more) |
 
