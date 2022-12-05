@@ -117,7 +117,6 @@ class SATModel:
             # - 1° constraint 
             overlapping_check += [sat_utils.at_most_one[self.encoding_type](self.plate[i][j]) for i in range(self.plate_height, new_height) 
                                                                                               for j in range(self.plate_width)]
-            #print(overlapping_check[0])
 
             # - 2° constraint
             placing_check = []
@@ -129,8 +128,6 @@ class SATModel:
                                         And([sat_utils.exactly_one[self.encoding_type](chip_places[k])] + [Not(self.rotated[k])]),
                                         And([sat_utils.exactly_one[self.encoding_type](chip_places_rotated[k])] + [self.rotated[k]])
                                     ])]
-            #print(placing_check[0])
-            
             
             # - 3° constraint
             if self.symmetry_breaking:

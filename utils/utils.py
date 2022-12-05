@@ -299,19 +299,6 @@ def plot_bar_graph(datas,labels, colors=None, figsize=(10,15), saving_path=""):
         plt.show()
 
 
-def display_img(paths, instances, figsize=(10,15)):
-    cols = len(paths)
-    rows = len(instances)
-
-    fig, ax = plt.subplots(rows, cols, figsize=figsize)
-
-    for ins_index in range(0, len(instances)):
-        for index in range(0,len(paths)):
-            ax[ins_index][index].imshow(imread(paths[index]+"device-" + str(instances[ins_index]) + ".png"))
-
-    plt.show()
-
-
 def write_experimental_result(result_path, stat_paths: list, names: list):
     """
     Create csv for experimental result section in latex report
@@ -377,6 +364,14 @@ def write_paradigm_comparison(comparison_path, result_paths: list):
 
 
 def load_stats(path):
+    """
+    Load statistic file
+
+    Parameters
+    ----------
+    path
+        The path of the csv files
+    """
     if not os.path.exists(path):
         dataframe = pd.DataFrame(columns=['instance', 'height', 'time', 'solution type'])
         dataframe.set_index('instance')
@@ -386,11 +381,25 @@ def load_stats(path):
     return pd.read_csv(path, index_col = 0)
 
 
-def display_times_comparison(paths, model_names, number_of_instances, output_path):
+
+def display_times_comparison(paths, model_names, output_path):
+    """
+    Create a comparison graphs beween multiple statistical files
+
+    Parameters
+    ----------
+    paths
+        The paths of the csv files
+    model_name: list
+        List of names which will be used in the legend
+    output_path:
+        The path where the comparison will be written.
+
+    """
     data = []
     for path in paths:
         dataframe = load_stats(path)
-        data.append(dataframe['time'][:number_of_instances].tolist())
+        data.append(dataframe['time'].tolist())
     plot_bar_graph(data, model_names, figsize=(10,5), saving_path=output_path)
 
 
