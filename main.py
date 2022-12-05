@@ -3,9 +3,6 @@ from CP.src.CPSolver import CPSolver
 from SAT.src.SATSolver import SATSolver
 from MIP.src.mip import MIP
 from SMT.src.SMTSolver import SMTSolver
-import os
-import utils.utils as utils
-import copy
 
 
 if __name__ == '__main__':
@@ -16,7 +13,7 @@ if __name__ == '__main__':
     )
 
     base_parser = argparse.ArgumentParser(add_help=False)
-    
+
     # Optinal shared arguments
     base_parser.add_argument("-i", "--instance", type=int, help="The instance's number to execute (1-40). Omit to execute all the instances")
     base_parser.add_argument("-p", "--print_img", action='store_true', help="Print image representation of solution")
@@ -51,24 +48,24 @@ if __name__ == '__main__':
                             help='If the AMPL installation directory is not in the system search path '
                                  'you need to specify the full path to the AMPL installation directory.')
 
-    # SAT arguments 
-    SAT_parser.add_argument('-m', '--model', required=True, type=str, 
+    # SAT arguments
+    SAT_parser.add_argument('-m', '--model', required=True, type=str,
                             choices=['SATModel', 'SATModelBorders'],
                             help='Select SAT model.\n'
                                  'Possible models: SATModel | SATModelBorders')
-    SAT_parser.add_argument('-e', '--encoding', default='bw', type=str, 
+    SAT_parser.add_argument('-e', '--encoding', default='bw', type=str,
                             choices=['seq','np','bw','he'],
                             help='Select SAT encoding.\n'
                                  'Possible models: seq | np | bw | he')
     SAT_parser.add_argument('-sb', '--symmetry_breaking', action='store_true',
                             help='Choose if the symmetry breaking constraint has to be used\n')
 
-    # SMT arguments 
-    SMT_parser.add_argument('-m', '--model', required=True, type=str, 
-                            choices=['z3Py', 'z3Py_rotation', 'z3Py_parallel_rotation', 
+    # SMT arguments
+    SMT_parser.add_argument('-m', '--model', required=True, type=str,
+                            choices=['z3Py', 'z3Py_rotation', 'z3Py_parallel_rotation',
                             'z3Py_parallel', 'pySMT_z3', 'pySMT_msat', 'analysis'],
                             help='Select SMT model.\n'
-                                 'Possible models: z3Py')
+                                 'Possible models: z3Py, z3Py_rotation, z3Py_parallel_rotation, z3Py_parallel, pySMT_z3, pySMT_msat')
 
     args = parser.parse_args()
 
@@ -91,14 +88,15 @@ if __name__ == '__main__':
                   instance=args.instance,
                   print_img=args.print_img,
                   verbose=args.verbose).execute()
-        
+
     elif args.Paradigm == "SMT":
         SMTSolver(model_name = args.model).execute()
-        
+
     elif args.Paradigm == "MIP":
-        mip = MIP(ampl_dir=args.ampl_dir, 
-                  rotation=args.rotation, 
-                  print_image=args.print_img)
+        mip = MIP(ampl_dir=args.ampl_dir,
+                  rotation=args.rotation,
+                  print_image=args.print_img,
+                  verbose=args.verbose)
 
         for solver in args.solver:
             mip.set_solver(solver)

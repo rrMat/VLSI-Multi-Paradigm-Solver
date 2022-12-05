@@ -23,7 +23,7 @@ src_path = Path(__file__).parent
 
 class MIP:
 
-    def __init__(self, model='std', rotation=False, solver='gurobi', ampl_dir=None, print_image=False):
+    def __init__(self, model='std', rotation=False, solver='gurobi', ampl_dir=None, print_image=False, verbose=True):
 
         if ampl_dir is None:
             self.ampl = AMPL()
@@ -36,6 +36,8 @@ class MIP:
         self.rotation = rotation
         self.solver = solver
 
+        self.verbose = verbose
+
         self.__set_paths(model, rotation, solver)
 
         self.print_image = print_image
@@ -43,17 +45,20 @@ class MIP:
         self.set_solver(solver)
 
     def set_model(self, model):
-        print(f'\nSOLVING WITH {model} MODEL')
+        if self.verbose:
+            print(f'\nSOLVING WITH {model} MODEL')
         self.model = model
         self.__set_paths(self.model, self.rotation, self.solver)
 
     def set_rotation(self, rotation):
-        print(f'Rotation is {rotation}')
+        if self.verbose:
+            print(f'Rotation is {rotation}')
         self.rotation = rotation
         self.__set_paths(self.model, self.rotation, self.solver)
 
     def set_solver(self, solver):
-        print(f'\n\nSOLVING WITH {solver} SOLVER')
+        if self.verbose:
+            print(f'\n\nSOLVING WITH {solver} SOLVER')
         self.solver = solver
         self.ampl.set_option('solver', self.solver)
         option, value = time_options_dict[solver]
@@ -90,7 +95,10 @@ class MIP:
         self.ampl.get_parameter('widths').set_values(widths)
         self.ampl.get_parameter('heights').set_values(heights)
 
-        self.ampl.solve()
+        if self.verbose:
+            self.ampl.solve()
+        else:
+            self.ampl.get_output('solve;')
 
         solve_result = self.ampl.get_value("solve_result")
         solve_time = self.ampl.get_data('_solve_elapsed_time').to_list()[0]
@@ -108,15 +116,14 @@ class MIP:
         else:
             sol_type = 'N|A'
 
-        print(f'Instance solved with result: {sol_type}\n'
-              f'Height found: {max_height}\n'
-              f'Time needed: {solve_time}')
+        if self.verbose:
+            print(f'Instance solved with result: {sol_type}\n'
+                  f'Height found: {max_height}\n'
+                  f'Time needed: {solve_time}')
 
         if sol_type == 'optimal' or sol_type == 'non-optimal':
             if self.print_image:
-                plot_device(coordinates_x, coordinates_y, widths, heights, w, max_height, rotated)
-
-            plot_device(coordinates_x, coordinates_y, widths, heights, w, max_height, rotated, image_path)
+                plot_device(coordinates_x, coordinates_y, widths, heights, w, max_height, rotated, image_path)
             write_sol(output_path, w, max_height, n, widths, heights, coordinates_x, coordinates_y, rotated)
 
         write_stat_line(self.stats_path, instance, max_height, solve_time, sol_type)

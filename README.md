@@ -2,7 +2,7 @@
 
 #### Project Work - Combinatorial Decision Making and Optimization
 
-**Alessandro Lombardini - alessandr.lombardin3@studio.unibo.it**
+**Alessandro Lombardini - alessandro.lombardini@studio.unibo.it**
 
 **Giacomo Melacini - giacomo.melacini@studio.unibo.it**
 
@@ -13,6 +13,25 @@
 ## Prerequisites
 
 ### CP
+
+1. Download the *Or-Tools* flat-zinc from [Or-Tools Git Hub](https://github.com/google/or-tools/releases/tag/v9.3) (or_tools_flatzinc_VisualStudio-64bit_v9.3.10497.zip). 
+
+2. Extract the folder 
+
+3. Go on Minizinc IDE and go in: *Minizinc -> Preferences -> Solvers*
+
+4. Under the list of solvers select *Add new...*
+
+5. In the opening tab insert the following:
+
+   - Name: *Or-Tools*
+   - Solver-ID: *com.google.or-tools*
+   - Version: *9.3.1*
+   - Executable: *path to the bin extracted*
+   - Solver library path: *add a new folder called **Or-Tools***
+   - Select *-v* flag
+
+   Click Add
 
 ### MIP
 
@@ -60,8 +79,8 @@ Once the project is installed, to run an execution give, from the root directory
 | **POSITIONAL ARGUMENTS** |                |             |                |
 | paradigm |                | Select the solving paradigm | CP \| SAT \| SMT \| LP |
 | **CP REQUIRED ARGUMENTS** |                |             |                |
-| *--model* | *-m* | Select CP model | max \|sbs (one or both) |
-| --solver | -s | Select CP solver | chuffed \| gecode (one or both) |
+| *--model* | *-m* | Select CP model | std \| cml \| syb (one or more) |
+| --solver | -s | Select CP solver | chuffed \| gecode \| or-tools (one or more) |
 | **SAT REQUIRED ARGUMENTS** |  |  |  |
 | *--model* | -m | Select SAT model | SATModel \| SATModelBorders |
 | --encoding | -e | Select SAT encoding | seq \| np \| bw \| he |

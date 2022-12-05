@@ -25,10 +25,12 @@ class analysis:
             '../src/experimental_result' + '.csv'
             )
 
+      
 
+        ut.display_times_comparison(csv_paths_encodings, labels, 40, 'SMT/out/comparison.png' )
         ut.write_experimental_result(result_pat, csv_paths_encodings, labels)
-        ut.display_times_comparison( csv_paths_encodings, labels, 9, 'SMT/out/comparison.png' )
-        #rotation
+        
+        # #rotation
 
         csv_paths_encodings_rotation = []
         folder_path_rotation = os.path.join(
@@ -49,8 +51,10 @@ class analysis:
             '../src/experimental_result_rotation' + '.csv'
             )
 
-        ut.write_experimental_result(result_pat_rotation, csv_paths_encodings_rotation, labels_rotation)
-        ut.display_times_comparison( csv_paths_encodings_rotation, labels_rotation, 9, 'SMT/out/comparison_rotation.png')
 
+
+        ut.display_times_comparison( csv_paths_encodings_rotation, labels_rotation, 40, 'SMT/out/comparison_rotation.png')
+        ut.write_experimental_result(result_pat_rotation, csv_paths_encodings_rotation, labels_rotation)
+        
 
 
