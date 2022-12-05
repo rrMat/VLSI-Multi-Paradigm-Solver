@@ -30,7 +30,7 @@ class SATSolver:
         self.verbose = verbose
         self.print_img = print_img
         self.interrupt = False if self.TIME_AVAILABLE == 0 else True
-        self.OVERRIDE = False
+        self.OVERRIDE = True
 
         # Define the result label
         self.LABEL = self.model_name
