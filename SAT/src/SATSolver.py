@@ -30,7 +30,7 @@ class SATSolver:
         self.verbose = verbose
         self.print_img = print_img
         self.interrupt = False if self.TIME_AVAILABLE == 0 else True
-        self.OVERRIDE = False
+        self.OVERRIDE = True
 
         # Define the result label
         self.LABEL = self.model_name
@@ -118,6 +118,7 @@ class SATSolver:
             rotation = return_dict['rotation']
 
             # Save image
+            print(IMG_FILE_PATH)
             if self.print_img:
                 utils.plot_device(pos_x, pos_y, chips_w_a, chips_h_a, plate_width, plate_height, rotation, IMG_FILE_PATH)
 
