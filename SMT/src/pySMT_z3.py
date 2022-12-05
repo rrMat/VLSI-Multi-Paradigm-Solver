@@ -21,8 +21,6 @@ class pySMT_z3:
         y_position = [Symbol(f"y_pos{s}", INT) for s in range(n)]
 
         for h in range(min_h, max_h):
-            
-            print("current h: ", h)
             with Solver('z3') as solver:
 
                 #Constrains
@@ -43,11 +41,11 @@ class pySMT_z3:
                 
                 if not solver.solve():
                     print("Domain is not SAT!!!")
-                    exit()
+                    continue
                 else:
 
                     m = solver.get_model()
-                    print(m)
+                    
                     x_pos = []
                     for i in range(n):
                         x_pos.append(m[x_position[i]])
@@ -55,7 +53,7 @@ class pySMT_z3:
                     for i in range(n):
                         y_pos.append(m[y_position[i]])
                     elapsed_time = time.time() - start_time
-                    print(f'{elapsed_time * 1000:.1f} ms')
+                    
                     return m, x_pos, y_pos, h, elapsed_time
 
 
@@ -96,8 +94,7 @@ class pySMT_z3:
         chip_h = f[3].tolist()
         min_h = sum([chip_w[k] * chip_h[k] for k in range(n)]) // w
         max_h = sum(chip_h)
-        print("current i", i)
-        print(w, n, min_h, max_h, chip_w, chip_h)
+    
 
         return_dict["txt_path"] = txt_path
         return_dict["w"] = w
@@ -119,23 +116,4 @@ class pySMT_z3:
             return_dict["rotation"] = []
 
 
-        # if resul != None:
-
-
-            
-        #     tim.append(resul[4])
-        #     ut.write_sol(sol_path, w, resul[3]-1, n, chip_w, chip_h, ToInt(resul[1]), ToInt(resul[2]),  rotation =  [])
-        #     ut.write_stat_line(txt_path, i, resul[3], time = resul[4], solution_type = "optimal")
-        # else:
-        #     tim.append(False)
-        #     ut.write_stat_line(txt_path, i, resul[3], time = resul[4], solution_type = "UNSAT" )
-
-        # if resul != None:
-            
-        #     ut.plot_device(pos_x= ToInt(resul[1]), pos_y = ToInt(resul[2]), widths=  chip_w, heights = chip_h, w= w, 
-        #         h= resul[3],  img_path=out_pat,  rotations = [] )
-                
-
-       
-
-    
+     

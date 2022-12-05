@@ -12,7 +12,8 @@ import utils.utils as ut
 class z3Py:
 
     def __init__(self):
-        pass
+      pass
+        
 
     def plate(self, w, n, min_h, max_h, chip_w, chip_h):
         start_time = time.time()
@@ -27,9 +28,6 @@ class z3Py:
             s = Solver()
 
             
-            print("current h: ", h)
-            
-
             # CONSTRAINTS
 
             #domain bundaries
@@ -86,7 +84,7 @@ class z3Py:
               for i in range(n):
                 y_pos.append(m[y_positions[i]].as_long())
               elapsed_time = time.time() - start_time
-              print(f'{elapsed_time * 1000:.1f} ms')
+              
               return m, x_pos, y_pos, h, elapsed_time
 
 
@@ -115,7 +113,7 @@ class z3Py:
         chip_h = f[3].tolist()
         min_h = sum([chip_w[k] * chip_h[k] for k in range(n)]) // w
         max_h = sum(chip_h)
-        print("current i", i)
+       
 
         return_dict["txt_path"] = txt_path
         return_dict["w"] = w
@@ -134,21 +132,4 @@ class z3Py:
             return_dict["y_pos"] = resul[2]
             return_dict["rotation"] = []
 
-        # if resul != None:
-         
-        #   ut.write_sol(sol_path, w, resul[3], n, chip_w, chip_h, resul[1], resul[2],  rotation =  [])
-        #   ut.write_stat_line(txt_path, i, resul[3], time = resul[4], solution_type = "optimal")
-        # else:
-        #   tim.append(False)
-        #   ut.write_stat_line(txt_path, i, resul[3], time = resul[4], solution_type = "UNSAT" )
-
-        # if resul != None:
-          
-        #   ut.plot_device(pos_x= resul[1], pos_y = resul[2], widths=  chip_w, heights = chip_h, w= w, 
-        #   h= resul[3]-1,  img_path=out_pat,  rotations = [] )
-
-            
-
-
-
-
+      
