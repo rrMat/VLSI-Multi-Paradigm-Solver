@@ -18,7 +18,6 @@ class SMTSolver:
     TIME_AVAILABLE = 300
 
     MODELS = {
-        'analysis' : analysis,
         'pySMT_z3' : pySMT_z3,
         'pySMT_msat' : pySMT_msat,
         'z3Py': z3Py,
