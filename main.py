@@ -90,8 +90,11 @@ if __name__ == '__main__':
                   verbose=args.verbose).execute()
 
     elif args.Paradigm == "SMT":
-        SMTSolver(model_name = args.model).execute()
-
+        SMTSolver(model_name = args.model,
+        instance=args.instance,
+        print_img=args.print_img,
+        verbose = args.verbose).execute()
+        
     elif args.Paradigm == "MIP":
         mip = MIP(ampl_dir=args.ampl_dir,
                   rotation=args.rotation,

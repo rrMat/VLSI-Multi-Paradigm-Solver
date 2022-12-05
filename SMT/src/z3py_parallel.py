@@ -28,8 +28,7 @@ class z3Py_parallel:
       set_option("parallel.enable", True)
       set_option("parallel.threads.max", 16) 
 
-      for h in range(min_h + 1, min_h + 2):
-              print("current h: ", h - 1)
+      for h in range(min_h, min_h + 2):
               # CONSTRAINTS
               #domani bounds
               s.add([And(0 <= x_positions[i], x_positions[i] <= w - chip_w[i])
@@ -86,7 +85,6 @@ class z3Py_parallel:
                 for i in range(n):
                   y_pos.append(m[y_positions[i]].as_long())
                 elapsed_time = time.time() - start_time
-                print(f'{elapsed_time * 1000:.1f} ms')
                 return m, x_pos, y_pos, h, elapsed_time
 
     def execute(self, _, i, return_dict):
@@ -118,7 +116,6 @@ class z3Py_parallel:
         chip_h = f[3].tolist()
         min_h = sum([chip_w[k] * chip_h[k] for k in range(n)]) // w
         max_h = sum(chip_h)
-        print("current i", i)
 
         return_dict["w"] = w
         return_dict["n"] = n
@@ -137,22 +134,7 @@ class z3Py_parallel:
             return_dict["y_pos"] = resul[2]
             return_dict["rotation"] = []
 
-        # if resul != None:
-          
-        #   tim.append(resul[4])
-        #   ut.write_sol(sol_path, w, resul[3], n, chip_w, chip_h, resul[1], resul[2],  rotation =  [])
-        #   ut.write_stat_line(txt_path, i, resul[3], time = resul[4], solution_type = "optimal")
-        # else:
-        #   tim.append(False)
-        #   ut.write_stat_line(txt_path, i, resul[3], time = resul[4], solution_type = "UNSAT" )
-
-        # if resul != None:
-          
-        #   ut.plot_device(pos_x= resul[1], pos_y = resul[2], widths=  chip_w, heights = chip_h, w= w, 
-        #   h= resul[3]-1,  img_path=out_pat,  rotations = [] )
-
-    
-
+   
      
 
       

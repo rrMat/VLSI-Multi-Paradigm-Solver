@@ -26,8 +26,6 @@ class z3Py_rotation:
         
         for h in range(min_h, max_h + 1):
 
-                print("current h: ", h)
-
                 s = Solver()
                 # CONSTRAINTS
 
@@ -100,7 +98,7 @@ class z3Py_rotation:
                   for i in range(n):
                     rot.append(m[rotations[i]])
                   elapsed_time = time.time() - start_time
-                  print(f'{elapsed_time * 1000:.1f} ms')
+                  
                   return m, x_pos, y_pos, h, elapsed_time, rot
 
 
@@ -134,7 +132,7 @@ class z3Py_rotation:
         chip_h = f[3].tolist()
         min_h = sum([chip_w[k] * chip_h[k] for k in range(n)]) // w
         max_h = sum(chip_h)
-        print("current i", i)
+     
 
         return_dict["txt_path"] = txt_path
         return_dict["w"] = w
@@ -161,28 +159,6 @@ class z3Py_rotation:
 
             return_dict["rotation"] = to_bool
 
-        # if resul != None:
-        #   sol_path = os.path.join(
-        #     os.path.dirname(__file__),
-        #     '../out/z3Py_rotation/sol' + str(i) + ".txt"
-        #   )
-        #   tim.append(resul[4])
-          
-        #   ut.write_sol(sol_path, w, resul[3], n, chip_w, chip_h, resul[1], resul[2], rotation= to_bool)
-        #   ut.write_stat_line(txt_path, i, resul[3], time = resul[4], solution_type = "optimal")
-        # else:
-        #   tim.append(False)
-        #   ut.write_stat_line(txt_path, i, resul[3], time = resul[4], solution_type = "UNSAT" )
-
-
-        # if resul != None:
-
-          
-        #   ut.plot_device(resul[1], resul[2], chip_w, chip_h, w, resul[3]-1,  to_bool ,img_path=out_path)
-
-
-
-        
-
+      
 
 
