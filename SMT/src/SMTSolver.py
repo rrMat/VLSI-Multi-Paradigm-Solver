@@ -8,7 +8,7 @@ import os
 from SMT.src.z3Py import z3Py
 from SMT.src.z3Py_rotation import z3Py_rotation
 from SMT.src.z3Py_parallel_rotation import z3Py_parallel_rotation
-from SMT.src.z3Py_parallel import z3Py_parallel
+from SMT.src.z3py_parallel import z3Py_parallel
 from SMT.src.pySMT_z3 import pySMT_z3
 from SMT.src.pySMT_msat import pySMT_msat
 from SMT.src.analysis import analysis

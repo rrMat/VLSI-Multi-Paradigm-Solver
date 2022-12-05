@@ -3,9 +3,6 @@ from CP.src.CPSolver import CPSolver
 from SAT.src.SATSolver import SATSolver
 from MIP.src.mip import MIP
 from SMT.src.SMTSolver import SMTSolver
-import os
-import utils.utils as utils
-import copy
 
 
 if __name__ == '__main__':

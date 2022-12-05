@@ -386,7 +386,7 @@ def display_times_comparison(paths, model_names, number_of_instances, output_pat
 if __name__ == '__main__':
     # Without rotation
     write_paradigm_comparison('comparison.csv',
-                              ['../MIP/stats/results_mip.csv', '../SAT/analysis/modelsComparison_withoutRotation.csv',
+                              ['CP/stats/total_stats_no_rotation.csv', '../SAT/analysis/modelsComparison_withoutRotation.csv',
                                '../MIP/stats/results_mip.csv', '../MIP/stats/results_mip.csv'])
     # With rotation
     write_paradigm_comparison('comparison_rot.csv',
