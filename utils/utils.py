@@ -1,3 +1,14 @@
+#     Alessandro Lombardini
+#       Giacomo Melacini
+#      Matteo Rossi Reich
+#      Lorenzo Tribuiani
+#
+#Dec. 2022
+__author__ = "Alessandro Lombardini, Giacomo Melacini, Matteo Rossi Reich and Lorenzo Tribuiani"
+__version__ = "1.0."
+__email__ = "alessandro.lombardini@studio.unibo.it\n giacomo.melacini@studio.unibo.it\n matteo.rossireich@studio.unibo.it\n lorenzo.tribuiani@studio.unibo.it"
+__status__ = "Production"
+
 import csv
 import os
 from random import randint
@@ -356,8 +367,8 @@ def write_paradigm_comparison(comparison_path, result_paths: list):
         result = pd.read_csv(path, index_col=0)
         for instance_idx, row in result.iterrows():
             row = row.to_list()
-            row_num = [int(v.replace('\\textbf{', '').replace('}', '').replace('UNSAT', '-1').replace('N|A', '-1')) for v in row]
-            max_index = row_num.index(max(row_num))
+            row_num = [int(v.replace('\\textbf{', '').replace('}', '').replace('UNSAT', '100000').replace('N|A', '100000').replace('-', '100000')) for v in row]
+            max_index = row_num.index(min(row_num))
             comparison[instance_idx][paradigm_idx + 1] = row[max_index]
 
         with open(comparison_path, 'w', newline='') as file:
@@ -386,9 +397,10 @@ def display_times_comparison(paths, model_names, number_of_instances, output_pat
 if __name__ == '__main__':
     # Without rotation
     write_paradigm_comparison('comparison.csv',
-                              ['CP/stats/total_stats_no_rotation.csv', '../SAT/analysis/modelsComparison_withoutRotation.csv',
-                               'SMT/src/experimental_result.csv', '../MIP/stats/results_mip.csv'])
+                              ['../CP/stats/total_stats_no_rotation.csv', '../SAT/analysis/modelsComparison_withoutRotation.csv',
+                               '../SMT/src/experimental_result.csv', '../MIP/stats/results_mip.csv'])
     # With rotation
     write_paradigm_comparison('comparison_rot.csv',
-                              ['CP/stats/total_stats_rotation.csv', '../SAT/analysis/modelsComparison_withRotation.csv',
-                               'SMT/src/experimental_result_rotation.csv', '../MIP/stats/results_mip_rot.csv'])
+                              ['../CP/stats/total_stats_rotation.csv', '../SAT/analysis/modelsComparison_withRotation.csv',
+                               '../SMT/src/experimental_result_rotation.csv', '../MIP/stats/results_mip_rot.csv'])
+

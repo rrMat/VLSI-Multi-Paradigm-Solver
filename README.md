@@ -2,7 +2,7 @@
 
 #### Project Work - Combinatorial Decision Making and Optimization
 
-**Alessandro Lombardini - alessandr.lombardini@studio.unibo.it**
+**Alessandro Lombardini - alessandro.lombardini@studio.unibo.it**
 
 **Giacomo Melacini - giacomo.melacini@studio.unibo.it**
 

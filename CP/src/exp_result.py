@@ -35,8 +35,8 @@ cml_o_nr = pd.read_csv(CML_ORTOOLS_NR)["time"]
 syb_o_nr = pd.read_csv(SYB_ORTOOLS_NR)["time"]
 
 plot_bar_graph(
-    [std_c_nr, cml_c_nr, syb_c_nr], 
-    ["STD chuffed rotation", "CML chuffed rotation", "SYB chuffed rotation"])
+    [std_o_nr, cml_o_nr, syb_o_nr], 
+    ["STD or-tools rotation", "CML or-tools rotation", "SYB or-tools rotation"])
 
 
 # write_experimental_result(
