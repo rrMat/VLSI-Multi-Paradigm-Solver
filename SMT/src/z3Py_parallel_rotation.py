@@ -139,13 +139,14 @@ class z3Py_parallel_rotation:
         max_h = sum(chip_h)
         print("current i", i)
 
-        return_dict["height"] = min_h
         return_dict["txt_path"] = txt_path
         return_dict["n"] = n
         return_dict["chip_w"] = chip_w
         return_dict["chip_h"] = chip_h
         return_dict["w"] = w
         return_dict["rotation"] = []
+        return_dict["height"] = min_h
+
         resul = self.plate(w, n, min_h, max_h, chip_w, chip_h)
 
 

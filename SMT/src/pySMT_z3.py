@@ -99,18 +99,24 @@ class pySMT_z3:
         print("current i", i)
         print(w, n, min_h, max_h, chip_w, chip_h)
 
-        resul = self.free_solver(w, n, min_h, max_h, chip_w, chip_h)
-
-        return_dict["height"] = resul[3]
-        return_dict["time"] = resul[4]
         return_dict["txt_path"] = txt_path
         return_dict["w"] = w
         return_dict["n"] = n
         return_dict["chip_w"] = chip_w
         return_dict["chip_h"] = chip_h
-        return_dict["x_pos"] = ToInt(resul[1])
-        return_dict["y_pos"] = ToInt(resul[2])
         return_dict["rotation"] = []
+        return_dict["height"] = min_h
+
+
+        resul = self.free_solver(w, n, min_h, max_h, chip_w, chip_h)
+
+
+        if resul != None:
+            return_dict["height"] = resul[3]
+            return_dict["time"] = resul[4]
+            return_dict["x_pos"] = ToInt(resul[1])
+            return_dict["y_pos"] = ToInt(resul[2])
+            return_dict["rotation"] = []
 
 
         # if resul != None:
