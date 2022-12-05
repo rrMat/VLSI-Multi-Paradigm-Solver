@@ -387,8 +387,8 @@ if __name__ == '__main__':
     # Without rotation
     write_paradigm_comparison('comparison.csv',
                               ['CP/stats/total_stats_no_rotation.csv', '../SAT/analysis/modelsComparison_withoutRotation.csv',
-                               '../MIP/stats/results_mip.csv', '../MIP/stats/results_mip.csv'])
+                               'SMT/src/experimental_result.csv', '../MIP/stats/results_mip.csv'])
     # With rotation
     write_paradigm_comparison('comparison_rot.csv',
                               ['../MIP/stats/results_mip_rot.csv', '../SAT/analysis/modelsComparison_withRotation.csv',
-                               '../MIP/stats/results_mip_rot.csv', '../MIP/stats/results_mip_rot.csv'])
+                               'SMT/src/experimental_result_rotation.csv', '../MIP/stats/results_mip_rot.csv'])
