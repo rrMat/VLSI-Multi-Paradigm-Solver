@@ -390,5 +390,5 @@ if __name__ == '__main__':
                                '../MIP/stats/results_mip.csv', '../MIP/stats/results_mip.csv'])
     # With rotation
     write_paradigm_comparison('comparison_rot.csv',
-                              ['../MIP/stats/results_mip_rot.csv', '../SAT/analysis/modelsComparison_withRotation.csv',
+                              ['CP/stats/final_stats_rotation.csv', '../SAT/analysis/modelsComparison_withRotation.csv',
                                '../MIP/stats/results_mip_rot.csv', '../MIP/stats/results_mip_rot.csv'])
