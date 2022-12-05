@@ -1,3 +1,14 @@
+#     Alessandro Lombardini
+#       Giacomo Melacini
+#      Matteo Rossi Reich
+#      Lorenzo Tribuiani
+#
+#Dec. 2022
+__author__ = "Alessandro Lombardini, Giacomo Melacini, Matteo Rossi Reich and Lorenzo Tribuiani"
+__version__ = "1.0."
+__email__ = "alessandro.lombardini@studio.unibo.it\n giacomo.melacini@studio.unibo.it\n matteo.rossireich@studio.unibo.it\n lorenzo.tribuiani@studio.unibo.it"
+__status__ = "Production"
+
 import csv
 import os
 from random import randint
