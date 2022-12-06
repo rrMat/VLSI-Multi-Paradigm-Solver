@@ -88,6 +88,9 @@ class SATModelBorders:
                     if self.rotation:
                         not_values_rotated[k][i] += template_line_false
                         
+                block_chips_to_remove = list(range(self.n_chips))
+                block_chips_to_remove.remove(k)
+                
                 # Define all the possible positions of each chipset with literals
                 # *. Without rotation
                 for y in range(new_height - 1, max(self.chips_heights[k] - 2, self.plate_height - 1), -1):
@@ -100,7 +103,7 @@ class SATModelBorders:
                              
                         inside_empty = [self.plate[y - slide_y][x + slide_x][c] for slide_x in range(1, self.chips_widths[k] - 1) 
                                                                                 for slide_y in range(1, self.chips_heights[k] - 1)
-                                                                                for c in range(self.n_chips)]  
+                                                                                for c in block_chips_to_remove]  
                             
                         values[k].append(points)
                         
@@ -119,7 +122,7 @@ class SATModelBorders:
                             
                             inside_empty = [self.plate[y - slide_y][x + slide_x][c] for slide_x in range(1, self.chips_heights[k] - 1) 
                                                                                     for slide_y in range(1, self.chips_widths[k] - 1)
-                                                                                    for c in range(self.n_chips)]  
+                                                                                    for c in block_chips_to_remove]  
                             
                             values_rotated[k].append(points)
                         
