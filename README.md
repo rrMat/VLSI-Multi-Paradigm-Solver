@@ -1,6 +1,5 @@
 # VLSI design
 
-![output](./res/VLSI.png)
 
 #### Project Work - Combinatorial Decision Making and Optimization
 
@@ -11,6 +10,8 @@
 **Matteo Rossi Reich - matteo.rossireich@studio.unibo.it**
 
 **Lorenzo Tribuiani - lorenzo.tribuiani@studio.unibo.it**
+
+![output](./res/VLSI.png)
 
 ## Prerequisites
 
