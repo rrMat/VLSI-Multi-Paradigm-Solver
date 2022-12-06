@@ -80,7 +80,7 @@ Once the project is installed, to run an execution give, from the root directory
 
 | TABLE OF COMMANDS ||                             |                |
 | :-----------: | :------------: | :---------: | :------------: |
-| long argument | short argument | Description | Allowed params |
+| Long argument | Short argument | Description | Allowed params |
 | **OPTIONAL SHARED PARAMETERS** |                |             |                |
 | *--verbose* | *-v* | Toggle verbosity | None |
 | *--ins* | *-i* | Select instance to solve | 1-40<br />omit to execute all |
