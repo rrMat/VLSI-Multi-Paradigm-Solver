@@ -1,4 +1,4 @@
-# VLSI design
+# VLSI Multi Paradigm Solver
 
 Very large-scale integration (VLSI) is the process of integrating or embedding hundreds of thousands of transistors on a single silicon semiconductor microchip.
 
