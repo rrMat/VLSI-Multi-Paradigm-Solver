@@ -86,7 +86,7 @@ Once the project is installed, to run an execution give, from the root directory
 | --encoding | -e | Select SAT encoding | seq \| np \| bw \| he |
 | *--symmetry_breaking* | *-sb* | Choose if the symmetry breaking constraint has to be used | None |
 | **SMT REQUIRED ARGUMENTS** |  |  |  |
-| *-m* | --model | Select SMT model | z3Py \| z3Py_rotation \| z3Py_parallel_rotation \| z3Py_parallel \| pySMT_z3 \| pySMT_msat |
+| *-m* | --model | Select SMT model | z3Py \| z3Py_rotation \| z3Py_parallel \| pySMT_z3 \| pySMT_msat |
 | **MIP REQUIRED ARGUMENTS** |  |  |  |
 | *-m* | *--model* | Select MIP model | std \| strong (one or both) |
 | *-s* | *--solver* | Select MIP solver | gurobi \| cplex \| copt \| highs \| xpress (one or more) |
