@@ -60,6 +60,8 @@ Install AMPL from [AMPL website](https://portal.ampl.com/account/ampl/login)
 5. Install mathsat for SMT executions via pysmt with:
 
    ```pysmt-install --msat```  
+ 
+ 6. Once msat has been dowloaded it needs to be adde to the PYTHONPATH as specified here https://pysmt.readthedocs.io/en/latest/getting_started.html
 
 ## Usage
 
