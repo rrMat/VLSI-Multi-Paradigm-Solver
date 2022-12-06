@@ -53,6 +53,7 @@ class SMTSolver:
                         if self.verbose:
                             print("Current i", self.instance)
                             print(f'{return_dict["time"] * 1000:.1f} ms')
+                            print("The height is ", return_dict["height"])
                     else:
                         if self.verbose:
                             print("Current i", self.instance)   
@@ -80,6 +81,7 @@ class SMTSolver:
                         if self.verbose:
                             print("Current i", i)
                             print(f'{return_dict["time"] * 1000:.1f} ms')
+                            print("The height is ", return_dict["height"])
                     else:
                         if self.verbose:
                             print("Current i", i)
