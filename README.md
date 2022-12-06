@@ -1,5 +1,7 @@
 # VLSI design
 
+![output](./res/VLSI.png)
+
 #### Project Work - Combinatorial Decision Making and Optimization
 
 **Alessandro Lombardini - alessandro.lombardini@studio.unibo.it**
