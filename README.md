@@ -2,11 +2,12 @@
 
 #### Project Work - Combinatorial Decision Making and Optimization
 
-| Name | Surname | Email | 
-| Alessandro | Lombardini | alessandro.lombardini@studio.unibo.it |
-| Giacomo | Melacini | giacomo.melacini@studio.unibo.it |
-| Matteo | Rossi Reich | matteo.rossireich@studio.unibo.it |
-| Lorenzo | Tribuiani | lorenzo.tribuiani@studio.unibo.it |
+| Name         | Surname      | Email                                 | 
+| :----------: | :----------: | :-----------------------------------: | 
+| Alessandro   | Lombardini   | alessandro.lombardini@studio.unibo.it |
+| Giacomo      | Melacini     | giacomo.melacini@studio.unibo.it      |
+| Matteo       | Rossi Reich  | matteo.rossireich@studio.unibo.it     |
+| Lorenzo      | Tribuiani    | lorenzo.tribuiani@studio.unibo.it     |
 
 ![output](./res/VLSI.png)
 
