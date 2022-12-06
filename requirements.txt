@@ -4,6 +4,5 @@ numpy~=1.23.1
 minizinc~=0.7.0
 matplotlib~=3.6.1
 amplpy~=0.8.5
-z3~=0.2.0
 tqdm~=4.64.1
 pysmt
