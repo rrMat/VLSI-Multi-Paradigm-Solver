@@ -133,8 +133,8 @@ class CPSolver:
         end = time.time()    
         
         try:
-            x_pos = out.solution.positions_x
-            y_pos = out.solution.positions_y
+            x_pos = out.solution.X
+            y_pos = out.solution.Y
             h = out.solution.h
 
             if self.__rotation:
@@ -270,6 +270,7 @@ class CPSolver:
             # no solution found within 5 mins
             except:
                 print("PROCESS TERMINATED, NO SOLUTION FOUND")
+                
 
 
 
