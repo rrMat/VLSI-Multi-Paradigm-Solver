@@ -12,7 +12,7 @@ The group members are:
 
 | Name         | Surname      | Email                                 | 
 | :----------: | :----------: | :-----------------------------------: | 
-| Alessandro   | Lombardini   | alessandro.lombardini@studio.unibo.it |
+| Alessandro   | Lombardini   | alessandro.lombardin3@studio.unibo.it |
 | Giacomo      | Melacini     | giacomo.melacini@studio.unibo.it      |
 | Matteo       | Rossi Reich  | matteo.rossireich@studio.unibo.it     |
 | Lorenzo      | Tribuiani    | lorenzo.tribuiani@studio.unibo.it     |
