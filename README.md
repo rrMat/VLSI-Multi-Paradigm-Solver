@@ -63,11 +63,8 @@ Install AMPL from [AMPL website](https://portal.ampl.com/account/ampl/login)
 
    ```pip install -r requirements.txt```  
    
-5. Install mathsat for SMT executions via pysmt with:
-
-   ```pysmt-install --msat```  
+5. Install MathSat and Z3 via pySMT following the instructions defined here https://pysmt.readthedocs.io/en/latest/getting_started.html  
  
- 6. Once msat has been dowloaded it needs to be adde to the PYTHONPATH as specified here https://pysmt.readthedocs.io/en/latest/getting_started.html
 
 ## Usage
 
