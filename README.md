@@ -1,6 +1,14 @@
 # VLSI design
 
-#### Project Work - Combinatorial Decision Making and Optimization
+Very large-scale integration (VLSI) is the process of integrating or embedding hundreds of thousands of transistors on a single silicon semiconductor microchip.
+
+![output](./res/VLSI.png)
+
+## Introduction
+
+This is the project work of the Combinatorial Decision Making and Optimization course of the Master's degree in Artificial Intelligence of Univeristy of Bologna. 
+
+The group members are:
 
 | Name         | Surname      | Email                                 | 
 | :----------: | :----------: | :-----------------------------------: | 
@@ -9,7 +17,6 @@
 | Matteo       | Rossi Reich  | matteo.rossireich@studio.unibo.it     |
 | Lorenzo      | Tribuiani    | lorenzo.tribuiani@studio.unibo.it     |
 
-![output](./res/VLSI.png)
 
 ## Prerequisites
 
