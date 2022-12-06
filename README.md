@@ -51,24 +51,20 @@ Install AMPL from [AMPL website](https://portal.ampl.com/account/ampl/login)
 
    ```./[name-of-venv]/Scripts/activate ```
 
-   ```pip install -e . ```
-
 4. Install the requirements with:
 
    ```pip install -r requirements.txt```  
    
-5. Install mathsat and z3 for SMT executions via pysmt with:
+5. Install mathsat for SMT executions via pysmt with:
 
    ```pysmt-install --msat```  
-
-   ```pysmt-install --z3```  
 
 ## Usage
 
 Once the project is installed, to run an execution give, from the root directory:  
 
 
- ```python main.py {CP, SAT, SMT, LP} ... [-h] [-i] [-p] [-r]```  
+ ```python main.py {CP, SAT, SMT, LP} ... [-h] [-v] [-i] [-p] [-r]```  
 
  In the following table all the optional and positional argument (shared or selective from paradigm) are reported:  
 
@@ -76,6 +72,7 @@ Once the project is installed, to run an execution give, from the root directory
 | :-----------: | :------------: | :---------: | :------------: |
 | long argument | short argument | Description | Allowed params |
 | **OPTIONAL SHARED PARAMETERS** |                |             |                |
+| *--verbose* | *-v* | Toggle verbosity | None |
 | *--ins* | *-i* | Select instance to solve | 1-40<br />omit to execute all |
 | *--print_img* | *-p* | Toggle image saving | None |
 | *--rotation* | *-r* | Toggle solving with allowed rotation | None |
