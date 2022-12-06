@@ -28,7 +28,7 @@ class z3Py_parallel:
       set_option("parallel.enable", True)
       set_option("parallel.threads.max", 16) 
 
-      for h in range(min_h, min_h + 2):
+      for h in range(min_h, max_h):
               # CONSTRAINTS
                 
               
