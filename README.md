@@ -1,15 +1,12 @@
 # VLSI design
 
-
 #### Project Work - Combinatorial Decision Making and Optimization
 
-**Alessandro Lombardini - alessandro.lombardini@studio.unibo.it**
-
-**Giacomo Melacini - giacomo.melacini@studio.unibo.it**
-
-**Matteo Rossi Reich - matteo.rossireich@studio.unibo.it**
-
-**Lorenzo Tribuiani - lorenzo.tribuiani@studio.unibo.it**
+| Name | Surname | Email | 
+| Alessandro | Lombardini | alessandro.lombardini@studio.unibo.it |
+| Giacomo | Melacini | giacomo.melacini@studio.unibo.it |
+| Matteo | Rossi Reich | matteo.rossireich@studio.unibo.it |
+| Lorenzo | Tribuiani | lorenzo.tribuiani@studio.unibo.it |
 
 ![output](./res/VLSI.png)
 
@@ -85,16 +82,17 @@ Once the project is installed, to run an execution give, from the root directory
 | paradigm |                | Select the solving paradigm | CP \| SAT \| SMT \| MIP |
 | **CP REQUIRED ARGUMENTS** |                |             |                |
 | *--model* | *-m* | Select CP model | std \| cml \| syb (one or more) |
-| --solver | -s | Select CP solver | chuffed \| gecode \| or-tools (one or more) |
+| *--solver* | *-s* | Select CP solver | chuffed \| gecode \| or-tools (one or more) |
 | **SAT REQUIRED ARGUMENTS** |  |  |  |
 | *--model* | -m | Select SAT model | SATModel \| SATModelBorders |
-| --encoding | -e | Select SAT encoding | seq \| np \| bw \| he |
+| **SAT OPTIONAL ARGUMENTS** |  |  |  |
 | *--symmetry_breaking* | *-sb* | Choose if the symmetry breaking constraint has to be used | None |
+| *--encoding* | *-e* | Select SAT encoding | seq \| np \| bw \| he |
 | **SMT REQUIRED ARGUMENTS** |  |  |  |
-| *-m* | --model | Select SMT model | z3Py \| z3Py_rotation \| z3Py_parallel \| pySMT_z3 \| pySMT_msat |
+| *--model* | *-m* | Select SMT model | z3Py \| z3Py_rotation \| z3Py_parallel \| pySMT_z3 \| pySMT_msat |
 | **MIP REQUIRED ARGUMENTS** |  |  |  |
-| *-m* | *--model* | Select MIP model | std \| strong (one or both) |
-| *-s* | *--solver* | Select MIP solver | gurobi \| cplex \| copt \| highs \| xpress (one or more) |
+| *--mode* | *-m* | Select MIP model | std \| strong (one or both) |
+| *--solver* | *-s* | Select MIP solver | gurobi \| cplex \| copt \| highs \| xpress (one or more) |
 | **MIP OPTIONAL ARGUMENTS** |  |  |  |
-| *-a* | *--ampl_dir* | If the AMPL installation directory is not in the system search path, specify the full path to the AMPL installation directory | String with full path to AMPL installation dir |
+| *--ampl_dir* | *-a* | If the AMPL installation directory is not in the system search path, specify the full path to the AMPL installation directory | String with full path to AMPL installation dir |
 
