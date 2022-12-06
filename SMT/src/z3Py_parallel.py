@@ -23,18 +23,21 @@ class z3Py_parallel:
       y_positions = [Int(f"y_pos{i}") for i in range(n)]
 
       #s
-      s = SolverFor("QF_LIA")
+      
       #Try to implement Parallelism
       set_option("parallel.enable", True)
       set_option("parallel.threads.max", 16) 
 
       for h in range(min_h, min_h + 2):
               # CONSTRAINTS
+                
+              
+              s = SolverFor("QF_LIA")
               #domani bounds
               s.add([And(0 <= x_positions[i], x_positions[i] <= w - chip_w[i])
                                 for i in range(n)])
               
-              s.add([And(0 <= y_positions[i], y_positions[i] < h - chip_h[i])
+              s.add([And(0 <= y_positions[i], y_positions[i] <= h - chip_h[i])
                                 for i in range(n)])
               
               #cumulatively on the rows
@@ -75,7 +78,7 @@ class z3Py_parallel:
                   
               if s.check() != sat:
                 print("Took too long")
-                break
+                continue
               else:
                 m = s.model()
                 x_pos = []
@@ -128,7 +131,7 @@ class z3Py_parallel:
         resul = self.plate(w, n, min_h, max_h, chip_w, chip_h)
 
         if resul != None:
-            return_dict["height"] = resul[3]-1
+            return_dict["height"] = resul[3]
             return_dict["time"] = resul[4]
             return_dict["x_pos"] = resul[1]
             return_dict["y_pos"] = resul[2]
